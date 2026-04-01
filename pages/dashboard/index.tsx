@@ -271,7 +271,7 @@ export default function Dashboard() {
                         <span className="text-base">{categoryEmoji[b.category]}</span>
                         <div>
                           <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{b.name}</div>
-                          <div className="text-xs" style={{ color: 'var(--text-muted)' }}>Due {format(new Date(b.due_date), 'd MMM')}</div>
+                          <div className="text-xs" style={{ color: 'var(--text-muted)' }}>Due {format(new Date(b.due_date), 'd MMM')} · {b.property?.name}</div>
                         </div>
                       </div>
                       <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>£{b.amount}</span>
