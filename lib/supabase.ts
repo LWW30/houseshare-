@@ -146,7 +146,7 @@ export async function getRentPayments(propertyIds: string[], month?: string) {
     .in('property_id', propertyIds)
     .order('due_date', { ascending: false })
   if (month) {
-    query = query.gte('due_date', `${month}-01`).lte('due_date', `${month}-31`)
+    const [y, m] = month.split('-').map(Number); const lastDay = new Date(y, m, 0).getDate(); query = query.gte('due_date', `${month}-01`).lte('due_date', `${month}-${lastDay}`)
   }
   const { data, error } = await query
   if (error) throw error
