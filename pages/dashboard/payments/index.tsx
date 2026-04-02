@@ -171,8 +171,8 @@ export default function PaymentsPage() {
               <div className="col-span-2 text-right">Status</div>
             </div>
             {payments.map(p => {
-              // Calculate this tenant's share of unpaid bills
-              const tenantBillsShare = monthBills.reduce((s, b) => s + (b.amount / (b.split_ways || 1)), 0)
+              // Calculate this tenant's share of unpaid bills for their property only
+              const tenantBillsShare = monthBills.filter(b => b.property_id === p.property_id).reduce((s, b) => s + (b.amount / (b.split_ways || 1)), 0)
               const tenantTotal = p.amount + tenantBillsShare
               return (
                 <div key={p.id} className="px-6 py-4 grid grid-cols-12 gap-4 items-center">
