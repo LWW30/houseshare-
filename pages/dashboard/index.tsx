@@ -86,7 +86,10 @@ export default function Dashboard() {
   const monthLabel = format(now, 'MMMM yyyy')
   const totalExpected = payments.reduce((s, p) => s + p.amount, 0)
   const totalCollected = payments.filter(p => p.status === 'paid').reduce((s, p) => s + p.amount, 0)
-  const overdueCount = payments.filter(p => p.status === 'overdue' || p.status === 'late').length
+  const overdueCount = payments.filter(p => p.status === 'overdue' || 
+p.status === 'late').length 
+const unpaidBillsCount = bills.filter(b => !b.paid).length
+const attentionCount = overdueCount + unpaidBillsCount
   const collectionRate = totalExpected > 0 ? Math.round((totalCollected / totalExpected) * 100) : 0
   const occupancyRate = roomCount > 0 ? Math.round((tenantCount / roomCount) * 100) : 0
   const vacantRooms = roomCount - tenantCount
@@ -195,8 +198,11 @@ export default function Dashboard() {
               <span className="text-xs font-medium uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>Attention</span>
               <Bell size={15} className={overdueCount > 0 ? 'text-red-500' : 'text-gray-400'} />
             </div>
-            <div className={`text-2xl font-semibold ${overdueCount > 0 ? 'text-red-600' : 'text-gray-900'}`}>{overdueCount}</div>
-            <div className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>late or overdue</div>
+            <div className={`text-2xl font-semibold ${overdueCount > 0 ? 
+'text-red-600' : 'text-gray-900'}`}>{attentionCount}</div>
+            <div className="text-xs mt-1" style={{ color: 
+'var(--text-muted)' }}>{overdueCount} overdue · {unpaidBillsCount} 
+bills unpaid</div>
           </div>
         </div>
 
