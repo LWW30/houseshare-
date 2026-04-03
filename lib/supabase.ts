@@ -142,7 +142,7 @@ export async function createTenant(tenant: {
 export async function getRentPayments(propertyIds: string[], month?: string) {
   let query = supabase
     .from('rent_payments')
-    .select('*, tenant:tenants(*, room:rooms(*))')
+    .select('*, tenant:tenants(*, room:rooms(*), property:properties(*))')
     .in('property_id', propertyIds)
     .order('due_date', { ascending: false })
   if (month) {
