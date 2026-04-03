@@ -229,7 +229,7 @@ bills unpaid</div>
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>{p.tenant?.name}</div>
-                      <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{p.tenant?.room?.name}</div>
+                      <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{p.tenant?.property?.address?.split(' ').slice(0,3).join(' ')} · {p.tenant?.room?.name}</div>
                     </div>
                     <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>£{p.amount}</div>
                     <StatusBadge status={p.status} />
