@@ -10,7 +10,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 
 const categoryEmoji: Record<string, string> = {
-  broadband: '', council_tax: '', electricity: '', gas: '', water: '', other: '',
+  broadband: '📶', council_tax: '🏦', electricity: '⚡', gas: '🔥', water: '💧', other: '📋',
 }
 
 function greeting() {
