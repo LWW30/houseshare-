@@ -127,7 +127,7 @@ export default function PaymentsPage() {
             <div className="space-y-2">
               {monthBills.map(b => (
                 <div key={b.id} className="flex items-center justify-between text-sm">
-                  <span style={{ color: 'var(--text-secondary)' }}>{b.name} — £{(b.amount / (b.split_ways || 1)).toFixed(2)}/tenant x {b.split_ways} tenants</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{b.name} · {b.property?.address?.split(' ').slice(0,3).join(' ')} — £{(b.amount / (b.split_ways || 1)).toFixed(2)}/tenant x {b.split_ways} tenants</span>
                   <span className="font-medium" style={{ color: 'var(--text-primary)' }}>£{b.amount}</span>
                 </div>
               ))}
