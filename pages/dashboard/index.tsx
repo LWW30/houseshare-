@@ -10,7 +10,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 
 const categoryEmoji: Record<string, string> = {
-  broadband: 'ð¡', council_tax: 'ðï¸', electricity: 'â¡', gas: 'ð¥', water: 'ð§', other: 'ð',
+  broadband: '¡', council_tax: 'ï¸', electricity: 'â¡', gas: '¥', water: '§', other: '',
 }
 
 function greeting() {
@@ -104,7 +104,7 @@ const attentionCount = overdueCount + unpaidBillsCount
       <Layout>
         <div className="p-8 max-w-2xl">
           <div className="flex items-center justify-between mb-8">
-            <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>{greeting()} ð</h1>
+            <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>{greeting()} </h1>
             <button onClick={handleSignOut} className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-700">
               <LogOut size={14} /> Sign out
             </button>
@@ -131,7 +131,7 @@ const attentionCount = overdueCount + unpaidBillsCount
       <div className="p-8 max-w-5xl">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>{greeting()} ð</h1>
+            <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>{greeting()} </h1>
             <p className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>{monthLabel} â portfolio snapshot</p>
           </div>
           <button onClick={handleSignOut} className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-700">
@@ -268,7 +268,7 @@ bills unpaid</div>
                 </Link>
               </div>
               {unpaidBills.length === 0 ? (
-                <div className="px-5 py-6 text-center text-sm" style={{ color: 'var(--text-muted)' }}>All bills paid ð</div>
+                <div className="px-5 py-6 text-center text-sm" style={{ color: 'var(--text-muted)' }}>All bills paid </div>
               ) : (
                 <div className="divide-y" style={{ borderColor: 'var(--card-border)' }}>
                   {unpaidBills.map(b => (
