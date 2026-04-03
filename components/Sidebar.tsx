@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { Home, Users, Receipt, FileText, Building2, Menu, X, FolderOpen, UserCircle } from 'lucide-react'
+import { Home, Users, Receipt, FileText, Building2, Menu, X, FolderOpen, UserCircle, Wrench } from 'lucide-react'
 import { useState } from 'react'
 
 const nav = [
@@ -9,6 +9,7 @@ const nav = [
   { href: '/dashboard/tenants', label: 'Tenants', icon: Users },
   { href: '/dashboard/payments', label: 'Payments', icon: Receipt },
   { href: '/dashboard/bills', label: 'Shared Bills', icon: FileText },
+  { href: '/dashboard/maintenance', label: 'Maintenance', icon: Wrench },
   { href: '/dashboard/documents', label: 'Documents', icon: FolderOpen },
   { href: '/dashboard/profile', label: 'Profile', icon: UserCircle },
 ]
