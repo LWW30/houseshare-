@@ -190,8 +190,8 @@ const attentionCount = overdueCount + unpaidBillsCount
               <span className="text-xs font-medium uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>Collected</span>
               <PoundSterling size={15} className="text-green-500" />
             </div>
-            <div className="text-2xl font-semibold text-green-600">Â£{totalCollected.toLocaleString()}</div>
-            <div className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>{collectionRate}% of Â£{totalExpected.toLocaleString()}</div>
+            <div className="text-2xl font-semibold text-green-600">£{totalCollected.toLocaleString()}</div>
+            <div className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>{collectionRate}% of £{totalExpected.toLocaleString()}</div>
           </div>
           <div className="card p-5">
             <div className="flex items-center justify-between mb-3">
@@ -201,7 +201,7 @@ const attentionCount = overdueCount + unpaidBillsCount
             <div className={`text-2xl font-semibold ${overdueCount > 0 ? 
 'text-red-600' : 'text-gray-900'}`}>{attentionCount}</div>
             <div className="text-xs mt-1" style={{ color: 
-'var(--text-muted)' }}>{overdueCount} overdue Â· {unpaidBillsCount} 
+'var(--text-muted)' }}>{overdueCount} overdue · {unpaidBillsCount} 
 bills unpaid</div>
           </div>
         </div>
@@ -231,7 +231,7 @@ bills unpaid</div>
                       <div className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>{p.tenant?.name}</div>
                       <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{p.tenant?.room?.name}</div>
                     </div>
-                    <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Â£{p.amount}</div>
+                    <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>£{p.amount}</div>
                     <StatusBadge status={p.status} />
                   </div>
                 ))}
@@ -253,7 +253,7 @@ bills unpaid</div>
                         <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{p.tenant?.name}</div>
                         <div className="text-xs" style={{ color: 'var(--text-muted)' }}>Due {format(new Date(p.due_date), 'd MMM')}</div>
                       </div>
-                      <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Â£{p.amount}</span>
+                      <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>£{p.amount}</span>
                     </div>
                   ))}
                 </div>
@@ -277,10 +277,10 @@ bills unpaid</div>
                         <span className="text-base">{categoryEmoji[b.category]}</span>
                         <div>
                           <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{b.name}</div>
-                          <div className="text-xs" style={{ color: 'var(--text-muted)' }}>Due {format(new Date(b.due_date), 'd MMM')} Â· {b.property?.name}</div>
+                          <div className="text-xs" style={{ color: 'var(--text-muted)' }}>Due {format(new Date(b.due_date), 'd MMM')} · {b.property?.name}</div>
                         </div>
                       </div>
-                      <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Â£{b.amount}</span>
+                      <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>£{b.amount}</span>
                     </div>
                   ))}
                 </div>
