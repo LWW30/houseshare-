@@ -10,7 +10,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 
 const categoryEmoji: Record<string, string> = {
-  broadband: '📡', council_tax: '🏛️', electricity: '⚡', gas: '🔥', water: '💧', other: '📋',
+  broadband: 'ð¡', council_tax: 'ðï¸', electricity: 'â¡', gas: 'ð¥', water: 'ð§', other: 'ð',
 }
 
 function greeting() {
@@ -104,7 +104,7 @@ const attentionCount = overdueCount + unpaidBillsCount
       <Layout>
         <div className="p-8 max-w-2xl">
           <div className="flex items-center justify-between mb-8">
-            <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>{greeting()} 👋</h1>
+            <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>{greeting()} ð</h1>
             <button onClick={handleSignOut} className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-700">
               <LogOut size={14} /> Sign out
             </button>
@@ -131,8 +131,8 @@ const attentionCount = overdueCount + unpaidBillsCount
       <div className="p-8 max-w-5xl">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>{greeting()} 👋</h1>
-            <p className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>{monthLabel} — portfolio snapshot</p>
+            <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>{greeting()} ð</h1>
+            <p className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>{monthLabel} â portfolio snapshot</p>
           </div>
           <button onClick={handleSignOut} className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-700">
             <LogOut size={14} /> Sign out
@@ -145,7 +145,7 @@ const attentionCount = overdueCount + unpaidBillsCount
             <div className="mb-4 bg-red-50 border border-red-200 rounded-2xl px-5 py-4 flex items-center gap-3 hover:bg-red-100 transition-colors cursor-pointer">
               <AlertTriangle size={16} className="text-red-600 flex-shrink-0" />
               <div className="flex-1">
-                <span className="text-sm font-medium text-red-800">{expiredDocs.length} compliance document{expiredDocs.length > 1 ? 's' : ''} expired — </span>
+                <span className="text-sm font-medium text-red-800">{expiredDocs.length} compliance document{expiredDocs.length > 1 ? 's' : ''} expired â </span>
                 <span className="text-xs text-red-600">{expiredDocs.map(d => d.name).join(', ')}</span>
               </div>
               <ChevronRight size={14} className="text-red-400" />
@@ -157,7 +157,7 @@ const attentionCount = overdueCount + unpaidBillsCount
             <div className="mb-4 bg-amber-50 border border-amber-200 rounded-2xl px-5 py-4 flex items-center gap-3 hover:bg-amber-100 transition-colors cursor-pointer">
               <Clock size={16} className="text-amber-600 flex-shrink-0" />
               <div className="flex-1">
-                <span className="text-sm font-medium text-amber-800">{soonDocs.length} document{soonDocs.length > 1 ? 's' : ''} expiring soon — </span>
+                <span className="text-sm font-medium text-amber-800">{soonDocs.length} document{soonDocs.length > 1 ? 's' : ''} expiring soon â </span>
                 <span className="text-xs text-amber-600">{soonDocs.map(d => `${d.name} in ${differenceInDays(new Date(d.expiry_date), now)}d`).join(', ')}</span>
               </div>
               <ChevronRight size={14} className="text-amber-400" />
@@ -180,7 +180,7 @@ const attentionCount = overdueCount + unpaidBillsCount
               <span className="text-xs font-medium uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>Occupancy</span>
               <Users size={15} className="text-gray-400" />
             </div>
-            <div className={`text-2xl font-semibold ${occupancyRate === 100 ? 'text-green-600' : occupancyRate < 75 ? 'text-amber-600' : 'text-gray-900'}`}>
+            <div className={`text-2xl font-semibold ${occupancyRate === 100 ? 'text-green-600' : occupancyRate < 75 ? 'text-amber-600' : ''}`} style={{ color: occupancyRate >= 75 && occupancyRate < 100 ? 'var(--text-primary)' : undefined }}>
               {occupancyRate}%
             </div>
             <div className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>{vacantRooms} vacant</div>
@@ -190,8 +190,8 @@ const attentionCount = overdueCount + unpaidBillsCount
               <span className="text-xs font-medium uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>Collected</span>
               <PoundSterling size={15} className="text-green-500" />
             </div>
-            <div className="text-2xl font-semibold text-green-600">£{totalCollected.toLocaleString()}</div>
-            <div className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>{collectionRate}% of £{totalExpected.toLocaleString()}</div>
+            <div className="text-2xl font-semibold text-green-600">Â£{totalCollected.toLocaleString()}</div>
+            <div className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>{collectionRate}% of Â£{totalExpected.toLocaleString()}</div>
           </div>
           <div className="card p-5">
             <div className="flex items-center justify-between mb-3">
@@ -201,7 +201,7 @@ const attentionCount = overdueCount + unpaidBillsCount
             <div className={`text-2xl font-semibold ${overdueCount > 0 ? 
 'text-red-600' : 'text-gray-900'}`}>{attentionCount}</div>
             <div className="text-xs mt-1" style={{ color: 
-'var(--text-muted)' }}>{overdueCount} overdue · {unpaidBillsCount} 
+'var(--text-muted)' }}>{overdueCount} overdue Â· {unpaidBillsCount} 
 bills unpaid</div>
           </div>
         </div>
@@ -210,7 +210,7 @@ bills unpaid</div>
           {/* Rent status */}
           <div className="md:col-span-2 card">
             <div className="px-5 py-4 border-b flex items-center justify-between" style={{ borderColor: 'var(--card-border)' }}>
-              <h2 className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>Rent status — {monthLabel}</h2>
+              <h2 className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>Rent status â {monthLabel}</h2>
               <Link href="/dashboard/payments" className="text-xs flex items-center gap-1 hover:text-gray-900" style={{ color: 'var(--text-muted)' }}>
                 View all <ChevronRight size={12} />
               </Link>
@@ -231,7 +231,7 @@ bills unpaid</div>
                       <div className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>{p.tenant?.name}</div>
                       <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{p.tenant?.room?.name}</div>
                     </div>
-                    <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>£{p.amount}</div>
+                    <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Â£{p.amount}</div>
                     <StatusBadge status={p.status} />
                   </div>
                 ))}
@@ -253,7 +253,7 @@ bills unpaid</div>
                         <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{p.tenant?.name}</div>
                         <div className="text-xs" style={{ color: 'var(--text-muted)' }}>Due {format(new Date(p.due_date), 'd MMM')}</div>
                       </div>
-                      <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>£{p.amount}</span>
+                      <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Â£{p.amount}</span>
                     </div>
                   ))}
                 </div>
@@ -268,7 +268,7 @@ bills unpaid</div>
                 </Link>
               </div>
               {unpaidBills.length === 0 ? (
-                <div className="px-5 py-6 text-center text-sm" style={{ color: 'var(--text-muted)' }}>All bills paid 🎉</div>
+                <div className="px-5 py-6 text-center text-sm" style={{ color: 'var(--text-muted)' }}>All bills paid ð</div>
               ) : (
                 <div className="divide-y" style={{ borderColor: 'var(--card-border)' }}>
                   {unpaidBills.map(b => (
@@ -277,10 +277,10 @@ bills unpaid</div>
                         <span className="text-base">{categoryEmoji[b.category]}</span>
                         <div>
                           <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{b.name}</div>
-                          <div className="text-xs" style={{ color: 'var(--text-muted)' }}>Due {format(new Date(b.due_date), 'd MMM')} · {b.property?.name}</div>
+                          <div className="text-xs" style={{ color: 'var(--text-muted)' }}>Due {format(new Date(b.due_date), 'd MMM')} Â· {b.property?.name}</div>
                         </div>
                       </div>
-                      <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>£{b.amount}</span>
+                      <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Â£{b.amount}</span>
                     </div>
                   ))}
                 </div>
@@ -300,7 +300,7 @@ bills unpaid</div>
                     <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
                       {vacantRooms} vacant room{vacantRooms !== 1 ? 's' : ''}
                     </div>
-                    <Link href="/dashboard/tenants" className="text-xs text-amber-600 hover:underline">Add a tenant →</Link>
+                    <Link href="/dashboard/tenants" className="text-xs text-amber-600 hover:underline">Add a tenant â</Link>
                   </div>
                 </div>
               </div>
