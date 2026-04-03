@@ -7,7 +7,7 @@ import { Building2, Plus, MapPin, ChevronDown, ChevronUp, X, Loader2, Edit2, Tra
 import { format } from 'date-fns'
 
 const categoryEmoji: Record<string, string> = {
-  broadband: 'ð¡', council_tax: 'ðï¸', electricity: 'â¡', gas: 'ð¥', water: 'ð§', other: 'ð',
+  broadband: '', council_tax: '', electricity: '', gas: '', water: '', other: '',
 }
 const categoryLabel: Record<string, string> = {
   broadband: 'Broadband', council_tax: 'Council Tax', electricity: 'Electricity',
@@ -224,7 +224,7 @@ export default function PropertiesPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{rooms[p.id]?.length ?? 'â'} rooms</span>
+                    <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{rooms[p.id]?.length ?? ''} rooms</span>
                     <button onClick={() => { setShowEditPropModal(p); setEditPropForm({ name: p.name, address: p.address }) }}
                       className="p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-500 transition-colors">
                       <Edit2 size={13} />
@@ -252,7 +252,7 @@ export default function PropertiesPage() {
                         </button>
                       </div>
                       {(rooms[p.id]?.length ?? 0) === 0 ? (
-                        <p className="text-sm py-2" style={{ color: 'var(--text-muted)' }}>No rooms yet â add a room to start adding tenants.</p>
+                        <p className="text-sm py-2" style={{ color: 'var(--text-muted)' }}>No rooms yet  add a room to start adding tenants.</p>
                       ) : (
                         <div className="grid grid-cols-2 gap-2">
                           {rooms[p.id].map(r => {
@@ -303,7 +303,7 @@ export default function PropertiesPage() {
                               <div className="flex-1 min-w-0">
                                 <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{b.name}</div>
                                 <div className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                                  Due {format(new Date(b.due_date), 'd MMM')} · £{(b.amount / (b.split_ways || 1)).toFixed(2)}/tenant Ã {b.split_ways}
+                                  Due {format(new Date(b.due_date), 'd MMM')} x £{(b.amount / (b.split_ways || 1)).toFixed(2)}/tenant  {b.split_ways}
                                 </div>
                               </div>
                               <div className="text-sm font-semibold mr-2" style={{ color: 'var(--text-primary)' }}>£{b.amount}</div>
@@ -334,7 +334,7 @@ export default function PropertiesPage() {
                   <div className="flex items-center justify-between mb-5">
                     <div>
                       <h2 className="font-semibold">Add property</h2>
-                      <p className="text-xs text-gray-400 mt-0.5">Step 1 of 2 â Property details</p>
+                      <p className="text-xs text-gray-400 mt-0.5">Step 1 of 2  Property details</p>
                     </div>
                     <button onClick={() => { setShowPropModal(false); setPropStep('details') }}><X size={18} className="text-gray-400" /></button>
                   </div>
@@ -346,7 +346,7 @@ export default function PropertiesPage() {
                   <div className="flex gap-3 mt-6">
                     <button onClick={() => { setShowPropModal(false); setPropStep('details') }} className="btn-secondary flex-1">Cancel</button>
                     <button onClick={handleAddProperty} disabled={saving} className="btn-primary flex-1 flex items-center justify-center gap-2">
-                      {saving && <Loader2 size={14} className="animate-spin" />} Next: Add bills â
+                      {saving && <Loader2 size={14} className="animate-spin" />} Next: Add bills 
                     </button>
                   </div>
                 </>
@@ -355,7 +355,7 @@ export default function PropertiesPage() {
                   <div className="flex items-center justify-between mb-2">
                     <div>
                       <h2 className="font-semibold">Add shared bills</h2>
-                      <p className="text-xs text-gray-400 mt-0.5">Step 2 of 2 â Optional</p>
+                      <p className="text-xs text-gray-400 mt-0.5">Step 2 of 2  Optional</p>
                     </div>
                   </div>
                   <p className="text-sm text-gray-500 mb-4">Add recurring bills for this property. You can also add them later.</p>
@@ -401,7 +401,7 @@ export default function PropertiesPage() {
                   </button>
 
                   <div className="flex gap-3">
-                    <button onClick={handleFinishProperty} className="btn-secondary flex-1">Skip â add bills later</button>
+                    <button onClick={handleFinishProperty} className="btn-secondary flex-1">Skip  add bills later</button>
                     <button onClick={handleFinishProperty} className="btn-primary flex-1">
                       {propBills.length > 0 ? 'Save bills & finish' : 'Finish'}
                     </button>
