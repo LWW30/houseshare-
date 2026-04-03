@@ -17,6 +17,24 @@ function greeting() {
   const h = new Date().getHours()
   if (h >= 5 && h < 12) return 'Good morning'
   if (h >= 12 && h < 17) return 'Good afternoon'
+import Layout from '../../components/Layout'
+import StatusBadge from '../../components/StatusBadge'
+import { useAuth } from '../../lib/useAuth'
+import { getProperties, getRentPayments, getSharedBills, signOut, type Property, type RentPayment, type SharedBill } from '../../lib/supabase'
+import { supabase } from '../../lib/supabase'
+import { format, differenceInDays, isPast, addDays, isWithinInterval } from 'date-fns'
+import { Building2, PoundSterling, Bell, ChevronRight, LogOut, AlertTriangle, Clock, Users } from 'lucide-react'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
+
+const categoryEmoji: Record<string, string> = {
+  broadband: '', council_tax: '', electricity: '', gas: '', water: '', other: '',
+}
+
+function greeting() {
+  const h = new Date().getHours()
+  if (h >= 5 && h < 12) return 'Good morning'
+  if (h >= 12 && h < 17) return 'Good afternoon'
   return 'Good evening'
 }
 
@@ -198,8 +216,7 @@ const attentionCount = overdueCount + unpaidBillsCount
               <span className="text-xs font-medium uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>Attention</span>
               <Bell size={15} className={overdueCount > 0 ? 'text-red-500' : 'text-gray-400'} />
             </div>
-            <div className={`text-2xl font-semibold ${overdueCount > 0 ? 
-'text-red-600' : 'text-gray-900'}`}>{attentionCount}</div>
+            <div className={`text-2xl font-semibold ${overdueCount > 0 ? 'text-red-600' : ''}`} style={{ color: overdueCount === 0 ? 'var(--text-primary)' : undefined }}>{attentionCount}</div>
             <div className="text-xs mt-1" style={{ color: 
 'var(--text-muted)' }}>{overdueCount} overdue  {unpaidBillsCount} 
 bills unpaid</div>
@@ -277,7 +294,7 @@ bills unpaid</div>
                         <span className="text-base">{categoryEmoji[b.category]}</span>
                         <div>
                           <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{b.name}</div>
-                          <div className="text-xs" style={{ color: 'var(--text-muted)' }}>Due {format(new Date(b.due_date), 'd MMM')}  {b.property?.name}</div>
+                          <div className="text-xs" style={{ color: 'var(--text-muted)' }}>Due {format(new Date(b.due_date), 'd MMM')}  {b.property?.address?.split(' ').slice(0, 3).join(' ')}</div>
                         </div>
                       </div>
                       <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>£{b.amount}</span>
