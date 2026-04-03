@@ -261,7 +261,7 @@ export default function PropertiesPage() {
                               <div key={r.id} className="rounded-xl p-3 flex items-start justify-between" style={{ background: 'var(--bg)' }}>
                                 <div>
                                   <div className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>{r.name}</div>
-                                  <div className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Â£{r.monthly_rent}/mo</div>
+                                  <div className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>£{r.monthly_rent}/mo</div>
                                   <div className="text-xs mt-1">
                                     {tenant ? <span className="text-green-600 font-medium">{tenant.name}</span> : <span style={{ color: 'var(--text-muted)' }}>Vacant</span>}
                                   </div>
@@ -303,10 +303,10 @@ export default function PropertiesPage() {
                               <div className="flex-1 min-w-0">
                                 <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{b.name}</div>
                                 <div className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                                  Due {format(new Date(b.due_date), 'd MMM')} Â· Â£{(b.amount / (b.split_ways || 1)).toFixed(2)}/tenant Ã {b.split_ways}
+                                  Due {format(new Date(b.due_date), 'd MMM')} · £{(b.amount / (b.split_ways || 1)).toFixed(2)}/tenant Ã {b.split_ways}
                                 </div>
                               </div>
-                              <div className="text-sm font-semibold mr-2" style={{ color: 'var(--text-primary)' }}>Â£{b.amount}</div>
+                              <div className="text-sm font-semibold mr-2" style={{ color: 'var(--text-primary)' }}>£{b.amount}</div>
                               <button onClick={() => handleToggleBill(b)}
                                 className={`text-xs px-2.5 py-1 rounded-xl font-medium border transition-colors flex items-center gap-1 ${b.paid ? 'bg-green-100 text-green-700 border-green-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
                                 <Check size={10} /> {b.paid ? 'Paid' : 'Unpaid'}
@@ -379,7 +379,7 @@ export default function PropertiesPage() {
                         </div>
                         <div className="grid grid-cols-2 gap-2">
                           <div>
-                            <label className="label">Amount (Â£)</label>
+                            <label className="label">Amount (£)</label>
                             <input className="input" type="number" placeholder="38" value={b.amount}
                               onChange={e => setPropBills(prev => prev.map((x, j) => j === i ? { ...x, amount: e.target.value } : x))} />
                           </div>
@@ -444,7 +444,7 @@ export default function PropertiesPage() {
               </div>
               <div className="space-y-4">
                 <div><label className="label">Room name</label><input className="input" placeholder="e.g. Room 1" value={roomForm.name} onChange={e => setRoomForm(f => ({ ...f, name: e.target.value }))} /></div>
-                <div><label className="label">Monthly rent (Â£)</label><input className="input" type="number" placeholder="550" value={roomForm.monthly_rent} onChange={e => setRoomForm(f => ({ ...f, monthly_rent: e.target.value }))} /></div>
+                <div><label className="label">Monthly rent (£)</label><input className="input" type="number" placeholder="550" value={roomForm.monthly_rent} onChange={e => setRoomForm(f => ({ ...f, monthly_rent: e.target.value }))} /></div>
               </div>
               <div className="flex gap-3 mt-6">
                 <button onClick={() => setShowRoomModal(null)} className="btn-secondary flex-1">Cancel</button>
@@ -466,7 +466,7 @@ export default function PropertiesPage() {
               </div>
               <div className="space-y-4">
                 <div><label className="label">Room name</label><input className="input" value={editRoomForm.name} onChange={e => setEditRoomForm(f => ({ ...f, name: e.target.value }))} /></div>
-                <div><label className="label">Monthly rent (Â£)</label><input className="input" type="number" value={editRoomForm.monthly_rent} onChange={e => setEditRoomForm(f => ({ ...f, monthly_rent: e.target.value }))} /></div>
+                <div><label className="label">Monthly rent (£)</label><input className="input" type="number" value={editRoomForm.monthly_rent} onChange={e => setEditRoomForm(f => ({ ...f, monthly_rent: e.target.value }))} /></div>
               </div>
               <div className="flex gap-3 mt-6">
                 <button onClick={() => setShowEditRoomModal(null)} className="btn-secondary flex-1">Cancel</button>
@@ -495,7 +495,7 @@ export default function PropertiesPage() {
                   </select>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <div><label className="label">Amount (Â£) *</label><input className="input" type="number" placeholder="38" value={billForm.amount} onChange={e => setBillForm(f => ({ ...f, amount: e.target.value }))} /></div>
+                  <div><label className="label">Amount (£) *</label><input className="input" type="number" placeholder="38" value={billForm.amount} onChange={e => setBillForm(f => ({ ...f, amount: e.target.value }))} /></div>
                   <div>
                     <label className="label">Split between</label>
                     <input className="input" type="number" min="1" value={billForm.split_ways} onChange={e => setBillForm(f => ({ ...f, split_ways: e.target.value }))} />
