@@ -26,6 +26,7 @@ export default function PaymentsPage() {
   const [bills, setBills] = useState<SharedBill[]>([])
   const [month, setMonth] = useState(MONTHS[0])
   const [dataLoading, setDataLoading] = useState(true)
+  const [propertiesLoaded, setPropertiesLoaded] = useState(false)
   const [markingPaid, setMarkingPaid] = useState<string | null>(null)
   const [updatingOverdue, setUpdatingOverdue] = useState(false)
 
@@ -33,6 +34,7 @@ export default function PaymentsPage() {
     if (!user) return
     getProperties(user.id).then(props => {
       setProperties(props)
+      setPropertiesLoaded(true)
       if (props.length > 0) {
         getSharedBills(props.map(p => p.id)).then(bs => setBills(bs))
       }
@@ -40,6 +42,7 @@ export default function PaymentsPage() {
   }, [user])
 
   useEffect(() => {
+    if (!propertiesLoaded) return
     if (properties.length === 0) { setDataLoading(false); return }
     setDataLoading(true)
     const ids = properties.map(p => p.id)
@@ -47,7 +50,7 @@ export default function PaymentsPage() {
       setPayments(data)
       setDataLoading(false)
     })
-  }, [properties, month])
+  }, [propertiesLoaded, properties, month])
 
   const handleMarkPaid = async (id: string) => {
     setMarkingPaid(id)
@@ -71,14 +74,9 @@ export default function PaymentsPage() {
     finally { setUpdatingOverdue(false) }
   }
 
-  // Get bills for this month that are unpaid
   const monthBills = bills.filter(b => b.due_date.startsWith(month) && !b.paid)
-
-  // Calculate totals including bills share
   const totalRent = payments.reduce((s, p) => s + p.amount, 0)
-  const totalBillsShare = payments.length > 0
-    ? monthBills.reduce((s, b) => s + b.amount, 0)
-    : 0
+  const totalBillsShare = payments.length > 0 ? monthBills.reduce((s, b) => s + b.amount, 0) : 0
   const totalExpected = totalRent + totalBillsShare
   const collected = payments.filter(p => p.status === 'paid').reduce((s, p) => s + p.amount, 0)
   const outstanding = totalExpected - collected
@@ -96,8 +94,7 @@ export default function PaymentsPage() {
             <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>Track rent and bills month by month</p>
           </div>
           <div className="flex items-center gap-3">
-            <button onClick={handleUpdateOverdue} disabled={updatingOverdue}
-              className="btn-secondary flex items-center gap-2 text-xs">
+            <button onClick={handleUpdateOverdue} disabled={updatingOverdue} className="btn-secondary flex items-center gap-2 text-xs">
               {updatingOverdue ? <Loader2 size={12} className="animate-spin" /> : null}
               Refresh statuses
             </button>
@@ -109,17 +106,11 @@ export default function PaymentsPage() {
             </div>
           </div>
         </div>
-
-        {/* Summary */}
         <div className="grid grid-cols-3 gap-4 mb-6">
           <div className="card p-4">
             <div className="text-xs uppercase tracking-wide mb-1" style={{ color: 'var(--text-muted)' }}>Expected</div>
             <div className="text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>£{totalExpected.toLocaleString()}</div>
-            {totalBillsShare > 0 && (
-              <div className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-                Rent £{totalRent} + Bills £{totalBillsShare}
-              </div>
-            )}
+            {totalBillsShare > 0 && <div className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>Rent £{totalRent} + Bills £{totalBillsShare}</div>}
           </div>
           <div className="card p-4">
             <div className="text-xs uppercase tracking-wide mb-1" style={{ color: 'var(--text-muted)' }}>Collected</div>
@@ -127,32 +118,22 @@ export default function PaymentsPage() {
           </div>
           <div className="card p-4">
             <div className="text-xs uppercase tracking-wide mb-1" style={{ color: 'var(--text-muted)' }}>Outstanding</div>
-            <div className={`text-xl font-semibold ${outstanding > 0 ? 'text-red-600' : 'text-gray-400'}`}>
-              £{outstanding.toLocaleString()}
-            </div>
+            <div className={`text-xl font-semibold ${outstanding > 0 ? 'text-red-600' : 'text-gray-400'}`}>£{outstanding.toLocaleString()}</div>
           </div>
         </div>
-
-        {/* Unpaid bills this month */}
         {monthBills.length > 0 && (
           <div className="mb-6 card p-4">
-            <div className="text-xs font-medium uppercase tracking-wide mb-3" style={{ color: 'var(--text-muted)' }}>
-              Unpaid shared bills this month
-            </div>
+            <div className="text-xs font-medium uppercase tracking-wide mb-3" style={{ color: 'var(--text-muted)' }}>Unpaid shared bills this month</div>
             <div className="space-y-2">
               {monthBills.map(b => (
                 <div key={b.id} className="flex items-center justify-between text-sm">
-                  <span style={{ color: 'var(--text-secondary)' }}>
-                    {b.name} — £{(b.amount / (b.split_ways || 1)).toFixed(2)}/tenant × {b.split_ways} tenants
-                  </span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{b.name} — £{(b.amount / (b.split_ways || 1)).toFixed(2)}/tenant x {b.split_ways} tenants</span>
                   <span className="font-medium" style={{ color: 'var(--text-primary)' }}>£{b.amount}</span>
                 </div>
               ))}
             </div>
           </div>
         )}
-
-        {/* Payments table */}
         {dataLoading ? (
           <div className="flex items-center justify-center h-32"><Loader2 className="animate-spin text-gray-400" /></div>
         ) : payments.length === 0 ? (
@@ -163,15 +144,10 @@ export default function PaymentsPage() {
         ) : (
           <div className="card divide-y" style={{ borderColor: 'var(--card-border)' }}>
             <div className="px-6 py-3 grid grid-cols-12 gap-4 text-xs font-medium uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>
-              <div className="col-span-3">Tenant</div>
-              <div className="col-span-2">Room</div>
-              <div className="col-span-2">Rent</div>
-              <div className="col-span-2">Bills share</div>
-              <div className="col-span-1">Total</div>
-              <div className="col-span-2 text-right">Status</div>
+              <div className="col-span-3">Tenant</div><div className="col-span-2">Room</div><div className="col-span-2">Rent</div>
+              <div className="col-span-2">Bills share</div><div className="col-span-1">Total</div><div className="col-span-2 text-right">Status</div>
             </div>
             {payments.map(p => {
-              // Calculate this tenant's share of unpaid bills for their property only
               const tenantBillsShare = monthBills.filter(b => b.property_id === p.property_id).reduce((s, b) => s + (b.amount / (b.split_ways || 1)), 0)
               const tenantTotal = p.amount + tenantBillsShare
               return (
@@ -187,14 +163,11 @@ export default function PaymentsPage() {
                   <div className="col-span-2 text-sm" style={{ color: tenantBillsShare > 0 ? 'var(--text-primary)' : 'var(--text-muted)' }}>
                     {tenantBillsShare > 0 ? `£${tenantBillsShare.toFixed(2)}` : '—'}
                   </div>
-                  <div className="col-span-1 text-sm font-bold" style={{ color: 'var(--text-primary)' }}>
-                    £{tenantTotal.toFixed(0)}
-                  </div>
+                  <div className="col-span-1 text-sm font-bold" style={{ color: 'var(--text-primary)' }}>£{tenantTotal.toFixed(0)}</div>
                   <div className="col-span-2 flex items-center justify-end gap-2">
                     <StatusBadge status={p.status} />
                     {p.status !== 'paid' && (
-                      <button onClick={() => handleMarkPaid(p.id)} disabled={markingPaid === p.id}
-                        title="Mark rent as paid"
+                      <button onClick={() => handleMarkPaid(p.id)} disabled={markingPaid === p.id} title="Mark rent as paid"
                         className="p-1.5 rounded-lg bg-green-50 hover:bg-green-100 text-green-700 transition-colors">
                         {markingPaid === p.id ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />}
                       </button>
