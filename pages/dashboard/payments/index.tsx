@@ -158,7 +158,7 @@ export default function PaymentsPage() {
                     </div>
                     <span className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>{p.tenant?.name}</span>
                   </div>
-                  <div className="col-span-2 text-sm" style={{ color: 'var(--text-secondary)' }}>{p.tenant?.room?.name}</div>
+                  <div className="col-span-2 text-sm" style={{ color: 'var(--text-secondary)' }}>{p.tenant?.property?.address?.split(' ').slice(0,3).join(' ')} · {p.tenant?.room?.name}</div>
                   <div className="col-span-2 text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>£{p.amount}</div>
                   <div className="col-span-2 text-sm" style={{ color: tenantBillsShare > 0 ? 'var(--text-primary)' : 'var(--text-muted)' }}>
                     {tenantBillsShare > 0 ? `£${tenantBillsShare.toFixed(2)}` : '—'}
