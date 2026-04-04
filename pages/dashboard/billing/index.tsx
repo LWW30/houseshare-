@@ -6,21 +6,20 @@ import { supabase } from '../../../lib/supabase'
 
 export default function BillingPage() {
   const router = useRouter()
-  const { session, loading: authLoading } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const [profile, setProfile] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+  const [profileLoading, setProfileLoading] = useState(true)
   const [upgrading, setUpgrading] = useState(false)
   const [managing, setManaging] = useState(false)
 
   useEffect(() => {
-    if (!authLoading && session) loadProfile()
-    else if (!authLoading && !session) router.push('/')
-  }, [session, authLoading])
+    if (!authLoading && user) loadProfile()
+  }, [user, authLoading])
 
   async function loadProfile() {
-    const { data } = await supabase.from('profiles').select('*').eq('id', session!.user.id).single()
+    const { data } = await supabase.from('profiles').select('*').eq('id', user!.id).single()
     setProfile(data)
-    setLoading(false)
+    setProfileLoading(false)
   }
 
   async function handleUpgrade() {
@@ -30,9 +29,7 @@ export default function BillingPage() {
       const { url, error } = await res.json()
       if (error) throw new Error(error)
       window.location.href = url
-    } catch {
-      setUpgrading(false)
-    }
+    } catch { setUpgrading(false) }
   }
 
   async function handleManage() {
@@ -42,12 +39,10 @@ export default function BillingPage() {
       const { url, error } = await res.json()
       if (error) throw new Error(error)
       window.location.href = url
-    } catch {
-      setManaging(false)
-    }
+    } catch { setManaging(false) }
   }
 
-  if (authLoading || loading) return (
+  if (authLoading || profileLoading) return (
     <Layout>
       <div className="flex items-center justify-center h-64">
         <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Loading...</div>
@@ -110,7 +105,9 @@ export default function BillingPage() {
                   {(isPro || f.free) ? '✓' : '–'}
                 </span>
                 <span style={{ color: (isPro || f.free) ? 'var(--text-primary)' : 'var(--text-secondary)' }}>{f.text}</span>
-                {!f.free && !isPro && <span className="ml-auto text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--green-pale)', color: 'var(--green)' }}>Pro</span>}
+                {!f.free && !isPro && (
+                  <span className="ml-auto text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--green-pale)', color: 'var(--green)' }}>Pro</span>
+                )}
               </div>
             ))}
           </div>
@@ -138,8 +135,10 @@ export default function BillingPage() {
 
         <div className="rounded-xl border p-5" style={{ background: 'var(--card-bg)', borderColor: 'var(--border)' }}>
           <div className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-secondary)' }}>Account</div>
-          <div className="text-sm" style={{ color: 'var(--text-primary)' }}>{session?.user.email}</div>
-          <div className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>Questions? Email <a href="mailto:hello@letflowuk.com" style={{ color: 'var(--green)' }}>hello@letflowuk.com</a></div>
+          <div className="text-sm" style={{ color: 'var(--text-primary)' }}>{user?.email}</div>
+          <div className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
+            Questions? Email <a href="mailto:hello@letflowuk.com" style={{ color: 'var(--green)' }}>hello@letflowuk.com</a>
+          </div>
         </div>
       </div>
     </Layout>
