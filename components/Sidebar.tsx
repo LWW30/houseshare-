@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { Home, Users, Receipt, FileText, Building2, Menu, X, FolderOpen, UserCircle, Wrench } from 'lucide-react'
+import { Home, Users, Receipt, FileText, Building2, Menu, X, FolderOpen, UserCircle, Wrench, CreditCard } from 'lucide-react'
 import { useState } from 'react'
 
 const nav = [
