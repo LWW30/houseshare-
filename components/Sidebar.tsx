@@ -11,6 +11,7 @@ const nav = [
   { href: '/dashboard/bills', label: 'Shared Bills', icon: FileText },
   { href: '/dashboard/maintenance', label: 'Maintenance', icon: Wrench },
   { href: '/dashboard/documents', label: 'Documents', icon: FolderOpen },
+  { href: '/dashboard/billing', label: 'Billing', icon: CreditCard },
   { href: '/dashboard/profile', label: 'Profile', icon: UserCircle },
 ]
 
