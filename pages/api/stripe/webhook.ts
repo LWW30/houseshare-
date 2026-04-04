@@ -1,16 +1,19 @@
-import { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from 'next'
+import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 
 export const config = { api: { bodyParser: false } }
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2023-10-16' })
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-async function buffer(readable: NextApiRequest) {
+async function getRawBody(req: NextApiRequest): Promise<Buffer> {
   const chunks: Buffer[] = []
-  for await (const chunk of readable as any) {
+  for await (const chunk of req as any) {
     chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk)
   }
   return Buffer.concat(chunks)
@@ -19,46 +22,38 @@ async function buffer(readable: NextApiRequest) {
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).end()
 
-  const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
   const sig = req.headers['stripe-signature']!
-  const buf = await buffer(req)
+  const rawBody = await getRawBody(req)
 
-  let event
+  let event: Stripe.Event
   try {
-    event = stripe.webhooks.constructEvent(buf, sig, process.env.STRIPE_WEBHOOK_SECRET)
+    event = stripe.webhooks.constructEvent(rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET!)
   } catch (err: any) {
-    return res.status(400).send(`Webhook Error: ${err.message}`)
+    return res.status(400).json({ error: `Webhook error: ${err.message}` })
   }
 
-  const session = event.data.object as any
-
-  switch (event.type) {
-    case 'checkout.session.completed': {
-      const subscription = await stripe.subscriptions.retrieve(session.subscription)
+  try {
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object as Stripe.Checkout.Session
+      const sub = await stripe.subscriptions.retrieve(session.subscription as string)
       await supabaseAdmin.from('profiles').upsert({
-        id: session.metadata.user_id,
-        stripe_customer_id: session.customer,
-        stripe_subscription_id: session.subscription,
-        stripe_price_id: subscription.items.data[0].price.id,
+        id: session.metadata!.user_id,
+        stripe_customer_id: session.customer as string,
+        stripe_subscription_id: sub.id,
+        stripe_price_id: sub.items.data[0].price.id,
         plan: 'pro',
-        trial_ends_at: new Date(subscription.trial_end * 1000).toISOString(),
-        subscription_status: subscription.status,
+        trial_ends_at: sub.trial_end ? new Date(sub.trial_end * 1000).toISOString() : null,
+        subscription_status: sub.status,
       })
-      break
-    }
-    case 'customer.subscription.updated':
-    case 'customer.subscription.deleted': {
-      const sub = event.data.object
+    } else if (['customer.subscription.updated', 'customer.subscription.deleted'].includes(event.type)) {
+      const sub = event.data.object as Stripe.Subscription
       const isActive = ['active', 'trialing'].includes(sub.status)
       await supabaseAdmin.from('profiles')
-        .update({
-          plan: isActive ? 'pro' : 'free',
-          subscription_status: sub.status,
-          stripe_subscription_id: sub.id,
-        })
-        .eq('stripe_customer_id', sub.customer)
-      break
+        .update({ plan: isActive ? 'pro' : 'free', subscription_status: sub.status })
+        .eq('stripe_customer_id', sub.customer as string)
     }
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message })
   }
 
   res.json({ received: true })
