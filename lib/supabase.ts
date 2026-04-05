@@ -252,12 +252,12 @@ export type ExpenseCategory =
 
 export const EXPENSE_CATEGORIES: Record<ExpenseCategory, { label: string; emoji: string; hmrc: string }> = {
   repairs_maintenance: { label: 'Repairs & Maintenance', emoji: '🔧', hmrc: 'Allowable' },
-  insurance:           { label: 'Insurance',             emoji: '🛡️', hmrc: 'Allowable' },
+  insurance:           { label: 'Insurance',             emoji: '🛡', hmrc: 'Allowable' },
   mortgage_interest:   { label: 'Mortgage Interest',     emoji: '🏦', hmrc: 'Allowable' },
   letting_fees:        { label: 'Letting Agent Fees',    emoji: '🏢', hmrc: 'Allowable' },
-  professional_fees:   { label: 'Professional Fees',     emoji: '👔', hmrc: 'Allowable' },
+  professional_fees:   { label: 'Professional Fees',     emoji: '📄', hmrc: 'Allowable' },
   utilities:           { label: 'Utilities',             emoji: '💡', hmrc: 'Allowable' },
-  furnishings:         { label: 'Furnishings',           emoji: '🛋️', hmrc: 'Allowable' },
+  furnishings:         { label: 'Furnishings',           emoji: '🛋', hmrc: 'Allowable' },
   travel:              { label: 'Travel',                emoji: '🚗', hmrc: 'Allowable' },
   other:               { label: 'Other',                 emoji: '📋', hmrc: 'Check with accountant' },
 }
