@@ -23,11 +23,11 @@ interface MaintenanceRequest {
   property?: { address: string }
 }
 
-const PRIORITY_CFG: Record<Priority, { label: string; color: string; bg: string }> = {
-  low:    { label: 'Low',    color: 'text-gray-500',  bg: 'bg-gray-100' },
-  medium: { label: 'Medium', color: 'text-amber-600', bg: 'bg-amber-50' },
-  high:   { label: 'High',   color: 'text-orange-600',bg: 'bg-orange-50' },
-  urgent: { label: 'Urgent', color: 'text-red-600',   bg: 'bg-red-50' },
+const PRIORITY_CFG: Record<Priority, { label: string; color: string }> = {
+  low:    { label: 'Low',    color: 'text-gray-400' },
+  medium: { label: 'Medium', color: 'text-amber-500' },
+  high:   { label: 'High',   color: 'text-orange-500' },
+  urgent: { label: 'Urgent', color: 'text-red-500' },
 }
 
 const STATUS_CFG: Record<Status, { label: string; icon: any; color: string }> = {
@@ -176,7 +176,7 @@ export default function MaintenancePage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>{req.title}</span>
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${pri.bg} ${pri.color}`}>{pri.label}</span>
+                        <span className={`text-xs font-semibold ${pri.color}`}>{pri.label}</span>
                       </div>
                       <div className="flex items-center gap-2 mt-0.5 flex-wrap text-xs" style={{ color: 'var(--text-muted)' }}>
                         {req.submitted_by_tenant_name && <span>{req.submitted_by_tenant_name}</span>}
