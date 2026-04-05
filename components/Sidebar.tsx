@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import {
   Home, Users, Receipt, FileText, Building2,
   Menu, X, FolderOpen, UserCircle, Wrench,
-  CreditCard, ShieldCheck, Landmark, ScrollText,
+  CreditCard, ShieldCheck, Landmark, ScrollText, BarChart3,
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -17,6 +17,7 @@ const nav = [
   { href: '/dashboard/maintenance',  label: 'Maintenance',    icon: Wrench },
   { href: '/dashboard/documents',    label: 'Documents',      icon: FolderOpen },
   { href: '/dashboard/expenses',     label: 'Expenses',       icon: Receipt },
+  { href: '/dashboard/profit-loss',  label: 'Profit & Loss',  icon: BarChart3 },
   { href: '/dashboard/notices',      label: 'Legal Notices',  icon: ScrollText,   badge: 'New' as const },
   { href: '/dashboard/billing',      label: 'Billing',        icon: CreditCard },
   { href: '/dashboard/profile',      label: 'Profile',        icon: UserCircle },
