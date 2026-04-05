@@ -3,10 +3,10 @@ import Layout from '../../components/Layout'
 import StatusBadge from '../../components/StatusBadge'
 import RRABanner from '../../components/RRABanner'
 import { useAuth } from '../../lib/useAuth'
-import { getProperties, getRentPayments, getSharedBills, signOut, type Property, type RentPayment, type SharedBill } from '../../lib/supabase'
+import { getProperties, getRentPayments, getSharedBills, getExpenses, signOut, type Property, type RentPayment, type SharedBill } from '../../lib/supabase'
 import { supabase } from '../../lib/supabase'
 import { format, differenceInDays, isPast, addDays, isWithinInterval } from 'date-fns'
-import { Building2, PoundSterling, Bell, ChevronRight, LogOut, AlertTriangle, Clock, Users } from 'lucide-react'
+import { Building2, PoundSterling, Bell, ChevronRight, LogOut, AlertTriangle, Clock, Users, TrendingDown } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 
@@ -28,6 +28,7 @@ export default function Dashboard() {
   const [tenantCount, setTenantCount] = useState(0)
   const [roomCount, setRoomCount] = useState(0)
   const [documents, setDocuments] = useState<any[]>([])
+  const [expenses, setExpenses] = useState<any[]>([])
   const [dataLoading, setDataLoading] = useState(true)
 
   useEffect(() => {
@@ -39,12 +40,13 @@ export default function Dashboard() {
         if (props.length > 0) {
           const ids = props.map(p => p.id)
           const month = new Date().toISOString().slice(0, 7)
-          const [pays, bs, docData] = await Promise.all([
+          const [pays, bs, docData, exps] = await Promise.all([
             getRentPayments(ids, month),
             getSharedBills(ids),
             supabase.from('compliance_documents').select('*').eq('landlord_id', user!.id),
+            getExpenses(user!.id),
           ])
-          setPayments(pays); setBills(bs); setDocuments(docData.data || [])
+          setPayments(pays); setBills(bs); setDocuments(docData.data || []); setExpenses(exps)
           const uniqueTenants = new Set(pays.map(p => p.tenant_id))
           setTenantCount(uniqueTenants.size)
           let totalRooms = 0
@@ -74,6 +76,9 @@ export default function Dashboard() {
   const unpaidBillsCount = bills.filter(b => !b.paid).length
   const attentionCount = overdueCount + unpaidBillsCount
   const collectionRate = totalExpected > 0 ? Math.round((totalCollected / totalExpected) * 100) : 0
+  const thisMonth = new Date().toISOString().slice(0, 7)
+  const totalExpensesThisMonth = expenses.filter(e => e.date.startsWith(thisMonth)).reduce((s: number, e: any) => s + e.amount, 0)
+  const netProfitThisMonth = totalCollected - totalExpensesThisMonth
   const occupancyRate = roomCount > 0 ? Math.round((tenantCount / roomCount) * 100) : 0
   const vacantRooms = roomCount - tenantCount
   const expiredDocs = documents.filter(d => d.expiry_date && isPast(new Date(d.expiry_date)))
@@ -118,10 +123,11 @@ export default function Dashboard() {
           <Link href='/dashboard/documents'><div className='mb-4 bg-amber-50 border border-amber-200 rounded-2xl px-5 py-4 flex items-center gap-3 hover:bg-amber-100 transition-colors cursor-pointer'><Clock size={16} className='text-amber-600 flex-shrink-0' /><div className='flex-1'><span className='text-sm font-medium text-amber-800'>{soonDocs.length} document{soonDocs.length > 1 ? 's' : ''} expiring soon </span><span className='text-xs text-amber-600'>{soonDocs.map(d => d.name).join(', ')}</span></div><ChevronRight size={14} className='text-amber-400' /></div></Link>
         )}
 
-        <div className='grid grid-cols-2 md:grid-cols-4 gap-4 mb-8'>
+        <div className='grid grid-cols-2 md:grid-cols-5 gap-4 mb-8'>
           <div className='card p-5'><div className='flex items-center justify-between mb-3'><span className='text-xs font-medium uppercase tracking-wide' style={{ color: 'var(--text-muted)' }}>Properties</span><Building2 size={15} className='text-gray-400' /></div><div className='text-2xl font-semibold' style={{ color: 'var(--text-primary)' }}>{properties.length}</div><div className='text-xs mt-1' style={{ color: 'var(--text-muted)' }}>{tenantCount} tenant{tenantCount !== 1 ? 's' : ''}</div></div>
           <div className='card p-5'><div className='flex items-center justify-between mb-3'><span className='text-xs font-medium uppercase tracking-wide' style={{ color: 'var(--text-muted)' }}>Occupancy</span><Users size={15} className='text-gray-400' /></div><div className='text-2xl font-semibold text-green-600'>{occupancyRate}%</div><div className='text-xs mt-1' style={{ color: 'var(--text-muted)' }}>{vacantRooms} vacant</div></div>
           <div className='card p-5'><div className='flex items-center justify-between mb-3'><span className='text-xs font-medium uppercase tracking-wide' style={{ color: 'var(--text-muted)' }}>Collected</span><PoundSterling size={15} className='text-green-500' /></div><div className='text-2xl font-semibold text-green-600'>£{totalCollected.toLocaleString()}</div><div className='text-xs mt-1' style={{ color: 'var(--text-muted)' }}>{collectionRate}% of £{totalExpected.toLocaleString()}</div></div>
+          <div className='card p-5'><div className='flex items-center justify-between mb-3'><span className='text-xs font-medium uppercase tracking-wide' style={{ color: 'var(--text-muted)' }}>Net profit</span><TrendingDown size={15} className={netProfitThisMonth >= 0 ? 'text-green-500' : 'text-red-400'} /></div><div className={`text-2xl font-semibold ${netProfitThisMonth >= 0 ? 'text-green-600' : 'text-red-500'}`}>£{Math.abs(netProfitThisMonth).toLocaleString()}</div><div className='text-xs mt-1' style={{ color: 'var(--text-muted)' }}>{totalExpensesThisMonth > 0 ? 'after £' + totalExpensesThisMonth.toLocaleString() + ' expenses' : 'no expenses logged'}</div></div>
           <div className='card p-5'><div className='flex items-center justify-between mb-3'><span className='text-xs font-medium uppercase tracking-wide' style={{ color: 'var(--text-muted)' }}>Attention</span><Bell size={15} className={overdueCount > 0 ? 'text-red-500' : 'text-gray-400'} /></div><div className='text-2xl font-semibold' style={{ color: overdueCount > 0 ? '#dc2626' : 'var(--text-primary)' }}>{attentionCount}</div><div className='text-xs mt-1' style={{ color: 'var(--text-muted)' }}>{overdueCount} overdue · {unpaidBillsCount} bills</div></div>
         </div>
 
