@@ -58,8 +58,10 @@ export default function DirectDebitPage() {
     setSettingUp(tenant.id)
     try {
       const res = await fetch('/api/gocardless/create-mandate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tenant_id: tenant.id }) })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error)
+      const text = await res.text()
+      let data: any = {}
+      try { data = JSON.parse(text) } catch { throw new Error('GoCardless not configured. Add GOCARDLESS_ACCESS_TOKEN to Vercel environment variables.') }
+      if (!res.ok) throw new Error(data.error || 'Setup failed')
       window.location.href = data.authorisation_url
     } catch(err: any) { setFlash({ type: 'error', msg: err.message || 'Failed to start DD setup' }) }
     setSettingUp(null)
