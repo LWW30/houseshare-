@@ -119,8 +119,7 @@ export default function MaintenancePage() {
             { label: 'Resolved', count: resolvedCount, color: 'text-green-500', status: 'resolved' },
           ] as const).map(s => (
             <button key={s.status} onClick={() => setFilterStatus(filterStatus === s.status ? '' : s.status)}
-              className={`card p-4 text-left transition-all ${filterStatus === s.status ? 'ring-2 ring-offset-1' : ''}`}
-              style={filterStatus === s.status ? { ringColor: 'var(--green)' } : {}}>
+              className={`card p-4 text-left transition-all ${filterStatus === s.status ? 'outline outline-2 outline-green-500' : ''}`}>
               <div className="text-xs uppercase tracking-wide mb-1" style={{ color: 'var(--text-muted)' }}>{s.label}</div>
               <div className={`text-2xl font-semibold ${s.color}`}>{s.count}</div>
             </button>
