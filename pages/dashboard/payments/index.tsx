@@ -4,7 +4,7 @@ import StatusBadge from '../../../components/StatusBadge'
 import { useAuth } from '../../../lib/useAuth'
 import { getProperties, getRentPayments, getSharedBills, markRentPaid, updateOverduePayments, type Property, type RentPayment, type SharedBill } from '../../../lib/supabase'
 import { format } from 'date-fns'
-import { Check, ChevronDown, Loader2 } from 'lucide-react'
+import { Check, ChevronDown, Loader2, Bell } from 'lucide-react'
 
 function getMonths() {
   const r = []
@@ -29,6 +29,8 @@ export default function PaymentsPage() {
   const [propertiesLoaded, setPropertiesLoaded] = useState(false)
   const [markingPaid, setMarkingPaid] = useState<string | null>(null)
   const [updatingOverdue, setUpdatingOverdue] = useState(false)
+  const [sendingReminder, setSendingReminder] = useState<string | null>(null)
+  const [reminderSent, setReminderSent] = useState<string | null>(null)
 
   useEffect(() => {
     if (!user) return
@@ -72,6 +74,24 @@ export default function PaymentsPage() {
       setPayments(pays)
     } catch (e) { console.error(e) }
     finally { setUpdatingOverdue(false) }
+  }
+
+  const handleSendReminder = async (p: RentPayment) => {
+    if (!p.tenant?.id || !user) return
+    setSendingReminder(p.id)
+    try {
+      const res = await fetch('/api/reminders/rent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tenantId: p.tenant.id, paymentId: p.id, landlordId: user.id })
+      })
+      const data = await res.json()
+      if (data.sent || data.reason === 'no_email_or_resend_error') {
+        setReminderSent(p.id)
+        setTimeout(() => setReminderSent(null), 4000)
+      }
+    } catch (e) { console.error(e) }
+    setSendingReminder(null)
   }
 
   const monthBills = bills.filter(b => b.due_date.startsWith(month) && !b.paid)
