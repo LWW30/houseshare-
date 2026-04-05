@@ -19,6 +19,7 @@ const nav = [
   { href: '/dashboard/expenses',     label: 'Expenses',       icon: Receipt },
   { href: '/dashboard/profit-loss',  label: 'Profit & Loss',  icon: BarChart3 },
   { href: '/dashboard/notices',      label: 'Legal Notices',  icon: ScrollText,   badge: 'New' as const },
+  { href: '/dashboard/rra',           label: 'RRA 2025',       icon: ShieldCheck,  badge: 'New' as const },
   { href: '/dashboard/billing',      label: 'Billing',        icon: CreditCard },
   { href: '/dashboard/profile',      label: 'Profile',        icon: UserCircle },
 ]
