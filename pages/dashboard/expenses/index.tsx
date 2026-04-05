@@ -3,7 +3,7 @@ import Layout from '../../../components/Layout'
 import { useAuth } from '../../../lib/useAuth'
 import { getProperties, getExpenses, createExpense, deleteExpense, EXPENSE_CATEGORIES, type Property, type Expense, type ExpenseCategory } from '../../../lib/supabase'
 import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns'
-import { Plus, Trash2, X, Loader2, Receipt, TrendingDown, Building2, Filter } from 'lucide-react'
+import { Plus, Trash2, X, Loader2, Receipt, TrendingDown, Building2, Filter, Download } from 'lucide-react'
 
 type FormState = {
   property_id: string
@@ -79,6 +79,32 @@ export default function ExpensesPage() {
     setSaving(false)
   }
 
+
+  function exportCSV() {
+    const rows = [
+      ['Date', 'Description', 'Category', 'Amount (GBP)', 'Property', 'Notes'],
+      ...filtered.map(e => {
+        const cat = EXPENSE_CATEGORIES[e.category] || EXPENSE_CATEGORIES.other
+        return [
+          e.date,
+          e.description,
+          cat.label,
+          e.amount.toFixed(2),
+          (e.property as any)?.address || '',
+          e.notes || ''
+        ]
+      })
+    ]
+    const csv = rows.map(r => r.map(cell => '"' + String(cell).replace(/"/g, '""') + '"').join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'letflow-expenses-' + new Date().toISOString().slice(0,10) + '.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   async function handleDelete(id: string) {
     setDeleting(id)
     try {
@@ -120,9 +146,16 @@ export default function ExpensesPage() {
             <h1 className="text-2xl font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Expenses</h1>
             <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Track property costs — all HMRC-allowable categories</p>
           </div>
-          <button onClick={() => setShowForm(true)} className="btn-primary flex items-center gap-2 text-sm">
-            <Plus size={15} />Add expense
-          </button>
+          <div className="flex items-center gap-2">
+            {expenses.length > 0 && (
+              <button onClick={exportCSV} className="btn-secondary flex items-center gap-2 text-sm">
+                <Download size={15} />Export CSV
+              </button>
+            )}
+            <button onClick={() => setShowForm(true)} className="btn-primary flex items-center gap-2 text-sm">
+              <Plus size={15} />Add expense
+            </button>
+          </div>
         </div>
 
         {flash && (
@@ -273,7 +306,7 @@ export default function ExpensesPage() {
             <div className="px-6 py-5 space-y-4">
               <div>
                 <label className="label">Description *</label>
-                <input className="input" placeholder="e.g. Boiler repair" value={form.description} onChange={e => set('description', e.target.value)} autoFocus />
+                <input className="input" placeholder="e.g. Boiler repair" value={form.description} onChange={e => set('description', e.target.value)} />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
