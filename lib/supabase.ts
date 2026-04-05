@@ -238,3 +238,74 @@ export async function getTenantBills(propertyId: string) {
   if (error) throw error
   return data as SharedBill[]
 }
+
+export type ExpenseCategory =
+  | 'repairs_maintenance'
+  | 'insurance'
+  | 'mortgage_interest'
+  | 'letting_fees'
+  | 'professional_fees'
+  | 'utilities'
+  | 'furnishings'
+  | 'travel'
+  | 'other'
+
+export const EXPENSE_CATEGORIES: Record<ExpenseCategory, { label: string; emoji: string; hmrc: string }> = {
+  repairs_maintenance: { label: 'Repairs & Maintenance', emoji: '🔧', hmrc: 'Allowable' },
+  insurance:           { label: 'Insurance',             emoji: '🛡️', hmrc: 'Allowable' },
+  mortgage_interest:   { label: 'Mortgage Interest',     emoji: '🏦', hmrc: 'Allowable' },
+  letting_fees:        { label: 'Letting Agent Fees',    emoji: '🏢', hmrc: 'Allowable' },
+  professional_fees:   { label: 'Professional Fees',     emoji: '👔', hmrc: 'Allowable' },
+  utilities:           { label: 'Utilities',             emoji: '💡', hmrc: 'Allowable' },
+  furnishings:         { label: 'Furnishings',           emoji: '🛋️', hmrc: 'Allowable' },
+  travel:              { label: 'Travel',                emoji: '🚗', hmrc: 'Allowable' },
+  other:               { label: 'Other',                 emoji: '📋', hmrc: 'Check with accountant' },
+}
+
+export type Expense = {
+  id: string
+  landlord_id: string
+  property_id?: string
+  category: ExpenseCategory
+  description: string
+  amount: number
+  date: string
+  notes?: string
+  created_at: string
+  property?: Property
+}
+
+export async function getExpenses(landlordId: string, propertyId?: string) {
+  let query = supabase
+    .from('expenses')
+    .select('*, property:properties(id, address)')
+    .eq('landlord_id', landlordId)
+    .order('date', { ascending: false })
+  if (propertyId) query = query.eq('property_id', propertyId)
+  const { data, error } = await query
+  if (error) throw error
+  return data as Expense[]
+}
+
+export async function createExpense(expense: {
+  landlord_id: string
+  property_id?: string
+  category: ExpenseCategory
+  description: string
+  amount: number
+  date: string
+  notes?: string
+}) {
+  const { data, error } = await supabase
+    .from('expenses')
+    .insert(expense)
+    .select('*, property:properties(id, address)')
+    .single()
+  if (error) throw error
+  return data as Expense
+}
+
+export async function deleteExpense(id: string) {
+  const { error } = await supabase.from('expenses').delete().eq('id', id)
+  if (error) throw error
+}
