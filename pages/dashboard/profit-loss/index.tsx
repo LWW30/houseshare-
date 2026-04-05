@@ -74,6 +74,37 @@ export default function ProfitLossPage() {
     setDataLoading(false)
   }
 
+
+  function exportCSV() {
+    const rows = [
+      ['Month', 'Income (GBP)', 'Expenses (GBP)', 'Net Profit (GBP)'],
+      ...monthList.map(m => {
+        const inc = rentByMonth[m] || 0
+        const exp = expByMonth[m] || 0
+        return [format(new Date(m + '-01'), 'MMMM yyyy'), inc.toFixed(2), exp.toFixed(2), (inc - exp).toFixed(2)]
+      }),
+      ['TOTAL', totalIncome.toFixed(2), totalExp.toFixed(2), netProfit.toFixed(2)]
+    ]
+    // Add expense detail rows
+    if (allExpenses.length > 0) {
+      rows.push([])
+      rows.push(['Date', 'Description', 'Category', 'Amount (GBP)', 'Property'])
+      allExpenses.forEach(e => {
+        const cat = EXPENSE_CATEGORIES[e.category as keyof typeof EXPENSE_CATEGORIES] || EXPENSE_CATEGORIES.other
+        rows.push([e.date, e.description, cat.label, e.amount.toFixed(2), (e.property as any)?.address || ''])
+      })
+    }
+    const csv = rows.map(r => r.map(cell => '"' + String(cell ?? '').replace(/"/g, '""') + '"').join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    const period = months === 12 ? 'annual' : months + '-month'
+    a.download = 'letflow-pnl-' + period + '-' + new Date().toISOString().slice(0,10) + '.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   // Build month list
   const now = new Date()
   const monthList = eachMonthOfInterval({
@@ -108,6 +139,9 @@ export default function ProfitLossPage() {
               <option value={12}>Last 12 months</option>
             </select>
           </div>
+          <button onClick={exportCSV} className="btn-secondary flex items-center gap-2 text-sm flex-shrink-0">
+            <Download size={14} />Export CSV
+          </button>
         </div>
 
         {/* Summary cards */}
