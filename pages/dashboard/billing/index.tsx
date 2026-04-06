@@ -34,7 +34,7 @@ export default function BillingPage() {
       <div className="p-6 md:p-8 max-w-3xl">
         <div className="mb-8">
           <h1 className="text-2xl font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Billing</h1>
-          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Manage your LetFlow subscription</p>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Manage your LetFlowUK subscription</p>
         </div>
 
         {router.query.success && (
