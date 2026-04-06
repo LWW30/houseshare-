@@ -34,7 +34,7 @@ const Logo = () => (
         <rect x="8" y="8" width="5" height="5" rx="1" fill="white" fillOpacity="0.3"/>
       </svg>
     </div>
-    <span className="font-semibold text-sm tracking-tight">LetFlow</span>
+    <span className="font-semibold text-sm tracking-tight">LetFlowUK</span>
   </div>
 )
 
