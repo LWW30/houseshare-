@@ -87,7 +87,7 @@ export default function TenantPortal() {
         <div className="max-w-lg mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-7 h-7 bg-green-500 rounded-lg flex items-center justify-center"><Building2 size={14} className="text-white"/></div>
-            <div><div className="font-semibold text-sm">LetFlow</div><div className="text-xs text-gray-400">Tenant portal</div></div>
+            <div><div className="font-semibold text-sm">LetFlowUK</div><div className="text-xs text-gray-400">Tenant portal</div></div>
           </div>
           {openIssues>0&&<span className="text-xs bg-amber-400 text-amber-900 px-2 py-1 rounded-full font-semibold">{openIssues} open issue{openIssues!==1?'s':''}</span>}
         </div>
@@ -155,7 +155,7 @@ export default function TenantPortal() {
           {!collapsed.docs&&<div className="divide-y divide-gray-50">{documents.map(doc=>{const expired=doc.expiry_date&&isPast(new Date(doc.expiry_date));const days=doc.expiry_date?differenceInDays(new Date(doc.expiry_date),now):null;return(<div key={doc.id} className="px-5 py-3.5 flex items-center gap-3"><div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0"><FileText size={13} className="text-gray-500"/></div><div className="flex-1 min-w-0"><div className="text-sm font-medium text-gray-900 truncate">{doc.name}</div>{doc.expiry_date&&<div className={"text-xs "+(expired?'text-red-500':days!==null&&days<60?'text-amber-600':'text-gray-400')}>{expired?'Expired':days!==null&&days<60?'Expires in '+days+' days':'Valid until '+format(new Date(doc.expiry_date),'d MMM yyyy')}</div>}</div><button onClick={()=>handleDownloadDoc(doc)} className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-900 bg-gray-50 px-2.5 py-1.5 rounded-lg border border-gray-200 transition-colors flex-shrink-0"><Download size={11}/>View</button></div>)})}</div>}
         </div>}
 
-        <p className="text-center text-xs text-gray-400 pb-4">Powered by LetFlow · UK HMO Management</p>
+        <p className="text-center text-xs text-gray-400 pb-4">Powered by LetFlowUK · UK HMO Management</p>
       </div>
     </div>
   )
