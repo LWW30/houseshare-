@@ -237,7 +237,7 @@ export default function RRAPage() {
           Your progress is saved locally in your browser. Last updated April 2026.
         </p>
       </div>
-          </ProGate>
+      </ProGate>
     </Layout>
   )
 }
