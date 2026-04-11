@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
+import { usePlan } from '../../../lib/usePlan'
 import Layout from '../../../components/Layout'
+import { useRouter } from 'next/router'
 import { useAuth } from '../../../lib/useAuth'
 import { getProperties, getTenantsByProperty, type Property, type Tenant } from '../../../lib/supabase'
 import { supabase } from '../../../lib/supabase'
@@ -21,7 +23,9 @@ type S8Ground = typeof S8_GROUNDS[number]
 interface FormState { noticeType: NoticeType; tenantId: string; groundId: string; arrearsAmount: string; arrearsMonths: string; breachDescription: string; currentRent: string; newRent: string; increaseReason: string; serveDate: string; landlordName: string; landlordAddress: string }
 
 export default function NoticesPage() {
+  const router = useRouter()
   const { user, loading } = useAuth()
+  const { isPro, planLoading } = usePlan()
   const [tenants, setTenants] = useState<Tenant[]>([])
   const [dataLoading, setDataLoading] = useState(true)
   const [copied, setCopied] = useState(false)
@@ -131,6 +135,22 @@ IMPORTANT: This is a template — not legal advice. Keep a record of service (re
   const handlePrint = () => { const w = window.open('','_blank'); if (!w) return; w.document.write('<html><head><title>Notice</title><style>body{font-family:monospace;font-size:12pt;white-space:pre-wrap;margin:40px}</style></head><body>' + noticeText.replace(/</g,'&lt;') + '</body></html>'); w.document.close(); w.print() }
 
   if (loading || dataLoading) return <Layout><div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-gray-400" /></div></Layout>
+
+  if (!isPro && !planLoading) return (
+    <Layout>
+      <div className="flex flex-col items-center justify-center py-24 px-8 text-center">
+        <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5" style={{ background: 'var(--text-primary)' }}>
+          <span style={{ fontSize: 22 }}>⚡</span>
+        </div>
+        <h2 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Legal notice generator is a Pro feature</h2>
+        <p className="text-sm mb-6 max-w-xs" style={{ color: 'var(--text-secondary)' }}>Generate Section 8 and Section 13 notices in minutes, pre-filled with your tenant data. RRA 2025 compliant.</p>
+        <button onClick={() => router.push('/dashboard/billing')} className="btn-primary flex items-center gap-2 px-6 py-2.5">
+          ⚡ Upgrade to Pro — £19/mo
+        </button>
+        <p className="text-xs mt-3" style={{ color: 'var(--text-muted)' }}>14-day free trial · Cancel any time</p>
+      </div>
+    </Layout>
+  )
 
   return (
     <Layout>
