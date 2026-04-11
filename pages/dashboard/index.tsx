@@ -131,6 +131,17 @@ export default function Dashboard() {
         </div>
 
         <RRABanner />
+        {!isPro && properties.length >= 2 && (
+          <div className='mb-4 bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-2xl px-5 py-4 flex items-center justify-between'>
+            <div>
+              <div className='text-sm font-medium text-purple-900'>You've reached the free plan limit</div>
+              <div className='text-xs text-purple-600 mt-0.5'>Upgrade to Pro for unlimited properties, maintenance tracking and more</div>
+            </div>
+            <Link href='/dashboard/billing' className='text-xs font-semibold bg-purple-600 text-white px-4 py-2 rounded-xl hover:bg-purple-700 transition-colors flex-shrink-0 ml-4'>
+              Upgrade to Pro
+            </Link>
+          </div>
+        )}
 
         {expiredDocs.length > 0 && (
           <Link href='/dashboard/documents'><div className='mb-4 bg-red-50 border border-red-200 rounded-2xl px-5 py-4 flex items-center gap-3 hover:bg-red-100 transition-colors cursor-pointer'><AlertTriangle size={16} className='text-red-600 flex-shrink-0' /><div className='flex-1'><span className='text-sm font-medium text-red-800'>{expiredDocs.length} compliance document{expiredDocs.length > 1 ? 's' : ''} expired </span><span className='text-xs text-red-600'>{expiredDocs.map(d => d.name).join(', ')}</span></div><ChevronRight size={14} className='text-red-400' /></div></Link>
