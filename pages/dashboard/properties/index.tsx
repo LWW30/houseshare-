@@ -195,7 +195,7 @@ export default function PropertiesPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>Properties</h1>
-            <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>{properties.length} property{properties.length !== 1 ? 's' : ''} in your portfolio</p>
+            <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>{properties.length} {properties.length === 1 ? 'property' : 'properties'} in your portfolio</p>
           </div>
           <button onClick={() => setShowPropModal(true)} className="btn-primary flex items-center gap-2">
             <Plus size={14} /> Add property
@@ -224,7 +224,20 @@ export default function PropertiesPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{rooms[p.id]?.length ?? ''} rooms</span>
+                    <div className="flex items-center gap-2 text-xs" style={{ color: 'var(--text-muted)' }}>
+                  <span>{rooms[p.id]?.length ?? 0} room{rooms[p.id]?.length !== 1 ? 's' : ''}</span>
+                  {rooms[p.id]?.length > 0 && (
+                    <span className={
+                      tenants[p.id]?.length === rooms[p.id]?.length
+                        ? 'text-green-600 font-medium'
+                        : tenants[p.id]?.length === 0
+                        ? 'text-red-500'
+                        : 'text-amber-600'
+                    }>
+                      {tenants[p.id]?.length ?? 0}/{rooms[p.id]?.length} occupied
+                    </span>
+                  )}
+                </div>
                     <button onClick={() => { setShowEditPropModal(p); setEditPropForm({ name: p.name, address: p.address }) }}
                       className="p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-500 transition-colors">
                       <Edit2 size={13} />
