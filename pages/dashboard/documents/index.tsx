@@ -1,6 +1,4 @@
 import { useEffect, useState, useRef } from 'react'
-import { usePlan } from '../../../lib/usePlan'
-import { ProGate } from '../../../components/ProGate'
 import Layout from '../../../components/Layout'
 import { useAuth } from '../../../lib/useAuth'
 import { getProperties, type Property } from '../../../lib/supabase'
@@ -61,7 +59,6 @@ function formatBytes(bytes: number) {
 
 export default function DocumentsPage() {
   const { user, loading } = useAuth()
-  const { isPro, planLoading } = usePlan()
   const [properties, setProperties] = useState<Property[]>([])
   const [documents, setDocuments] = useState<Document[]>([])
   const [dataLoading, setDataLoading] = useState(true)
@@ -187,13 +184,11 @@ export default function DocumentsPage() {
     : documents.filter(d => d.category === filter)
 
   if (loading || dataLoading) return (
-    <Layout>
-      <div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-gray-400" /></div></Layout>
+    <Layout><div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-gray-400" /></div></Layout>
   )
 
   return (
     <Layout>
-      <ProGate feature="Compliance documents" description="Store Gas Safe, EICR, EPC certificates and tenancy agreements with expiry tracking and automated alerts." isPro={isPro} planLoading={planLoading}>
       <div className="p-8 max-w-4xl">
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -364,8 +359,6 @@ export default function DocumentsPage() {
           </div>
         )}
       </div>
-      
-    </ProGate>
     </Layout>
   )
 }
