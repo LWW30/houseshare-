@@ -44,10 +44,26 @@ export default function PropertiesPage() {
 
   useEffect(() => {
     if (!user) return
-    getProperties(user.id).then(data => {
-      setProperties(data)
+    async function load() {
+      const props = await getProperties(user!.id)
+      setProperties(props)
+      if (props.length > 0) {
+        const [roomsArr, tenantsArr] = await Promise.all([
+          Promise.all(props.map(p => getRooms(p.id))),
+          Promise.all(props.map(p => getTenantsByProperty(p.id))),
+        ])
+        const roomsMap: Record<string, Room[]> = {}
+        const tenantsMap: Record<string, Tenant[]> = {}
+        props.forEach((p, i) => {
+          roomsMap[p.id] = roomsArr[i]
+          tenantsMap[p.id] = tenantsArr[i]
+        })
+        setRooms(roomsMap)
+        setTenants(tenantsMap)
+      }
       setDataLoading(false)
-    })
+    }
+    load()
   }, [user])
 
   const expandProperty = async (id: string) => {
