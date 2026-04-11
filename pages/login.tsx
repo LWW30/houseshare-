@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabase'
 import { Building2, Mail, Lock, Eye, EyeOff } from 'lucide-react'
@@ -14,35 +14,34 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
+  // Read ?mode=signup&plan=pro from URL (e.g. from landing page Pro button)
+  useEffect(() => {
+    if (router.query.mode === 'signup') setMode('signup')
+  }, [router.query.mode])
+
+  const isPro = router.query.plan === 'pro'
+  const redirectPath = isPro ? '/dashboard/billing' : '/dashboard'
+
   const handle = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError('')
     setSuccess('')
-
     try {
       if (mode === 'signup') {
         const { error } = await supabase.auth.signUp({ email, password })
         if (error) throw error
-        setSuccess('Check your email to confirm your account, then log in.')
+        setSuccess('Check your email to confirm your account, then sign in below.')
+        setMode('login')
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-          options: {
-            // If remember me is checked, session lasts 30 days, otherwise expires when browser closes
-          }
-        })
+        const { error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) throw error
-
         if (!rememberMe) {
-          // Set a flag so we know this is a session-only login
           sessionStorage.setItem('session_only', 'true')
         } else {
           sessionStorage.removeItem('session_only')
         }
-
-        router.push('/dashboard')
+        router.push(redirectPath)
       }
     } catch (err: any) {
       setError(err.message || 'Something went wrong')
@@ -54,20 +53,27 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        {/* Logo */}
         <div className="flex items-center gap-2 justify-center mb-8">
           <div className="w-9 h-9 bg-gray-900 rounded-xl flex items-center justify-center">
             <Building2 size={18} className="text-white" />
           </div>
-          <span className="text-xl font-semibold text-gray-900">HouseShare</span>
+          <span className="text-xl font-semibold text-gray-900">LetFlowUK</span>
         </div>
+
+        {isPro && mode === 'signup' && (
+          <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-xl text-sm text-green-800 text-center font-medium">
+            🎉 14-day free trial — create your account to get started
+          </div>
+        )}
 
         <div className="card p-6">
           <h1 className="text-lg font-semibold text-gray-900 mb-1">
             {mode === 'login' ? 'Welcome back' : 'Create your account'}
           </h1>
           <p className="text-sm text-gray-500 mb-6">
-            {mode === 'login' ? 'Sign in to your landlord dashboard' : 'Start managing your house shares'}
+            {mode === 'login'
+              ? isPro ? 'Sign in to continue to Pro checkout' : 'Sign in to your landlord dashboard'
+              : 'Start managing your house shares'}
           </p>
 
           {error && (
@@ -75,7 +81,6 @@ export default function LoginPage() {
               {error}
             </div>
           )}
-
           {success && (
             <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-xl text-sm text-green-700">
               {success}
@@ -97,7 +102,6 @@ export default function LoginPage() {
                 />
               </div>
             </div>
-
             <div>
               <label className="label">Password</label>
               <div className="relative">
@@ -120,7 +124,6 @@ export default function LoginPage() {
                 </button>
               </div>
             </div>
-
             {mode === 'login' && (
               <div className="flex items-center gap-2">
                 <input
@@ -135,7 +138,6 @@ export default function LoginPage() {
                 </label>
               </div>
             )}
-
             <button
               type="submit"
               disabled={loading}
@@ -150,15 +152,19 @@ export default function LoginPage() {
           <div className="mt-5 text-center text-sm text-gray-500">
             {mode === 'login' ? (
               <>No account?{' '}
-                <button onClick={() => { setMode('signup'); setError(''); setSuccess('') }}
-                  className="text-gray-900 font-medium hover:underline">
+                <button
+                  onClick={() => { setMode('signup'); setError(''); setSuccess('') }}
+                  className="text-gray-900 font-medium hover:underline"
+                >
                   Sign up free
                 </button>
               </>
             ) : (
               <>Already have an account?{' '}
-                <button onClick={() => { setMode('login'); setError(''); setSuccess('') }}
-                  className="text-gray-900 font-medium hover:underline">
+                <button
+                  onClick={() => { setMode('login'); setError(''); setSuccess('') }}
+                  className="text-gray-900 font-medium hover:underline"
+                >
                   Sign in
                 </button>
               </>
