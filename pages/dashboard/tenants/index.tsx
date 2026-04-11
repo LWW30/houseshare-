@@ -5,7 +5,7 @@ import { useAuth } from '../../../lib/useAuth'
 import { getProperties, getTenantsByProperty, createTenant, getRooms, generatePaymentsForTenant, type Property, type Tenant, type Room } from '../../../lib/supabase'
 import { supabase } from '../../../lib/supabase'
 import { Plus, Mail, Phone, Copy, Check, X, Loader2, Edit2, Trash2, LogOut } from 'lucide-react'
-import { format } from 'date-fns'
+import { format, differenceInDays, isPast } from 'date-fns'
 
 function CopyLink({ token }: { token: string }) {
   const [copied, setCopied] = useState(false)
@@ -122,6 +122,12 @@ export default function TenantsPage() {
 
   const filtered = filter === 'all' ? tenants : tenants.filter(t => (t as any).status === filter || (!((t as any).status) && filter === 'active'))
 
+  const endingSoon = tenants.filter(t => {
+    if (!(t as any).tenancy_end || (t as any).status === 'left') return false
+    const days = differenceInDays(new Date((t as any).tenancy_end), new Date())
+    return days >= 0 && days <= 60
+  })
+
   if (loading || dataLoading) return (
     <Layout><div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-gray-400" /></div></Layout>
   )
@@ -150,6 +156,15 @@ export default function TenantsPage() {
           ))}
         </div>
 
+        {endingSoon.length > 0 && (
+          <div className="mb-5 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3">
+            <span className="text-amber-600 mt-0.5">⏰</span>
+            <div>
+              <div className="text-sm font-medium text-amber-800">{endingSoon.length} tenancy{endingSoon.length > 1 ? ' agreements' : ''} ending within 60 days</div>
+              <div className="text-xs text-amber-700 mt-0.5">{endingSoon.map(t => t.name).join(', ')}</div>
+            </div>
+          </div>
+        )}
         {filtered.length === 0 ? (
           <div className="card p-12 text-center">
             <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>No tenants found</p>
