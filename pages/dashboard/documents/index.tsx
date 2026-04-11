@@ -363,7 +363,7 @@ export default function DocumentsPage() {
           </div>
         )}
       </div>
-          </ProGate>
+      </ProGate>
     </Layout>
   )
 }
