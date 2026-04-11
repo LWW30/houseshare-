@@ -11,17 +11,40 @@ export function usePlan() {
 
   useEffect(() => {
     if (authLoading) return
-    if (!user) { setPlanLoading(false); return }
+    if (!user) {
+      setPlanLoading(false)
+      return
+    }
 
-    supabase
-      .from('profiles')
-      .select('plan')
-      .eq('id', user.id)
-      .single()
-      .then(({ data }) => {
-        setPlan((data?.plan as Plan) || 'free')
+    async function fetchPlan() {
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('plan')
+          .eq('id', user!.id)
+          .maybeSingle()
+
+        if (error) {
+          // Table might not have row yet — default to free
+          setPlan('free')
+        } else if (!data) {
+          // No profile row — create one with defaults
+          await supabase.from('profiles').upsert({
+            id: user!.id,
+            plan: 'free',
+          })
+          setPlan('free')
+        } else {
+          setPlan((data.plan as Plan) || 'free')
+        }
+      } catch {
+        setPlan('free')
+      } finally {
         setPlanLoading(false)
-      })
+      }
+    }
+
+    fetchPlan()
   }, [user, authLoading])
 
   const isPro = plan === 'pro'
