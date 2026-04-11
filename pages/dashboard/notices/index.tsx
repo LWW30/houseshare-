@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { usePlan } from '../../../lib/usePlan'
+import { ProGate } from '../../../components/ProGate'
 import Layout from '../../../components/Layout'
 import { useAuth } from '../../../lib/useAuth'
 import { getProperties, getTenantsByProperty, type Property, type Tenant } from '../../../lib/supabase'
@@ -22,6 +24,7 @@ interface FormState { noticeType: NoticeType; tenantId: string; groundId: string
 
 export default function NoticesPage() {
   const { user, loading } = useAuth()
+  const { isPro, planLoading } = usePlan()
   const [tenants, setTenants] = useState<Tenant[]>([])
   const [dataLoading, setDataLoading] = useState(true)
   const [copied, setCopied] = useState(false)
@@ -134,6 +137,7 @@ IMPORTANT: This is a template — not legal advice. Keep a record of service (re
 
   return (
     <Layout>
+      <ProGate feature="Legal notice generator" description="Generate Section 8 and Section 13 notices in minutes, pre-filled with your tenant data. RRA 2025 compliant — saves hundreds in solicitor fees." isPro={isPro} planLoading={planLoading}>
       <div className="p-6 md:p-8 max-w-5xl">
         <div className="mb-6">
           <h1 className="text-2xl font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Legal notices</h1>
@@ -225,6 +229,7 @@ IMPORTANT: This is a template — not legal advice. Keep a record of service (re
 
         <div className="mt-8 text-xs text-center" style={{color:'var(--text-muted)'}}>Templates based on the Housing Act 1988 as amended by the Renters Rights Act 2025 — <a href="https://www.gov.uk/evict-tenants/section-8" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-700">Gov.uk possession guidance</a></div>
       </div>
+          </ProGate>
     </Layout>
   )
 }
