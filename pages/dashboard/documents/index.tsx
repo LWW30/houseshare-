@@ -193,6 +193,7 @@ export default function DocumentsPage() {
 
   return (
     <Layout>
+      <ProGate feature="Compliance documents" description="Store Gas Safe, EICR, EPC certificates and tenancy agreements with expiry tracking and automated alerts." isPro={isPro} planLoading={planLoading}>
       <div className="p-8 max-w-4xl">
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -363,7 +364,8 @@ export default function DocumentsPage() {
           </div>
         )}
       </div>
-      </ProGate>
+      
+    </ProGate>
     </Layout>
   )
 }
