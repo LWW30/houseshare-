@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { usePlan } from '../../../lib/usePlan'
+import { ProGate } from '../../../components/ProGate'
 import Layout from '../../../components/Layout'
 import { useAuth } from '../../../lib/useAuth'
 import { getProperties, type Property } from '../../../lib/supabase'
@@ -38,6 +40,7 @@ const STATUS_CFG: Record<Status, { label: string; icon: any; color: string }> = 
 
 export default function MaintenancePage() {
   const { user, loading } = useAuth()
+  const { isPro, planLoading } = usePlan()
   const [requests, setRequests] = useState<MaintenanceRequest[]>([])
   const [properties, setProperties] = useState<Property[]>([])
   const [dataLoading, setDataLoading] = useState(true)
@@ -103,6 +106,7 @@ export default function MaintenancePage() {
 
   return (
     <Layout>
+      <ProGate feature="Maintenance tracking" description="Log and track tenant maintenance requests, update status and add landlord notes. Timestamped records protect you legally now Section 21 is abolished." isPro={isPro} planLoading={planLoading}>
       <div className="p-6 md:p-8 max-w-4xl">
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -265,6 +269,7 @@ export default function MaintenancePage() {
           </div>
         )}
       </div>
+          </ProGate>
     </Layout>
   )
 }
