@@ -238,8 +238,7 @@ export default function RRAPage() {
         </p>
       </div>
       
-    </ProGate>
-    </ProGate>
+      </ProGate>
     </Layout>
   )
 }
