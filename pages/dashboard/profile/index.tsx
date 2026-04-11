@@ -12,7 +12,7 @@ export default function ProfilePage() {
   const router = useRouter()
   const fileRef = useRef<HTMLInputElement>(null)
 
-  const [profile, setProfile] = useState({ display_name: '', avatar_url: '' })
+  const [profile, setProfile] = useState({ display_name: '', avatar_url: '', notification_email: '' })
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
@@ -194,6 +194,17 @@ export default function ProfilePage() {
               <label className="label">Email</label>
               <input className="input" value={user?.email || ''} disabled style={{ opacity: 0.6 }} />
               <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>Email cannot be changed here</p>
+            </div>
+            <div>
+              <label className="label">Maintenance alert email</label>
+              <input
+                className="input"
+                type="email"
+                placeholder={user?.email || 'your@email.com'}
+                value={profile.notification_email}
+                onChange={e => setProfile(p => ({ ...p, notification_email: e.target.value }))}
+              />
+              <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>Receive email alerts when tenants report maintenance issues. Defaults to your account email.</p>
             </div>
           </div>
 
