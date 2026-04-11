@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import { usePlan } from '../../../lib/usePlan'
+import { ProGate } from '../../../components/ProGate'
 import Layout from '../../../components/Layout'
 import { CheckCircle2, Circle, AlertTriangle, ExternalLink, ChevronDown, ChevronUp, Shield } from 'lucide-react'
 
@@ -109,6 +111,7 @@ export default function RRAPage() {
 
   return (
     <Layout>
+      <ProGate feature="RRA 2025 compliance checklist" description="Interactive checklist covering all Renters Rights Act obligations — Section 21 abolition, new eviction rules, rent increases and deposit caps." isPro={isPro} planLoading={planLoading}>
       <div className="p-6 md:p-8 max-w-3xl">
         {/* Header */}
         <div className="flex items-start gap-3 mb-6">
@@ -234,6 +237,7 @@ export default function RRAPage() {
           Your progress is saved locally in your browser. Last updated April 2026.
         </p>
       </div>
+          </ProGate>
     </Layout>
   )
 }
