@@ -1,5 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
+import { usePlan } from '../../../lib/usePlan'
 import Layout from '../../../components/Layout'
+import { useRouter } from 'next/router'
 import { useAuth } from '../../../lib/useAuth'
 import { getProperties, type Property } from '../../../lib/supabase'
 import { supabase } from '../../../lib/supabase'
@@ -58,7 +60,9 @@ function formatBytes(bytes: number) {
 }
 
 export default function DocumentsPage() {
+  const router = useRouter()
   const { user, loading } = useAuth()
+  const { isPro, planLoading } = usePlan()
   const [properties, setProperties] = useState<Property[]>([])
   const [documents, setDocuments] = useState<Document[]>([])
   const [dataLoading, setDataLoading] = useState(true)
@@ -185,6 +189,22 @@ export default function DocumentsPage() {
 
   if (loading || dataLoading) return (
     <Layout><div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-gray-400" /></div></Layout>
+  )
+
+  if (!isPro && !planLoading) return (
+    <Layout>
+      <div className="flex flex-col items-center justify-center py-24 px-8 text-center">
+        <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5" style={{ background: 'var(--text-primary)' }}>
+          <span style={{ fontSize: 22 }}>⚡</span>
+        </div>
+        <h2 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Compliance documents is a Pro feature</h2>
+        <p className="text-sm mb-6 max-w-xs" style={{ color: 'var(--text-secondary)' }}>Store Gas Safe, EICR, EPC certificates and tenancy agreements with expiry tracking and automated alerts.</p>
+        <button onClick={() => router.push('/dashboard/billing')} className="btn-primary flex items-center gap-2 px-6 py-2.5">
+          ⚡ Upgrade to Pro — £19/mo
+        </button>
+        <p className="text-xs mt-3" style={{ color: 'var(--text-muted)' }}>14-day free trial · Cancel any time</p>
+      </div>
+    </Layout>
   )
 
   return (
