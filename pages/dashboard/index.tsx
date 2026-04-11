@@ -22,7 +22,7 @@ function greeting() {
 
 export default function Dashboard() {
   const { user, loading } = useAuth()
-  const { isPro } = usePlan()
+  const { isPro, planLoading } = usePlan()
   const router = useRouter()
   const [properties, setProperties] = useState<Property[]>([])
   const [payments, setPayments] = useState<RentPayment[]>([])
@@ -100,11 +100,11 @@ export default function Dashboard() {
               <Link href='/dashboard/billing' className='text-xs px-2.5 py-1 rounded-full font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200 transition-colors'>Free plan</Link>
             )}
             <div className='flex items-center gap-3'>
-            {isPro ? (
+            {!planLoading && (isPro ? (
               <span className='text-xs px-2.5 py-1 rounded-full font-semibold bg-purple-100 text-purple-700 border border-purple-200'>⚡ Pro</span>
             ) : (
               <Link href='/dashboard/billing' className='text-xs px-2.5 py-1 rounded-full font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200 transition-colors'>Free plan</Link>
-            )}
+            ))}
             <button onClick={handleSignOut} className='flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-700'><LogOut size={14} />Sign out</button>
           </div>
           </div>
