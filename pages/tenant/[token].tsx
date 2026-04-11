@@ -51,30 +51,7 @@ export default function TenantPortal() {
     if (!tenant || !maintForm.title.trim()) return
     setSubmitting(true)
     const { data, error } = await supabase.from('maintenance_requests').insert({ property_id: tenant.property_id, title: maintForm.title, description: maintForm.description, priority: maintForm.priority, status: 'open', submitted_by_tenant_id: tenant.id, submitted_by_tenant_name: tenant.name }).select().single()
-    if (!error && data) {
-      setMaintenance(p=>[data,...p]); setSubmitted(true); setShowForm(false); setMaintForm({title:'',description:'',priority:'medium'}); setTimeout(()=>setSubmitted(false),4000)
-      // Notify landlord by email
-      try {
-        const { data: propData } = await supabase.from('properties').select('landlord_id').eq('id', tenant.property_id).single()
-        if (propData?.landlord_id) {
-          const { data: profile } = await supabase.from('profiles').select('id').eq('id', propData.landlord_id).single()
-          const { data: authUser } = await supabase.from('auth_user_emails').select('email').eq('id', propData.landlord_id).single().catch(() => ({ data: null }))
-          // Use the landlord's auth email via a separate lookup
-          await fetch('/api/maintenance/notify', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              tenantName: tenant.name,
-              propertyAddress: tenant.property?.address || '',
-              title: maintForm.title,
-              description: maintForm.description,
-              priority: maintForm.priority,
-              landlordEmail: 'lukewwalker12@gmail.com', // fallback for now — will use auth lookup
-            })
-          })
-        }
-      } catch (_) {}
-    }
+    if (!error && data) { setMaintenance(p=>[data,...p]); setSubmitted(true); setShowForm(false); setMaintForm({title:'',description:'',priority:'medium'}); setTimeout(()=>setSubmitted(false),4000) }
     setSubmitting(false)
   }
 
