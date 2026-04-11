@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import Layout from '../../../components/Layout'
 import { useAuth } from '../../../lib/useAuth'
+import { usePlan } from '../../../lib/usePlan'
+import { useRouter } from 'next/router'
 import { getProperties, createProperty, getRooms, createRoom, getTenantsByProperty, getSharedBills, createSharedBill, toggleBillPaid, type Property, type Room, type Tenant, type SharedBill } from '../../../lib/supabase'
 import { supabase } from '../../../lib/supabase'
 import { Building2, Plus, MapPin, ChevronDown, ChevronUp, X, Loader2, Edit2, Trash2, Check, FileText, Receipt } from 'lucide-react'
@@ -16,6 +18,8 @@ const categoryLabel: Record<string, string> = {
 
 export default function PropertiesPage() {
   const { user, loading } = useAuth()
+  const { isPro } = usePlan()
+  const router = useRouter()
   const [properties, setProperties] = useState<Property[]>([])
   const [expanded, setExpanded] = useState<string | null>(null)
   const [rooms, setRooms] = useState<Record<string, Room[]>>({})
@@ -83,6 +87,7 @@ export default function PropertiesPage() {
 
   const handleAddProperty = async () => {
     if (!propForm.name || !propForm.address || !user) return
+    if (!isPro && properties.length >= 2) { setError('Free plan is limited to 2 properties. Upgrade to Pro for unlimited.'); return }
     setSaving(true); setError('')
     try {
       const p = await createProperty(user.id, propForm.name, propForm.address)
