@@ -33,7 +33,7 @@ export default function ProfilePage() {
     if (!user) return
     supabase.from('profiles').select('*').eq('id', user.id).single().then(({ data }) => {
       if (data) {
-        setProfile({ display_name: data.display_name || '', avatar_url: data.avatar_url || '' })
+        setProfile({ display_name: data.display_name || '', avatar_url: data.avatar_url || '', notification_email: data.notification_email || '' })
         if (data.theme) setTheme(data.theme)
       }
     })
