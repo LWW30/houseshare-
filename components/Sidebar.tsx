@@ -7,22 +7,30 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 
-const nav = [
-  { href: '/dashboard',              label: 'Overview',       icon: Home },
-  { href: '/dashboard/properties',   label: 'Properties',     icon: Building2 },
-  { href: '/dashboard/tenants',      label: 'Tenants',        icon: Users },
-  { href: '/dashboard/payments',     label: 'Payments',       icon: Receipt },
-  { href: '/dashboard/direct-debit', label: 'Direct Debit',   icon: Landmark,     badge: 'New' as const },
-  { href: '/dashboard/bills',        label: 'Shared Bills',   icon: FileText },
-  { href: '/dashboard/maintenance',  label: 'Maintenance',    icon: Wrench },
-  { href: '/dashboard/documents',    label: 'Documents',      icon: FolderOpen },
-  { href: '/dashboard/expenses',     label: 'Expenses',       icon: Receipt },
-  { href: '/dashboard/profit-loss',  label: 'Profit & Loss',  icon: BarChart3 },
-  { href: '/dashboard/notices',      label: 'Legal Notices',  icon: ScrollText,   badge: 'New' as const },
-  { href: '/dashboard/rra',           label: 'RRA 2025',       icon: ShieldCheck,  badge: 'New' as const },
-  { href: '/dashboard/billing',      label: 'Billing',        icon: CreditCard },
-  { href: '/dashboard/profile',      label: 'Profile',        icon: UserCircle },
+type Badge = 'New' | 'Pro' | 'Soon'
+
+const nav: { href: string; label: string; icon: any; badge?: Badge }[] = [
+  { href: '/dashboard',             label: 'Overview',       icon: Home },
+  { href: '/dashboard/properties',  label: 'Properties',     icon: Building2 },
+  { href: '/dashboard/tenants',     label: 'Tenants',        icon: Users },
+  { href: '/dashboard/payments',    label: 'Payments',       icon: Receipt },
+  { href: '/dashboard/direct-debit',label: 'Direct Debit',   icon: Landmark,    badge: 'Soon' },
+  { href: '/dashboard/bills',       label: 'Shared Bills',   icon: FileText },
+  { href: '/dashboard/maintenance', label: 'Maintenance',    icon: Wrench },
+  { href: '/dashboard/documents',   label: 'Documents',      icon: FolderOpen },
+  { href: '/dashboard/expenses',    label: 'Expenses',       icon: Receipt },
+  { href: '/dashboard/profit-loss', label: 'Profit & Loss',  icon: BarChart3 },
+  { href: '/dashboard/notices',     label: 'Legal Notices',  icon: ScrollText,  badge: 'Pro' },
+  { href: '/dashboard/rra',         label: 'RRA 2025',       icon: ShieldCheck, badge: 'Pro' },
+  { href: '/dashboard/billing',     label: 'Billing',        icon: CreditCard },
+  { href: '/dashboard/profile',     label: 'Profile',        icon: UserCircle },
 ]
+
+const badgeStyles: Record<Badge, string> = {
+  New:  'bg-amber-400 text-amber-900',
+  Pro:  'bg-purple-500 text-white',
+  Soon: 'bg-gray-600 text-gray-200',
+}
 
 const Logo = () => (
   <div className="flex items-center gap-2.5">
@@ -58,7 +66,7 @@ export default function Sidebar() {
             <Icon size={16} className="flex-shrink-0" />
             <span className="flex-1 truncate">{label}</span>
             {badge && (
-              <span className="text-xs px-1.5 py-0.5 rounded-full font-semibold bg-amber-400 text-amber-900 leading-none flex-shrink-0">
+              <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold leading-none flex-shrink-0 ${badgeStyles[badge]}`}>
                 {badge}
               </span>
             )}
