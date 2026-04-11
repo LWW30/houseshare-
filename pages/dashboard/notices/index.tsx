@@ -229,7 +229,7 @@ IMPORTANT: This is a template — not legal advice. Keep a record of service (re
 
         <div className="mt-8 text-xs text-center" style={{color:'var(--text-muted)'}}>Templates based on the Housing Act 1988 as amended by the Renters Rights Act 2025 — <a href="https://www.gov.uk/evict-tenants/section-8" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-700">Gov.uk possession guidance</a></div>
       </div>
-          </ProGate>
+      </ProGate>
     </Layout>
   )
 }
