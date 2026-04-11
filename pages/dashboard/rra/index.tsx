@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { usePlan } from '../../../lib/usePlan'
 import Layout from '../../../components/Layout'
 import { CheckCircle2, Circle, AlertTriangle, ExternalLink, ChevronDown, ChevronUp, Shield } from 'lucide-react'
 
@@ -107,22 +106,6 @@ export default function RRAPage() {
   const required = allItems.filter(i => i.required)
   const doneCount = required.filter(i => checked[i.id]).length
   const pct = required.length > 0 ? Math.round((doneCount / required.length) * 100) : 0
-
-  if (!isPro && !planLoading) return (
-    <Layout>
-      <div className="flex flex-col items-center justify-center py-24 px-8 text-center">
-        <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5" style={{ background: 'var(--text-primary)' }}>
-          <span style={{ fontSize: 22 }}>⚡</span>
-        </div>
-        <h2 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>RRA 2025 compliance checklist is a Pro feature</h2>
-        <p className="text-sm mb-6 max-w-xs" style={{ color: 'var(--text-secondary)' }}>Interactive checklist covering all Renters Rights Act obligations — Section 21 abolition, new eviction rules, rent increases and deposit caps.</p>
-        <button onClick={() => router.push('/dashboard/billing')} className="btn-primary flex items-center gap-2 px-6 py-2.5">
-          ⚡ Upgrade to Pro — £19/mo
-        </button>
-        <p className="text-xs mt-3" style={{ color: 'var(--text-muted)' }}>14-day free trial · Cancel any time</p>
-      </div>
-    </Layout>
-  )
 
   return (
     <Layout>
