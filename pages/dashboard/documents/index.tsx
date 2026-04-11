@@ -188,7 +188,7 @@ export default function DocumentsPage() {
 
   if (loading || dataLoading) return (
     <Layout>
-      <ProGate feature="Compliance documents" description="Store Gas Safe, EICR, EPC certificates and tenancy agreements with expiry tracking and automated alerts." isPro={isPro} planLoading={planLoading}><div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-gray-400" /></div></Layout>
+      <div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-gray-400" /></div></Layout>
   )
 
   return (
