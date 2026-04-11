@@ -19,8 +19,8 @@ export default function BillingPage() {
 
   useEffect(() => { if (!authLoading && user) loadProfile() }, [user, authLoading])
   async function loadProfile() { const { data } = await supabase.from('profiles').select('*').eq('id', user!.id).single(); setProfile(data); setProfileLoading(false) }
-  async function handleUpgrade() { setUpgrading(true); try { const res = await fetch('/api/stripe/checkout', { method: 'POST' }); const { url, error } = await res.json(); if (error) throw new Error(error); window.location.href = url } catch { setUpgrading(false) } }
-  async function handleManage() { setManaging(true); try { const res = await fetch('/api/stripe/portal', { method: 'POST' }); const { url, error } = await res.json(); if (error) throw new Error(error); window.location.href = url } catch { setManaging(false) } }
+  async function handleUpgrade() { setUpgrading(true); try { const { data: { session } } = await supabase.auth.getSession(); const res = await fetch('/api/stripe/checkout', { method: 'POST', headers: { 'Authorization': `Bearer ${session?.access_token}` } }); const { url, error } = await res.json(); if (error) throw new Error(error); window.location.href = url } catch (e) { console.error('Upgrade error:', e); setUpgrading(false) } }
+  async function handleManage() { setManaging(true); try { const { data: { session } } = await supabase.auth.getSession(); const res = await fetch('/api/stripe/portal', { method: 'POST', headers: { 'Authorization': `Bearer ${session?.access_token}` } }); const { url, error } = await res.json(); if (error) throw new Error(error); window.location.href = url } catch (e) { console.error('Portal error:', e); setManaging(false) } }
 
   if (authLoading || profileLoading) return <Layout><div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-gray-400" /></div></Layout>
 
