@@ -1,18 +1,29 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
-import { buffer } from 'micro'
 
 export const config = { api: { bodyParser: false } }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2023-10-16' })
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
+
+async function getRawBody(req: NextApiRequest): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = []
+    req.on('data', (chunk: Buffer) => chunks.push(chunk))
+    req.on('end', () => resolve(Buffer.concat(chunks)))
+    req.on('error', reject)
+  })
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).end()
 
   const sig = req.headers['stripe-signature']!
-  const buf = await buffer(req)
+  const buf = await getRawBody(req)
 
   let event: Stripe.Event
   try {
@@ -44,12 +55,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (event.type === 'customer.subscription.updated') {
       const sub = event.data.object as Stripe.Subscription
-      const customerId = sub.customer as string
-
       const { data: profile } = await supabase
         .from('profiles')
         .select('id')
-        .eq('stripe_customer_id', customerId)
+        .eq('stripe_customer_id', sub.customer as string)
         .single()
 
       if (profile) {
@@ -66,13 +75,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (event.type === 'customer.subscription.deleted') {
       const sub = event.data.object as Stripe.Subscription
-      const customerId = sub.customer as string
-
       await supabase.from('profiles').update({
         plan: 'free',
         subscription_status: 'canceled',
         stripe_subscription_id: null,
-      }).eq('stripe_customer_id', customerId)
+      }).eq('stripe_customer_id', sub.customer as string)
     }
 
     res.json({ received: true })
