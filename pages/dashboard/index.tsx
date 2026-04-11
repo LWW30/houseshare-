@@ -3,6 +3,7 @@ import Layout from '../../components/Layout'
 import StatusBadge from '../../components/StatusBadge'
 import RRABanner from '../../components/RRABanner'
 import { useAuth } from '../../lib/useAuth'
+import { usePlan } from '../../lib/usePlan'
 import { getProperties, getRentPayments, getSharedBills, getExpenses, signOut, type Property, type RentPayment, type SharedBill } from '../../lib/supabase'
 import { supabase } from '../../lib/supabase'
 import { format, differenceInDays, isPast, addDays, isWithinInterval } from 'date-fns'
@@ -21,6 +22,7 @@ function greeting() {
 
 export default function Dashboard() {
   const { user, loading } = useAuth()
+  const { isPro } = usePlan()
   const router = useRouter()
   const [properties, setProperties] = useState<Property[]>([])
   const [payments, setPayments] = useState<RentPayment[]>([])
@@ -91,7 +93,14 @@ export default function Dashboard() {
       <div className='p-8 max-w-2xl'>
         <div className='flex items-center justify-between mb-8'>
           <h1 className='text-2xl font-semibold' style={{ color: 'var(--text-primary)' }}>{greeting()}</h1>
-          <button onClick={handleSignOut} className='flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-700'><LogOut size={14} />Sign out</button>
+          <div className='flex items-center gap-3'>
+            {isPro ? (
+              <span className='text-xs px-2.5 py-1 rounded-full font-semibold bg-purple-100 text-purple-700 border border-purple-200'>⚡ Pro</span>
+            ) : (
+              <Link href='/dashboard/billing' className='text-xs px-2.5 py-1 rounded-full font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200 transition-colors'>Free plan</Link>
+            )}
+            <button onClick={handleSignOut} className='flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-700'><LogOut size={14} />Sign out</button>
+          </div>
         </div>
         <div className='card p-8 text-center'>
           <div className='w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4'><Building2 size={24} className='text-gray-400' /></div>
