@@ -6,6 +6,7 @@ import {
   CreditCard, ShieldCheck, Landmark, ScrollText, BarChart3,
 } from 'lucide-react'
 import { useState } from 'react'
+import { usePlan } from '../lib/usePlan'
 
 type Badge = 'New' | 'Pro' | 'Soon'
 
@@ -49,6 +50,7 @@ const Logo = () => (
 export default function Sidebar() {
   const router = useRouter()
   const [open, setOpen] = useState(false)
+  const { isPro } = usePlan()
 
   const NavLinks = () => (
     <>
@@ -89,7 +91,18 @@ export default function Sidebar() {
         <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
           <NavLinks />
         </nav>
-        <div className="px-4 py-4 border-t border-gray-800">
+        <div className="px-4 py-4 border-t border-gray-800 space-y-2">
+          {isPro ? (
+            <div className="flex items-center gap-2">
+              <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-purple-500 text-white">⚡ Pro</span>
+              <span className="text-xs text-gray-500">Active</span>
+            </div>
+          ) : (
+            <Link href="/dashboard/billing" className="flex items-center gap-2 group">
+              <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-gray-700 text-gray-300 group-hover:bg-gray-600 transition-colors">Free plan</span>
+              <span className="text-xs text-gray-500 group-hover:text-gray-400">Upgrade ↗</span>
+            </Link>
+          )}
           <div className="text-xs text-gray-500">UK HMO Landlord Portal</div>
         </div>
       </aside>
