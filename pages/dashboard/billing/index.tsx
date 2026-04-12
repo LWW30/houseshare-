@@ -7,7 +7,7 @@ import { Check, Loader2, Zap, ShieldCheck, Landmark, ScrollText, ExternalLink } 
 import { format } from 'date-fns'
 
 const FREE_FEATURES = ['Up to 2 properties','Per-room rent tracking','Compliance certificate tracking','Maintenance issue log','Document storage','Shared bills splitting','Tenant portal links','RRA 2025 compliance checklist','Legal notice generator (S8 and S13)']
-const PRO_FEATURES = ['Unlimited properties','Everything in Free','GoCardless Direct Debit collection','Automated tenant email reminders','Priority email support']
+const PRO_FEATURES = ['Unlimited properties','Everything in Free','RRA 2025 compliance checklist','Section 8 & 13 legal notice generator','Maintenance issue tracking','Document storage & expiry alerts','Automated tenant email reminders','GoCardless Direct Debit (coming soon)']
 
 export default function BillingPage() {
   const router = useRouter()
