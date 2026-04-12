@@ -33,6 +33,7 @@ export default function ExpensesPage() {
   const [saving, setSaving] = useState(false)
   const [filterProp, setFilterProp] = useState('')
   const [filterMonth, setFilterMonth] = useState('')
+  const [filterTaxYear, setFilterTaxYear] = useState('')
   const [deleting, setDeleting] = useState<string | null>(null)
   const [flash, setFlash] = useState<string | null>(null)
 
@@ -221,7 +222,13 @@ export default function ExpensesPage() {
             <option value="">All properties</option>
             {properties.map(p => <option key={p.id} value={p.id}>{p.address}</option>)}
           </select>
-          <input type="month" className="input text-sm py-1.5" style={{ width: 'auto' }} value={filterMonth} onChange={e => setFilterMonth(e.target.value)} />
+          <input type="month" className="input text-sm py-1.5" style={{ width: 'auto' }} value={filterMonth} onChange={e => { setFilterMonth(e.target.value); setFilterTaxYear('') }} />
+          <select className="input text-sm py-1.5" style={{ width: 'auto' }} value={filterTaxYear} onChange={e => { setFilterTaxYear(e.target.value); setFilterMonth('') }}>
+            <option value="">All tax years</option>
+            <option value="2025-26">2025–26 (6 Apr 2025 – 5 Apr 2026)</option>
+            <option value="2024-25">2024–25 (6 Apr 2024 – 5 Apr 2025)</option>
+            <option value="2023-24">2023–24 (6 Apr 2023 – 5 Apr 2024)</option>
+          </select>
           {(filterProp || filterMonth) && (
             <button onClick={() => { setFilterProp(''); setFilterMonth('') }} className="text-xs" style={{ color: 'var(--text-muted)' }}>Clear</button>
           )}
