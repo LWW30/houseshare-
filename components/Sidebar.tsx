@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import {
   Home, Users, Receipt, FileText, Building2,
   Menu, X, FolderOpen, UserCircle, Wrench,
-  CreditCard, ShieldCheck, Landmark, ScrollText, BarChart3,
+  CreditCard, ShieldCheck, Landmark, ScrollText, BarChart3, UserCheck,
 } from 'lucide-react'
 import { useState } from 'react'
 import { usePlan } from '../lib/usePlan'
