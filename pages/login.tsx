@@ -15,7 +15,13 @@ export default function LoginPage() {
   const [success, setSuccess] = useState('')
 
   // Read ?mode=signup&plan=pro from URL (e.g. from landing page Pro button)
+  // Read ?mode= from URL to default to signup
   useEffect(() => {
+    if (router.query.mode === 'signup') setMode('signup')
+    if (router.query.email && typeof router.query.email === 'string') setEmail(router.query.email)
+  }, [router.query])
+
+    useEffect(() => {
     if (router.query.mode === 'signup') setMode('signup')
   }, [router.query.mode])
 
