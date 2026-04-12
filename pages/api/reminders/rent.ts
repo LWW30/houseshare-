@@ -37,7 +37,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const tenantName = (tenant as any).name || 'Tenant'
     const portalUrl = (tenant as any).portal_token
-      ? `${process.env.NEXT_PUBLIC_APP_URL || 'https://houseshare-five.vercel.app'}/tenant/${(tenant as any).portal_token}`
+      ? `${process.env.NEXT_PUBLIC_APP_URL || 'https://app.letflowuk.com'}/tenant/${(tenant as any).portal_token}`
       : null
     const property = (tenant as any).property?.address?.split(',')?.[0] || 'your property'
 
