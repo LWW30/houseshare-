@@ -1,247 +1,167 @@
-import { useRouter } from 'next/router'
+import { useEffect, useState } from 'react'
+import Layout from '../../../components/Layout'
 import { useAuth } from '../../../lib/useAuth'
 import { usePlan } from '../../../lib/usePlan'
-import { useState, useEffect } from 'react'
-import Layout from '../../../components/Layout'
-import { CheckCircle2, Circle, AlertTriangle, ExternalLink, ChevronDown, ChevronUp, Shield } from 'lucide-react'
+import { supabase } from '../../../lib/supabase'
+import { useRouter } from 'next/router'
+import { ShieldCheck, CheckCircle2, Circle, ChevronDown, ChevronUp, Zap } from 'lucide-react'
+import Link from 'next/link'
 
-type CheckItem = {
-  id: string
-  title: string
-  detail: string
-  required: boolean
-  govLink?: string
-}
+type ChecklistItem = { id: string; category: string; text: string; detail: string }
 
-type Section = {
-  id: string
-  title: string
-  icon: string
-  deadline: string
-  items: CheckItem[]
-}
-
-const SECTIONS: Section[] = [
-  {
-    id: 'tenancy',
-    title: 'Tenancy & Eviction',
-    icon: '📋',
-    deadline: '1 May 2026',
-    items: [
-      { id: 's21', title: 'Stop using Section 21 notices', detail: 'Section 21 no-fault evictions are abolished from 1 May 2026. All future evictions must use Section 8 grounds.', required: true, govLink: 'https://www.gov.uk/guidance/renters-rights-act' },
-      { id: 's8', title: 'Understand new Section 8 grounds', detail: 'Familiarise yourself with the updated grounds for possession including new mandatory grounds 1A (selling) and 1B (moving in family).', required: true },
-      { id: 'notice', title: 'Update notice periods', detail: 'Notice periods under Section 8 have changed. Ground 8 (rent arrears) now requires 4 weeks notice minimum.', required: true },
-      { id: 'periodic', title: 'Prepare for periodic tenancies', detail: 'All fixed-term tenancies become periodic after their end date. You cannot contractually prevent tenants leaving with 2 months notice.', required: true },
-    ]
-  },
-  {
-    id: 'rent',
-    title: 'Rent & Deposits',
-    icon: '💷',
-    deadline: '1 May 2026',
-    items: [
-      { id: 'rent_increase', title: 'Use correct rent increase procedure', detail: 'Rent increases can only happen once per year via a Section 13 notice. Tenants can challenge increases at the First-tier Tribunal.', required: true },
-      { id: 'no_bidding', title: 'No rent bidding or pre-tenancy increases', detail: 'It is now illegal to accept rent above your advertised price or invite bidding wars between prospective tenants.', required: true },
-      { id: 'deposit_cap', title: 'Confirm deposit is within 5-week cap', detail: 'Deposits remain capped at 5 weeks rent for properties under £50,000/yr. Ensure all current deposits comply.', required: true },
-      { id: 'deposit_protect', title: 'Verify all deposits are protected', detail: 'All deposits must be in a government-approved scheme (DPS, MyDeposits, or TDS) within 30 days of receipt.', required: true, govLink: 'https://www.gov.uk/tenancy-deposit-protection' },
-    ]
-  },
-  {
-    id: 'pets',
-    title: 'Pets & Alterations',
-    icon: '🐾',
-    deadline: '1 May 2026',
-    items: [
-      { id: 'pets_policy', title: 'Create a written pet request policy', detail: 'Tenants have a right to request a pet. You must respond within 28 days. Refusal requires a reasonable justification.', required: true },
-      { id: 'pet_insurance', title: 'Consider pet damage insurance', detail: 'You can require tenants to take out pet damage insurance as a condition of keeping a pet. Update your tenancy agreements.', required: false },
-      { id: 'alterations', title: 'Review your alterations policy', detail: 'Tenants have new rights to request reasonable alterations. You cannot blanket-prohibit all changes. Update clauses in agreements.', required: true },
-    ]
-  },
-  {
-    id: 'safety',
-    title: 'Safety & Compliance',
-    icon: '🔒',
-    deadline: 'Ongoing',
-    items: [
-      { id: 'gas_safe', title: 'Annual Gas Safe certificate', detail: 'Annual gas safety check by a Gas Safe registered engineer. Certificate must be given to tenants within 28 days.', required: true, govLink: 'https://www.gassaferegister.co.uk/' },
-      { id: 'eicr', title: 'Electrical Installation Condition Report (EICR)', detail: 'EICR required every 5 years for all private rented properties. Must be provided to tenants before they move in.', required: true },
-      { id: 'epc', title: 'EPC rating E or above', detail: 'Minimum EPC rating of E required for new tenancies. Government plans to raise this to C by 2030 — plan ahead.', required: true },
-      { id: 'smoke', title: 'Smoke and CO alarms installed', detail: 'Smoke alarm on every floor, CO alarm in any room with solid fuel burning appliance. Check alarms at start of tenancy.', required: true },
-      { id: 'hmo', title: 'HMO licence (if applicable)', detail: 'HMOs with 5+ people from 2+ households require a mandatory licence. Some councils require licences for smaller HMOs.', required: true },
-    ]
-  },
-  {
-    id: 'admin',
-    title: 'Admin & Communication',
-    icon: '📬',
-    deadline: '1 May 2026',
-    items: [
-      { id: 'how_to_rent', title: 'Provide How to Rent guide', detail: 'Must give tenants the current How to Rent checklist at the start of their tenancy. Updated version must be re-issued when it changes.', required: true, govLink: 'https://www.gov.uk/government/publications/how-to-rent' },
-      { id: 'written_statement', title: 'Provide written statement of tenancy terms', detail: 'Under the Renters Rights Act, all tenants must receive a written statement of their tenancy terms from day one.', required: true },
-      { id: 'register', title: 'Prepare for the Landlord Register', detail: 'A new national landlord register is expected. Keep property and landlord details ready. Fines for non-registration will apply.', required: false },
-      { id: 'ombudsman', title: 'Join a landlord redress scheme', detail: 'All private landlords will be required to join an Ombudsman scheme. The scheme will handle tenant complaints.', required: true },
-    ]
-  },
+const CHECKLIST: ChecklistItem[] = [
+  // Section 21 Abolition
+  { id: 'no_s21', category: 'Section 21 abolished', text: 'Do not issue any new Section 21 notices', detail: 'Section 21 "no-fault" eviction is abolished. All evictions must now use Section 8 with valid grounds.' },
+  { id: 's8_grounds', category: 'Section 21 abolished', text: 'Familiarise yourself with the new Section 8 grounds', detail: 'New mandatory and discretionary grounds added. Ground 1A allows sale of property with 4 months notice.' },
+  { id: 's8_notice', category: 'Section 21 abolished', text: 'Know the required notice periods for each Section 8 ground', detail: 'Different grounds require different notice periods — 2 weeks to 4 months depending on ground.' },
+  // Tenancy Changes
+  { id: 'fixed_term', category: 'Tenancy structure', text: 'Convert all new tenancies to periodic (rolling) agreements', detail: 'Fixed-term tenancies are abolished for new tenancies. All new tenancies start as periodic.' },
+  { id: 'existing_ast', category: 'Tenancy structure', text: 'Existing fixed-term ASTs continue until expiry', detail: 'Existing fixed-term tenancies run their course. No action needed until they expire — they become periodic automatically.' },
+  { id: 'break_clauses', category: 'Tenancy structure', text: 'Remove break clauses from new tenancy agreements', detail: 'Break clauses are no longer valid in periodic tenancies. Update your standard agreement template.' },
+  // Rent Increases
+  { id: 'rent_review', category: 'Rent increases', text: 'Can only increase rent once per year via Section 13', detail: 'Rent increases limited to annual Section 13 process. Contractual rent review clauses no longer enforceable.' },
+  { id: 'rent_notice', category: 'Rent increases', text: 'Give 2 months written notice of any rent increase', detail: 'Must use the new prescribed Section 13 form. Tenants have right to challenge at the First-tier Tribunal.' },
+  { id: 'above_market', category: 'Rent increases', text: 'Ensure increases are at or below market rate', detail: 'Tribunal will assess whether proposed rent is at market level. Above-market increases may be rejected.' },
+  // Deposits
+  { id: 'deposit_cap', category: 'Deposits', text: 'Check deposit cap still applies (5 weeks rent)', detail: 'Deposit cap unchanged at 5 weeks rent for annual rent under £50,000.' },
+  { id: 'deposit_protect', category: 'Deposits', text: 'Protect deposit within 30 days in approved scheme', detail: 'Required: TDS, DPS, or mydeposits. Provide Prescribed Information within 30 days.' },
+  { id: 'deposit_return', category: 'Deposits', text: 'Return deposit within 10 days of agreement on deductions', detail: 'Once deductions agreed (or no deductions), return within 10 days.' },
+  // Pets
+  { id: 'pets_default', category: 'Pets', text: 'Default position is tenants can keep pets', detail: 'Cannot blanket-ban pets. Must consider requests within 42 days and can only refuse with good reason.' },
+  { id: 'pets_insurance', category: 'Pets', text: 'You can require pet damage insurance', detail: 'Landlords can require tenants to have pet insurance. Cannot charge a higher deposit for pets.' },
+  { id: 'pets_reply', category: 'Pets', text: 'Reply to pet requests within 42 days', detail: 'Failure to respond within 42 days is treated as consent. Keep written records of all pet requests and decisions.' },
+  // Safety & Compliance
+  { id: 'gas_safe', category: 'Safety compliance', text: 'Annual gas safety check by registered engineer', detail: 'Gas Safe certificate must be renewed annually and shared with tenants before move-in and on renewal.' },
+  { id: 'eicr', category: 'Safety compliance', text: 'EICR electrical inspection every 5 years', detail: 'Must be done by a qualified electrician. Share with tenants within 28 days of inspection.' },
+  { id: 'epc', category: 'Safety compliance', text: 'EPC rating of E or above (C by 2030 proposed)', detail: 'Current minimum is E. Government proposals would require C by 2030 — begin planning upgrades now.' },
+  { id: 'smoke_co', category: 'Safety compliance', text: 'Smoke alarm on each floor, CO alarm near heat sources', detail: 'Test at start of each tenancy. Required in all rented properties since 2022.' },
+  { id: 'fire_risk', category: 'Safety compliance', text: 'Fire risk assessment for HMOs', detail: 'Required for all HMOs. Review annually or when significant changes made to the property.' },
+  // Awaab's Law
+  { id: 'awaab_damp', category: "Awaab's Law", text: 'Investigate damp and mould reports within 14 days', detail: "Awaab's Law requires landlords to begin investigating damp/mould within 14 days of a report." },
+  { id: 'awaab_fix', category: "Awaab's Law", text: 'Fix damp and mould within specified timescales', detail: 'Emergency hazards: fix within 24 hours. Non-emergency: fix within 7 days of investigation completion.' },
+  { id: 'awaab_records', category: "Awaab's Law", text: 'Keep records of all damp/mould reports and actions', detail: 'Document every report, inspection, and repair. Essential evidence if challenged by tenant or council.' },
+  // Discrimination
+  { id: 'no_dss', category: 'Equal treatment', text: 'Do not discriminate against benefit claimants', detail: '"No DSS" policies are unlawful. Cannot refuse tenants solely because they receive housing benefit or Universal Credit.' },
+  { id: 'no_children', category: 'Equal treatment', text: 'Cannot refuse families with children without good reason', detail: 'Blanket "no children" policies are likely discriminatory under the Equality Act 2010.' },
+  { id: 'disability_adjust', category: 'Equal treatment', text: 'Make reasonable adjustments for disabled tenants', detail: 'Must consider and make reasonable adjustments when requested by disabled tenants.' },
 ]
 
-const STORAGE_KEY = 'rra_checklist_v1'
+function groupBy<T>(arr: T[], key: keyof T): Record<string, T[]> {
+  return arr.reduce((acc, item) => {
+    const k = String(item[key])
+    acc[k] = acc[k] ? [...acc[k], item] : [item]
+    return acc
+  }, {} as Record<string, T[]>)
+}
 
 export default function RRAPage() {
-  const router = useRouter()
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
   const { isPro, planLoading } = usePlan()
+  const router = useRouter()
   const [checked, setChecked] = useState<Record<string, boolean>>({})
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({ tenancy: true })
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({})
+  const [saving, setSaving] = useState(false)
 
+  // Load saved state from Supabase
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY)
-      if (saved) setChecked(JSON.parse(saved))
-    } catch {}
-  }, [])
-
-  function toggle(id: string) {
-    setChecked(prev => {
-      const next = { ...prev, [id]: !prev[id] }
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)) } catch {}
-      return next
+    if (!user) return
+    supabase.from('profiles').select('rra_checklist').eq('id', user.id).single().then(({ data }) => {
+      if (data?.rra_checklist) setChecked(data.rra_checklist as Record<string, boolean>)
     })
+  }, [user])
+
+  const handleToggle = async (id: string) => {
+    const newChecked = { ...checked, [id]: !checked[id] }
+    setChecked(newChecked)
+    if (!user) return
+    setSaving(true)
+    await supabase.from('profiles').upsert({ id: user.id, rra_checklist: newChecked })
+    setSaving(false)
   }
 
-  const allItems = SECTIONS.flatMap(s => s.items)
-  const required = allItems.filter(i => i.required)
-  const doneCount = required.filter(i => checked[i.id]).length
-  const pct = required.length > 0 ? Math.round((doneCount / required.length) * 100) : 0
+  if (loading || planLoading) return <Layout><div className="flex items-center justify-center h-64"><div className="w-6 h-6 border-2 border-gray-200 border-t-gray-900 rounded-full animate-spin" /></div></Layout>
 
-  if (!isPro && !planLoading) return (
+  if (!isPro) return (
     <Layout>
-      <div className="flex flex-col items-center justify-center py-24 px-8 text-center">
-        <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5" style={{ background: 'var(--text-primary)' }}>
-          <Shield size={22} className="text-yellow-400" />
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+        <div className="w-16 h-16 bg-gray-900 rounded-2xl flex items-center justify-center mx-auto mb-5">
+          <ShieldCheck size={28} className="text-white" />
         </div>
-        <h2 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>RRA 2025 checklist is a Pro feature</h2>
-        <p className="text-sm mb-6 max-w-xs" style={{ color: 'var(--text-secondary)' }}>Interactive checklist covering all Renters Rights Act obligations — Section 21 abolition, new eviction rules, rent increases and deposit caps.</p>
-        <button onClick={() => router.push('/dashboard/billing')} className="btn-primary flex items-center gap-2 px-6 py-2.5">
-          ⚡ Upgrade to Pro — £19/mo
-        </button>
+        <h1 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>RRA 2025 checklist is a Pro feature</h1>
+        <p className="text-sm mb-6 max-w-sm" style={{ color: 'var(--text-secondary)' }}>
+          Interactive checklist covering all Renters Rights Act obligations — Section 21 abolition, new eviction rules, rent increases and deposit caps.
+        </p>
+        <Link href="/dashboard/billing" className="btn-primary flex items-center gap-2 px-6 py-2.5">
+          <Zap size={14} /> Upgrade to Pro — £19/mo
+        </Link>
         <p className="text-xs mt-3" style={{ color: 'var(--text-muted)' }}>14-day free trial · Cancel any time</p>
       </div>
     </Layout>
   )
 
+  const groups = groupBy(CHECKLIST, 'category')
+  const total = CHECKLIST.length
+  const done = CHECKLIST.filter(item => checked[item.id]).length
+
   return (
     <Layout>
-      <div className="p-6 md:p-8 max-w-3xl">
-        {/* Header */}
-        <div className="flex items-start gap-3 mb-6">
-          <Shield size={28} className="text-amber-500 flex-shrink-0 mt-0.5" />
+      <div className="p-8 max-w-3xl">
+        <div className="flex items-start justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Renters Rights Act 2025</h1>
-            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-              Key changes take effect <strong>1 May 2026</strong>. Work through this checklist to make sure you are compliant.
-            </p>
+            <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>RRA 2025 Compliance</h1>
+            <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>Renters Rights Act 2025 — interactive checklist</p>
+          </div>
+          <div className="text-right">
+            <div className="text-2xl font-semibold" style={{ color: done === total ? '#16a34a' : 'var(--text-primary)' }}>{done}/{total}</div>
+            <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{saving ? 'Saving...' : 'items complete'}</div>
           </div>
         </div>
 
         {/* Progress bar */}
-        <div className="card p-5 mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-              {doneCount} of {required.length} required items complete
-            </span>
-            <span className={`text-sm font-semibold ${pct === 100 ? 'text-green-500' : pct >= 50 ? 'text-amber-500' : 'text-red-500'}`}>
-              {pct}%
-            </span>
-          </div>
-          <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--border, #e5e7eb)' }}>
-            <div
-              className={`h-full rounded-full transition-all duration-500 ${pct === 100 ? 'bg-green-500' : pct >= 50 ? 'bg-amber-500' : 'bg-red-500'}`}
-              style={{ width: pct + '%' }}
-            />
-          </div>
-          {pct === 100 && (
-            <p className="text-xs mt-2 text-green-500">✅ All required items marked complete — well done!</p>
-          )}
+        <div className="h-2 rounded-full mb-8 overflow-hidden" style={{ background: 'var(--card-border)' }}>
+          <div
+            className="h-full rounded-full transition-all duration-300"
+            style={{ width: `${(done/total)*100}%`, background: done === total ? '#16a34a' : '#111827' }}
+          />
         </div>
 
-        {/* Warning banner */}
-        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 mb-6 flex items-start gap-3">
-          <AlertTriangle size={16} className="text-amber-600 flex-shrink-0 mt-0.5" />
-          <p className="text-xs leading-relaxed text-amber-800">
-            This checklist is a guide only. Always verify your obligations with a qualified solicitor or the official government guidance. 
-            LetFlow is not a legal adviser.
-          </p>
-        </div>
-
-        {/* Sections */}
-        <div className="space-y-3">
-          {SECTIONS.map(section => {
-            const isOpen = expanded[section.id]
-            const sectionDone = section.items.filter(i => i.required && checked[i.id]).length
-            const sectionRequired = section.items.filter(i => i.required).length
+        <div className="space-y-4">
+          {Object.entries(groups).map(([category, items]) => {
+            const catDone = items.filter(i => checked[i.id]).length
+            const isOpen = expanded[category] !== false // default open
             return (
-              <div key={section.id} className="card overflow-hidden">
+              <div key={category} className="card overflow-hidden">
                 <button
-                  className="w-full px-5 py-4 flex items-center gap-3 hover:opacity-80 transition-opacity"
-                  onClick={() => setExpanded(p => ({ ...p, [section.id]: !p[section.id] }))}
+                  onClick={() => setExpanded(p => ({ ...p, [category]: !isOpen }))}
+                  className="w-full px-5 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
                 >
-                  <span className="text-lg">{section.icon}</span>
-                  <div className="flex-1 text-left">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>{section.title}</span>
-                      <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--border)', color: 'var(--text-muted)' }}>
-                        {section.deadline}
-                      </span>
-                    </div>
-                    <div className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                      {sectionDone}/{sectionRequired} required done
-                    </div>
+                  <div className="flex items-center gap-3">
+                    <span className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>{category}</span>
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${catDone === items.length ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                      {catDone}/{items.length}
+                    </span>
                   </div>
-                  {sectionDone === sectionRequired
-                    ? <CheckCircle2 size={16} className="text-green-500 flex-shrink-0" />
-                    : isOpen ? <ChevronUp size={16} style={{ color: 'var(--text-muted)' }} /> : <ChevronDown size={16} style={{ color: 'var(--text-muted)' }} />
-                  }
+                  {isOpen ? <ChevronUp size={15} className="text-gray-400" /> : <ChevronDown size={15} className="text-gray-400" />}
                 </button>
-
                 {isOpen && (
-                  <div className="border-t" style={{ borderColor: 'var(--border)' }}>
-                    {section.items.map((item, idx) => (
-                      <div
-                        key={item.id}
-                        className={`px-5 py-4 flex items-start gap-3 cursor-pointer hover:opacity-80 transition-opacity ${idx < section.items.length - 1 ? 'border-b' : ''}`}
-                        style={{ borderColor: 'var(--border)' }}
-                        onClick={() => toggle(item.id)}
-                      >
-                        <div className="flex-shrink-0 mt-0.5">
-                          {checked[item.id]
-                            ? <CheckCircle2 size={18} className="text-green-500" />
-                            : <Circle size={18} style={{ color: 'var(--text-muted)' }} />
-                          }
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className={`text-sm font-medium ${checked[item.id] ? 'line-through opacity-50' : ''}`} style={{ color: 'var(--text-primary)' }}>
-                              {item.title}
-                            </span>
-                            {!item.required && (
-                              <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: 'var(--border)', color: 'var(--text-muted)' }}>
-                                Recommended
-                              </span>
-                            )}
+                  <div className="divide-y" style={{ borderColor: 'var(--card-border)' }}>
+                    {items.map(item => (
+                      <div key={item.id} className="px-5 py-3.5">
+                        <div className="flex items-start gap-3">
+                          <button onClick={() => handleToggle(item.id)} className="mt-0.5 flex-shrink-0">
+                            {checked[item.id]
+                              ? <CheckCircle2 size={18} className="text-green-500" />
+                              : <Circle size={18} className="text-gray-300" />
+                            }
+                          </button>
+                          <div className="flex-1 min-w-0">
+                            <div className={`text-sm font-medium ${checked[item.id] ? 'line-through opacity-50' : ''}`} style={{ color: 'var(--text-primary)' }}>
+                              {item.text}
+                            </div>
+                            <div className="text-xs mt-1 leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+                              {item.detail}
+                            </div>
                           </div>
-                          <p className="text-xs mt-1 leading-relaxed" style={{ color: 'var(--text-muted)' }}>{item.detail}</p>
-                          {item.govLink && (
-                            <a
-                              href={item.govLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-xs mt-1.5 text-blue-500 hover:underline"
-                              onClick={e => e.stopPropagation()}
-                            >
-                              <ExternalLink size={10} />
-                              Official guidance
-                            </a>
-                          )}
                         </div>
                       </div>
                     ))}
@@ -252,9 +172,9 @@ export default function RRAPage() {
           })}
         </div>
 
-        <p className="text-xs text-center mt-6" style={{ color: 'var(--text-muted)' }}>
-          Your progress is saved locally in your browser. Last updated April 2026.
-        </p>
+        <div className="mt-6 p-4 rounded-2xl border text-xs leading-relaxed" style={{ borderColor: 'var(--card-border)', color: 'var(--text-muted)' }}>
+          <strong style={{ color: 'var(--text-secondary)' }}>Disclaimer:</strong> This checklist is a guide only and does not constitute legal advice. The Renters Rights Act is subject to ongoing implementation — verify current requirements with a qualified solicitor. LetFlowUK accepts no liability for reliance on this checklist.
+        </div>
       </div>
     </Layout>
   )
