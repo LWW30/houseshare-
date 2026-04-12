@@ -22,6 +22,7 @@ const nav: { href: string; label: string; icon: any; badge?: Badge }[] = [
   { href: '/dashboard/expenses',    label: 'Expenses',       icon: Receipt },
   { href: '/dashboard/profit-loss', label: 'Profit & Loss',  icon: BarChart3 },
   { href: '/dashboard/notices',     label: 'Legal Notices',  icon: ScrollText,  badge: 'Pro' },
+  { href: '/dashboard/agreements',  label: 'Tenancy Agreements', icon: FileText, badge: 'Pro' },
   { href: '/dashboard/rra',         label: 'RRA 2025',       icon: ShieldCheck, badge: 'Pro' },
   { href: '/dashboard/billing',     label: 'Billing',        icon: CreditCard },
   { href: '/dashboard/profile',     label: 'Profile',        icon: UserCircle },
