@@ -1,7 +1,7 @@
 {
-  "name": "HouseShare",
-  "short_name": "HouseShare",
-  "description": "UK landlord dashboard for house shares",
+  "name": "LetFlowUK",
+  "short_name": "LetFlowUK",
+  "description": "HMO management for UK landlords",
   "start_url": "/dashboard",
   "display": "standalone",
   "background_color": "#111827",
