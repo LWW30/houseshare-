@@ -1,138 +1,159 @@
-import Link from 'next/link'
 import { useRouter } from 'next/router'
 import {
-  Home, Users, Receipt, FileText, Building2,
+  Home, Users, Receipt, Building2,
   Menu, X, FolderOpen, UserCircle, Wrench,
-  CreditCard, ShieldCheck, Landmark, ScrollText, BarChart3, UserCheck,
+  CreditCard, ShieldCheck, Landmark, ScrollText,
+  BarChart3, FileText, UserCheck, Settings,
+  Banknote, ChevronRight,
 } from 'lucide-react'
+import Link from 'next/link'
 import { useState } from 'react'
 import { usePlan } from '../lib/usePlan'
+import { useAuth } from '../lib/useAuth'
+import { supabase } from '../lib/supabase'
 
-type Badge = 'New' | 'Pro' | 'Soon'
-
-const nav: { href: string; label: string; icon: any; badge?: Badge }[] = [
-  { href: '/dashboard',             label: 'Overview',       icon: Home },
-  { href: '/dashboard/properties',  label: 'Properties',     icon: Building2 },
-  { href: '/dashboard/tenants',     label: 'Tenants',        icon: Users },
-  { href: '/dashboard/referencing', label: 'Referencing',   icon: UserCheck,   badge: null },
-  { href: '/dashboard/payments',    label: 'Payments',       icon: Receipt },
-  { href: '/dashboard/direct-debit',label: 'Direct Debit',   icon: Landmark,    badge: 'Soon' },
-  { href: '/dashboard/bills',       label: 'Shared Bills',   icon: FileText },
-  { href: '/dashboard/maintenance', label: 'Maintenance',    icon: Wrench },
-  { href: '/dashboard/documents',   label: 'Documents',      icon: FolderOpen },
-  { href: '/dashboard/expenses',    label: 'Expenses',       icon: Receipt },
-  { href: '/dashboard/profit-loss', label: 'Profit & Loss',  icon: BarChart3 },
-  { href: '/dashboard/notices',     label: 'Legal Notices',  icon: ScrollText,  badge: 'Pro' },
-  { href: '/dashboard/agreements',  label: 'Tenancy Agreements', icon: FileText, badge: 'Pro' },
-  { href: '/dashboard/rra',         label: 'RRA 2025',       icon: ShieldCheck, badge: 'Pro' },
-  { href: '/dashboard/billing',     label: 'Billing',        icon: CreditCard },
-  { href: '/dashboard/profile',     label: 'Profile',        icon: UserCircle },
-]
-
-const badgeStyles: Record<Badge, string> = {
-  New:  'bg-amber-400 text-amber-900',
-  Pro:  'bg-purple-500 text-white',
-  Soon: 'bg-gray-600 text-gray-200',
+function Logo() {
+  return (
+    <div className="flex items-center gap-2 px-3 py-2">
+      <div className="w-7 h-7 bg-white rounded-lg flex items-center justify-center flex-shrink-0">
+        <Building2 size={14} className="text-gray-900" />
+      </div>
+      <span className="font-semibold text-white text-sm">LetFlowUK</span>
+    </div>
+  )
 }
 
-const Logo = () => (
-  <div className="flex items-center gap-2.5">
-    <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 bg-green-500">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-        <rect x="1" y="1" width="5" height="5" rx="1" fill="white"/>
-        <rect x="8" y="1" width="5" height="5" rx="1" fill="white" fillOpacity="0.6"/>
-        <rect x="1" y="8" width="5" height="5" rx="1" fill="white" fillOpacity="0.6"/>
-        <rect x="8" y="8" width="5" height="5" rx="1" fill="white" fillOpacity="0.3"/>
-      </svg>
-    </div>
-    <span className="font-semibold text-sm tracking-tight">LetFlowUK</span>
-  </div>
-)
+type NavItem = {
+  href: string
+  label: string
+  icon: React.ElementType
+  badge?: string | null
+}
+
+const NAV: NavItem[] = [
+  { href: '/dashboard',             label: 'Overview',            icon: Home },
+  { href: '/dashboard/properties',  label: 'Properties',          icon: Building2 },
+  { href: '/dashboard/tenants',     label: 'Tenants',             icon: Users },
+  { href: '/dashboard/referencing', label: 'Referencing',         icon: UserCheck },
+  { href: '/dashboard/payments',    label: 'Payments',            icon: Receipt },
+  { href: '/dashboard/direct-debit',label: 'Direct Debit',        icon: Banknote },
+  { href: '/dashboard/bills',       label: 'Shared Bills',        icon: Landmark },
+  { href: '/dashboard/maintenance', label: 'Maintenance',         icon: Wrench },
+  { href: '/dashboard/documents',   label: 'Documents',           icon: FolderOpen },
+  { href: '/dashboard/expenses',    label: 'Expenses',            icon: BarChart3 },
+  { href: '/dashboard/profit-loss', label: 'Profit & Loss',       icon: BarChart3 },
+  { href: '/dashboard/agreements',  label: 'Tenancy Agreements',  icon: FileText,    badge: 'Pro' },
+  { href: '/dashboard/notices',     label: 'Legal Notices',       icon: ScrollText,  badge: 'Pro' },
+  { href: '/dashboard/rra',         label: 'RRA 2025',            icon: ShieldCheck, badge: 'Pro' },
+  { href: '/dashboard/billing',     label: 'Billing',             icon: CreditCard },
+  { href: '/dashboard/settings',    label: 'Settings',            icon: Settings },
+  { href: '/dashboard/profile',     label: 'Profile',             icon: UserCircle },
+]
 
 export default function Sidebar() {
   const router = useRouter()
+  const { plan } = usePlan()
+  const { user } = useAuth()
   const [open, setOpen] = useState(false)
-  const { isPro } = usePlan()
+
+  const isPro = plan === 'pro'
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut()
+    router.push('/login')
+  }
 
   const NavLinks = () => (
-    <>
-      {nav.map(({ href, label, icon: Icon, badge }) => {
-        const active = router.pathname === href || router.pathname.startsWith(href + '/')
+    <nav className="flex-1 overflow-y-auto py-2 space-y-0.5 px-2">
+      {NAV.map(item => {
+        const isActive = item.href === '/dashboard'
+          ? router.pathname === '/dashboard'
+          : router.pathname.startsWith(item.href)
+        const Icon = item.icon
+        const locked = item.badge === 'Pro' && !isPro
         return (
           <Link
-            key={href}
-            href={href}
+            key={item.href}
+            href={item.href}
             onClick={() => setOpen(false)}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors ${
-              active ? 'bg-white/10 text-white font-medium' : 'text-gray-400 hover:text-white hover:bg-white/5'
+            className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm transition-colors ${
+              isActive
+                ? 'bg-white/15 text-white font-medium'
+                : 'text-gray-400 hover:text-white hover:bg-white/10'
             }`}
           >
-            <Icon size={16} className="flex-shrink-0" />
-            <span className="flex-1 truncate">{label}</span>
-            {badge && (
-              <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold leading-none flex-shrink-0 ${badgeStyles[badge]}`}>
-                {badge}
+            <Icon size={15} className="flex-shrink-0" />
+            <span className="flex-1 truncate">{item.label}</span>
+            {item.badge === 'Pro' && (
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${
+                isPro ? 'bg-emerald-500/20 text-emerald-400' : 'bg-gray-700 text-gray-400'
+              }`}>
+                {isPro ? '⚡' : 'Pro'}
               </span>
+            )}
+            {item.href === '/dashboard/direct-debit' && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-700 text-gray-400 font-semibold">Soon</span>
             )}
           </Link>
         )
       })}
-    </>
+    </nav>
   )
 
   return (
     <>
-      {/* Desktop sidebar */}
-      <aside
-        className="hidden md:flex fixed top-0 left-0 h-full bg-gray-900 text-white flex-col"
-        style={{ width: 'var(--sidebar-width)' }}
-      >
-        <div className="px-5 py-6 border-b border-gray-800">
-          <Logo />
-        </div>
-        <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-          <NavLinks />
-        </nav>
-        <div className="px-4 py-4 border-t border-gray-800 space-y-2">
-          {isPro ? (
-            <div className="flex items-center gap-2">
-              <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-purple-500 text-white">⚡ Pro</span>
-              <span className="text-xs text-gray-500">Active</span>
-            </div>
-          ) : (
-            <Link href="/dashboard/billing" className="flex items-center gap-2 group">
-              <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-gray-700 text-gray-300 group-hover:bg-gray-600 transition-colors">Free plan</span>
-              <span className="text-xs text-gray-500 group-hover:text-gray-400">Upgrade ↗</span>
-            </Link>
-          )}
-          <div className="text-xs text-gray-500">UK HMO Landlord Portal</div>
-        </div>
-      </aside>
-
-      {/* Mobile header */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-gray-900 text-white px-4 py-3 flex items-center justify-between">
+      {/* Mobile top bar */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-gray-900 text-white px-4 flex items-center justify-between" style={{ paddingTop: 'max(12px, env(safe-area-inset-top))', paddingBottom: '12px' }}>
         <Logo />
         <button onClick={() => setOpen(o => !o)} className="p-1.5 rounded-lg hover:bg-white/10 transition-colors">
           {open ? <X size={20} /> : <Menu size={20} />}
         </button>
       </div>
 
-      {/* Mobile drawer */}
+      {/* Mobile overlay */}
       {open && (
-        <div className="md:hidden fixed inset-0 z-40 bg-black/60" onClick={() => setOpen(false)}>
-          <div
-            className="absolute top-0 left-0 h-full w-64 bg-gray-900 pt-16 flex flex-col"
-            onClick={e => e.stopPropagation()}
-          >
-            <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-              <NavLinks />
-            </nav>
-            <div className="px-4 py-4 border-t border-gray-800">
-              <div className="text-xs text-gray-500">UK HMO Landlord Portal</div>
-            </div>
+        <div className="md:hidden fixed inset-0 z-40 bg-black/50" onClick={() => setOpen(false)} />
+      )}
+
+      {/* Mobile drawer */}
+      <div className={`md:hidden fixed top-0 left-0 bottom-0 z-50 w-64 bg-gray-900 flex flex-col transition-transform duration-200 ${open ? 'translate-x-0' : '-translate-x-full'}`}
+        style={{ paddingTop: 'max(56px, calc(env(safe-area-inset-top) + 44px))' }}>
+        <NavLinks />
+        <div className="p-3 border-t border-white/10">
+          <div className="px-3 py-1.5 text-xs text-gray-500">{user?.email}</div>
+          <div className="mt-1 px-3 py-1.5 flex items-center justify-between">
+            <span className={`text-xs font-semibold ${isPro ? 'text-emerald-400' : 'text-gray-400'}`}>
+              {isPro ? '⚡ Pro · Active' : 'Free plan'}
+            </span>
+            {!isPro && (
+              <Link href="/dashboard/billing" onClick={() => setOpen(false)} className="text-xs text-blue-400 hover:text-blue-300">Upgrade ↗</Link>
+            )}
           </div>
         </div>
-      )}
+      </div>
+
+      {/* Desktop sidebar */}
+      <aside className="hidden md:flex flex-col w-52 flex-shrink-0 bg-gray-900 min-h-screen">
+        <div className="p-3 border-b border-white/10">
+          <Logo />
+        </div>
+        <NavLinks />
+        <div className="p-3 border-t border-white/10">
+          <div className="px-3 py-1 text-xs text-gray-500 truncate">{user?.email}</div>
+          <div className="mt-1 px-3 py-1 flex items-center justify-between">
+            <span className={`text-xs font-semibold ${isPro ? 'text-emerald-400' : 'text-gray-400'}`}>
+              {isPro ? '⚡ Pro · Active' : 'Free plan'}
+            </span>
+            {!isPro && (
+              <Link href="/dashboard/billing" className="text-xs text-blue-400 hover:text-blue-300">Upgrade ↗</Link>
+            )}
+          </div>
+          <p className="px-3 py-1 text-[10px] text-gray-600">UK HMO Landlord Portal</p>
+        </div>
+      </aside>
+
+      {/* Mobile content offset */}
+      <div className="md:hidden" style={{ height: 'max(56px, calc(env(safe-area-inset-top) + 44px))' }} />
     </>
   )
 }
