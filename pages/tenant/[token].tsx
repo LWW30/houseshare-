@@ -51,33 +51,7 @@ export default function TenantPortal() {
     if (!tenant || !maintForm.title.trim()) return
     setSubmitting(true)
     const { data, error } = await supabase.from('maintenance_requests').insert({ property_id: tenant.property_id, title: maintForm.title, description: maintForm.description, priority: maintForm.priority, status: 'open', submitted_by_tenant_id: tenant.id, submitted_by_tenant_name: tenant.name }).select().single()
-    if (!error && data) {
-      setMaintenance(p=>[data,...p]); setSubmitted(true); setShowForm(false); setMaintForm({title:'',description:'',priority:'medium'}); setTimeout(()=>setSubmitted(false),4000)
-      // Email landlord — look up their notification_email from profiles via property landlord_id
-      try {
-        const { data: propData } = await supabase.from('properties').select('landlord_id').eq('id', tenant.property_id).single()
-        if (propData?.landlord_id) {
-          const { data: profileData } = await supabase.from('profiles').select('notification_email').eq('id', propData.landlord_id).single()
-          // Fall back to auth email if no notification_email set
-          const { data: authData } = await supabase.rpc('get_user_email', { user_id: propData.landlord_id }).catch(() => ({ data: null }))
-          const emailTo = profileData?.notification_email || authData || null
-          if (emailTo) {
-            await fetch('/api/maintenance/notify', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                tenantName: tenant.name,
-                propertyAddress: tenant.property?.address || '',
-                title: maintForm.title,
-                description: maintForm.description,
-                priority: maintForm.priority,
-                landlordEmail: emailTo,
-              })
-            })
-          }
-        }
-      } catch (_) {}
-    }
+    if (!error && data) { setMaintenance(p=>[data,...p]); setSubmitted(true); setShowForm(false); setMaintForm({title:'',description:'',priority:'medium'}); setTimeout(()=>setSubmitted(false),4000) }
     setSubmitting(false)
   }
 
