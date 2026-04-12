@@ -7,7 +7,7 @@ import { usePlan } from '../../lib/usePlan'
 import { getProperties, getRentPayments, getSharedBills, getExpenses, signOut, type Property, type RentPayment, type SharedBill } from '../../lib/supabase'
 import { supabase } from '../../lib/supabase'
 import { format, differenceInDays, isPast, addDays, isWithinInterval } from 'date-fns'
-import { Building2, PoundSterling, Bell, ChevronRight, LogOut, AlertTriangle, Clock, Users, TrendingDown } from 'lucide-react'
+import { Building2, ShieldCheck, PoundSterling, Bell, ChevronRight, LogOut, AlertTriangle, Clock, Users, TrendingDown } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 
@@ -109,11 +109,43 @@ export default function Dashboard() {
           </div>
           </div>
         </div>
-        <div className='card p-8 text-center'>
-          <div className='w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4'><Building2 size={24} className='text-gray-400' /></div>
-          <h2 className='font-semibold mb-2' style={{ color: 'var(--text-primary)' }}>Add your first property</h2>
-          <p className='text-sm mb-6 max-w-xs mx-auto' style={{ color: 'var(--text-secondary)' }}>Start by adding a house share property. You can then add rooms and tenants.</p>
-          <Link href='/dashboard/properties' className='btn-primary inline-flex items-center gap-2'><Building2 size={14} />Add your first property</Link>
+        <div className='space-y-4'>
+          <div className='card p-6'>
+            <h2 className='font-semibold mb-1' style={{ color: 'var(--text-primary)' }}>Welcome to LetFlowUK 👋</h2>
+            <p className='text-sm mb-5' style={{ color: 'var(--text-secondary)' }}>Follow these steps to get your portfolio set up.</p>
+            <div className='space-y-1'>
+              <Link href='/dashboard/properties' className='flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors group'>
+                <div className='w-7 h-7 rounded-full bg-gray-900 text-white flex items-center justify-center text-xs font-semibold flex-shrink-0'>1</div>
+                <div className='flex-1'><div className='text-sm font-medium' style={{ color: 'var(--text-primary)' }}>Add your first property</div><div className='text-xs' style={{ color: 'var(--text-muted)' }}>Enter address and set up rooms</div></div>
+                <span className='text-gray-400 group-hover:text-gray-700'>→</span>
+              </Link>
+              <Link href='/dashboard/properties' className='flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors group'>
+                <div className='w-7 h-7 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-xs font-semibold flex-shrink-0'>2</div>
+                <div className='flex-1'><div className='text-sm font-medium' style={{ color: 'var(--text-primary)' }}>Add rooms with monthly rent</div><div className='text-xs' style={{ color: 'var(--text-muted)' }}>Each room tracks rent separately</div></div>
+                <span className='text-gray-400 group-hover:text-gray-700'>→</span>
+              </Link>
+              <Link href='/dashboard/tenants' className='flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors group'>
+                <div className='w-7 h-7 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-xs font-semibold flex-shrink-0'>3</div>
+                <div className='flex-1'><div className='text-sm font-medium' style={{ color: 'var(--text-primary)' }}>Add tenants</div><div className='text-xs' style={{ color: 'var(--text-muted)' }}>They get a welcome email with their portal link</div></div>
+                <span className='text-gray-400 group-hover:text-gray-700'>→</span>
+              </Link>
+              <Link href='/dashboard/bills' className='flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors group'>
+                <div className='w-7 h-7 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-xs font-semibold flex-shrink-0'>4</div>
+                <div className='flex-1'><div className='text-sm font-medium' style={{ color: 'var(--text-primary)' }}>Add shared bills</div><div className='text-xs' style={{ color: 'var(--text-muted)' }}>Gas, electric, broadband — split automatically</div></div>
+                <span className='text-gray-400 group-hover:text-gray-700'>→</span>
+              </Link>
+            </div>
+          </div>
+          <div className='card p-5' style={{ background: 'var(--color-background-secondary)' }}>
+            <div className='flex items-start gap-3'>
+              <div className='w-8 h-8 bg-gray-900 rounded-xl flex items-center justify-center flex-shrink-0'><ShieldCheck size={14} className='text-white' /></div>
+              <div className='flex-1'>
+                <div className='text-sm font-semibold' style={{ color: 'var(--text-primary)' }}>RRA 2025 compliance checklist</div>
+                <div className='text-xs mt-0.5' style={{ color: 'var(--text-secondary)' }}>26-item checklist covering Renters Rights Act obligations — Pro feature</div>
+              </div>
+              <Link href='/dashboard/billing' className='text-xs font-semibold bg-gray-900 text-white px-3 py-1.5 rounded-lg hover:bg-gray-700 transition-colors flex-shrink-0'>Upgrade</Link>
+            </div>
+          </div>
         </div>
       </div>
     </Layout>
