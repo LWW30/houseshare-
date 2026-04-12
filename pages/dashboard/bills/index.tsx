@@ -20,6 +20,7 @@ export default function BillsPage() {
   const [bills, setBills] = useState<SharedBill[]>([])
   const [dataLoading, setDataLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [markingPaid, setMarkingPaid] = useState<string | null>(null)
   const [showModal, setShowModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState<SharedBill | null>(null)
   const [error, setError] = useState('')
@@ -124,6 +125,13 @@ export default function BillsPage() {
           className="p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-500 transition-colors">
           <Edit2 size={12} />
         </button>
+        {!b.paid && (
+          <button onClick={() => handleMarkPaid(b)} disabled={markingPaid === b.id}
+            title="Mark as paid"
+            className="p-1.5 rounded-lg bg-green-50 hover:bg-green-100 text-green-700 transition-colors">
+            {markingPaid === b.id ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />}
+          </button>
+        )}
         <button onClick={() => handleDelete(b)}
           className="p-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-500 transition-colors">
           <Trash2 size={12} />
@@ -131,6 +139,15 @@ export default function BillsPage() {
       </div>
     </div>
   )
+
+  const handleMarkPaid = async (b: any) => {
+    setMarkingPaid(b.id)
+    try {
+      await supabase.from('shared_bills').update({ paid: true }).eq('id', b.id)
+      setBills(prev => prev.map(bill => bill.id === b.id ? { ...bill, paid: true } : bill))
+    } catch (e) { console.error(e) }
+    setMarkingPaid(null)
+  }
 
   return (
     <Layout>
