@@ -14,6 +14,7 @@ const nav: { href: string; label: string; icon: any; badge?: Badge }[] = [
   { href: '/dashboard',             label: 'Overview',       icon: Home },
   { href: '/dashboard/properties',  label: 'Properties',     icon: Building2 },
   { href: '/dashboard/tenants',     label: 'Tenants',        icon: Users },
+  { href: '/dashboard/referencing', label: 'Referencing',   icon: UserCheck,   badge: null },
   { href: '/dashboard/payments',    label: 'Payments',       icon: Receipt },
   { href: '/dashboard/direct-debit',label: 'Direct Debit',   icon: Landmark,    badge: 'Soon' },
   { href: '/dashboard/bills',       label: 'Shared Bills',   icon: FileText },
