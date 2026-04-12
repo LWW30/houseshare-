@@ -78,6 +78,23 @@ export default function TenantsPage() {
         tenancy_end: form.tenancy_end || undefined,
       })
       try { await generatePaymentsForTenant(t.id) } catch (_) {}
+      // Send welcome email with portal link (best-effort)
+      if (t.invite_token && form.email) {
+        const prop = properties.find(p => p.id === form.property_id)
+        const room = rooms.find(r => r.id === form.room_id)
+        fetch('/api/tenants/welcome', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tenantName: form.name,
+            tenantEmail: form.email,
+            propertyAddress: prop?.address || '',
+            roomName: room?.name || '',
+            portalUrl: `${window.location.origin}/tenant/${t.invite_token}`,
+            landlordName: user?.email?.split('@')[0] || 'Your landlord',
+          })
+        }).catch(() => {})
+      }
       setTenants(prev => [...prev, t])
       setShowModal(false)
       setForm({ name: '', email: '', phone: '', property_id: '', room_id: '', tenancy_start: '', tenancy_end: '' })
