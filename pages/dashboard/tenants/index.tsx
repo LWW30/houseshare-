@@ -30,6 +30,8 @@ export default function TenantsPage() {
   const [rooms, setRooms] = useState<Room[]>([])
   const [dataLoading, setDataLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [sendingPortal, setSendingPortal] = useState<string | null>(null)
+  const [portalSent, setPortalSent] = useState<string | null>(null)
   const [showModal, setShowModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState<Tenant | null>(null)
   const [showMarkLeftModal, setShowMarkLeftModal] = useState<Tenant | null>(null)
@@ -137,6 +139,29 @@ export default function TenantsPage() {
     setTenants(prev => prev.filter(t => t.id !== tenant.id))
   }
 
+    const handleResendPortal = async (t: Tenant) => {
+    if (!t.email || !t.invite_token) return
+    setSendingPortal(t.id)
+    try {
+      const prop = properties.find(p => p.id === t.property_id)
+      await fetch('/api/tenants/welcome', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tenantName: t.name,
+          tenantEmail: t.email,
+          propertyAddress: prop?.address || '',
+          roomName: t.room?.name || '',
+          portalUrl: window.location.origin + '/tenant/' + t.invite_token,
+          landlordName: '',
+        })
+      })
+      setPortalSent(t.id)
+      setTimeout(() => setPortalSent(null), 3000)
+    } catch (_) {}
+    setSendingPortal(null)
+  }
+
   const filtered = filter === 'all' ? tenants : tenants.filter(t => (t as any).status === filter || (!((t as any).status) && filter === 'active'))
 
   const endingSoon = tenants.filter(t => {
@@ -211,6 +236,13 @@ export default function TenantsPage() {
                 </div>
                 <div className="flex items-center gap-1.5">
                   <CopyLink token={t.invite_token} />
+                <button
+                  onClick={() => handleResendPortal(t)}
+                  disabled={sendingPortal === t.id || !t.email}
+                  title="Resend portal link by email"
+                  className={`p-1.5 rounded-lg transition-colors ${portalSent === t.id ? 'bg-green-50 text-green-600' : 'bg-blue-50 hover:bg-blue-100 text-blue-600'}`}>
+                  {sendingPortal === t.id ? <Loader2 size={13} className="animate-spin" /> : portalSent === t.id ? <Check size={13} /> : <Mail size={13} />}
+                </button>
                   <button onClick={() => { setShowEditModal(t); setEditForm({ name: t.name, email: t.email, phone: t.phone || '', tenancy_end: t.tenancy_end || '' }) }}
                     className="p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-500 transition-colors" title="Edit">
                     <Edit2 size={13} />
