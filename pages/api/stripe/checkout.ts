@@ -26,7 +26,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(401).json({ error: 'Not authenticated' })
     }
 
-    const appUrl = 'https://houseshare-five.vercel.app'
+    const appUrl = 'https://app.letflowuk.com'
 
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: 'subscription',
