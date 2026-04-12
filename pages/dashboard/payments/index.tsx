@@ -192,6 +192,15 @@ export default function PaymentsPage() {
                         {markingPaid === p.id ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />}
                       </button>
                     )}
+                    {p.status !== 'paid' && (
+                      <button
+                        onClick={() => handleSendReminder(p)}
+                        disabled={sendingReminder === p.id}
+                        title="Send payment reminder email"
+                        className={`p-1.5 rounded-lg transition-colors ${reminderSent === p.id ? 'bg-green-50 text-green-600' : 'bg-amber-50 hover:bg-amber-100 text-amber-700'}`}>
+                        {sendingReminder === p.id ? <Loader2 size={12} className="animate-spin" /> : reminderSent === p.id ? <Check size={12} /> : <Bell size={12} />}
+                      </button>
+                    )}
                   </div>
                 </div>
               )
