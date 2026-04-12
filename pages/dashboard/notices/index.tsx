@@ -1,152 +1,182 @@
 import { useEffect, useState } from 'react'
 import Layout from '../../../components/Layout'
-import { useRouter } from 'next/router'
 import { useAuth } from '../../../lib/useAuth'
 import { usePlan } from '../../../lib/usePlan'
-import { getProperties, getTenantsByProperty, type Property, type Tenant } from '../../../lib/supabase'
+import { getProperties, type Property } from '../../../lib/supabase'
 import { supabase } from '../../../lib/supabase'
-import { format, addDays, addMonths } from 'date-fns'
-import { FileText, Printer, Copy, Check, AlertCircle, Info, Loader2 } from 'lucide-react'
+import { useRouter } from 'next/router'
+import { ScrollText, Download, Zap, ChevronDown } from 'lucide-react'
+import Link from 'next/link'
+import { format, addDays } from 'date-fns'
+
+type NoticeType = 's8' | 's13'
 
 const S8_GROUNDS = [
-  { id: 'g8', label: 'Ground 8 — Serious rent arrears', noticePeriod: '4 weeks', noticeDays: 28, mandatory: true, description: 'Tenant owes at least 2 months rent (if monthly) both when notice is served and at court hearing.', requiresArrears: true },
-  { id: 'g8a', label: 'Ground 8A — Repeated rent arrears', noticePeriod: '4 weeks', noticeDays: 28, mandatory: true, description: 'Tenant has been in arrears of at least 2 months rent on 3 separate occasions within the last 3 years.', requiresArrears: true },
-  { id: 'g10', label: 'Ground 10 — Some rent arrears', noticePeriod: '4 weeks', noticeDays: 28, mandatory: false, description: 'Tenant owes some rent, but less than the Ground 8 threshold. Court has discretion.', requiresArrears: true },
-  { id: 'g11', label: 'Ground 11 — Persistent late payment', noticePeriod: '2 months', noticeDays: 61, mandatory: false, description: 'Tenant has persistently paid rent late, even if currently up to date.', requiresArrears: false },
-  { id: 'g12', label: 'Ground 12 — Breach of tenancy obligation', noticePeriod: '2 months', noticeDays: 61, mandatory: false, description: 'Tenant has broken a term of the tenancy agreement (other than rent payment).', requiresArrears: false },
-  { id: 'g14', label: 'Ground 14 — Nuisance or annoyance', noticePeriod: '2 weeks', noticeDays: 14, mandatory: false, description: 'Tenant or visitor has caused nuisance or annoyance to neighbours, or the property has been used for illegal purposes.', requiresArrears: false },
-  { id: 'g17', label: 'Ground 17 — False statement', noticePeriod: '2 months', noticeDays: 61, mandatory: false, description: 'Tenant obtained the tenancy by making a false or misleading statement.', requiresArrears: false },
-] as const
-
-type NoticeType = 's8'|'s13'
-type S8Ground = typeof S8_GROUNDS[number]
-interface FormState { noticeType: NoticeType; tenantId: string; groundId: string; arrearsAmount: string; arrearsMonths: string; breachDescription: string; currentRent: string; newRent: string; increaseReason: string; serveDate: string; landlordName: string; landlordAddress: string }
+  { value: '8', label: 'Ground 8 — Rent arrears (mandatory, 2 months+)' },
+  { value: '10', label: 'Ground 10 — Rent arrears (discretionary, any amount)' },
+  { value: '11', label: 'Ground 11 — Persistent rent delays' },
+  { value: '1A', label: 'Ground 1A — Landlord wishes to sell the property' },
+  { value: '12', label: 'Ground 12 — Breach of tenancy agreement' },
+  { value: '13', label: 'Ground 13 — Deterioration of property' },
+  { value: '14', label: 'Ground 14 — Nuisance or criminal behaviour' },
+]
 
 export default function NoticesPage() {
-  const router = useRouter()
   const { user, loading } = useAuth()
   const { isPro, planLoading } = usePlan()
-  const [tenants, setTenants] = useState<Tenant[]>([])
-  const [dataLoading, setDataLoading] = useState(true)
-  const [copied, setCopied] = useState(false)
-  const today = new Date().toISOString().split('T')[0]
-  const [form, setForm] = useState<FormState>({ noticeType: 's8', tenantId: '', groundId: 'g8', arrearsAmount: '', arrearsMonths: '', breachDescription: '', currentRent: '', newRent: '', increaseReason: '', serveDate: today, landlordName: '', landlordAddress: '' })
+  const router = useRouter()
+  const [noticeType, setNoticeType] = useState<NoticeType>('s8')
+  const [properties, setProperties] = useState<Property[]>([])
+  const [tenants, setTenants] = useState<any[]>([])
+  const [form, setForm] = useState({
+    property_id: '',
+    tenant_id: '',
+    ground: '8',
+    arrears_amount: '',
+    reason: '',
+    hearing_date: '',
+    rent_increase: '',
+    effective_date: '',
+  })
+  const [generated, setGenerated] = useState<string | null>(null)
+  const [generating, setGenerating] = useState(false)
 
   useEffect(() => {
     if (!user) return
-    async function load() {
-      const props = await getProperties(user!.id)
-      const all: Tenant[] = []
-      for (const p of props) { const ts = await getTenantsByProperty(p.id); all.push(...ts.map(t => ({ ...t, property: p }))) }
-      setTenants(all)
-      const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', user!.id).maybeSingle()
-      if (profile?.full_name) setForm(f => ({ ...f, landlordName: profile.full_name }))
-      setDataLoading(false)
-    }
-    load()
+    getProperties(user.id).then(setProperties)
   }, [user])
 
-  const set = (k: keyof FormState, v: string) => setForm(f => ({ ...f, [k]: v }))
-  const selectedTenant = tenants.find(t => t.id === form.tenantId)
-  const selectedGround = S8_GROUNDS.find(g => g.id === form.groundId)
-  const possessionDate = form.serveDate && selectedGround ? format(addDays(new Date(form.serveDate), selectedGround.noticeDays), 'd MMMM yyyy') : ''
-  const s13Date = form.serveDate ? format(addMonths(new Date(form.serveDate), 2), 'd MMMM yyyy') : ''
-  const serveFormatted = form.serveDate ? format(new Date(form.serveDate), 'd MMMM yyyy') : ''
+  useEffect(() => {
+    if (!form.property_id) return
+    supabase.from('tenants').select('id, name, room:rooms(name, monthly_rent)').eq('property_id', form.property_id).eq('left', false).then(({ data }) => {
+      setTenants(data || [])
+      setForm(f => ({ ...f, tenant_id: '' }))
+    })
+  }, [form.property_id])
 
-  const isValid = () => {
-    if (!form.tenantId || !form.serveDate || !form.landlordName) return false
-    if (form.noticeType === 's8' && !form.groundId) return false
-    if (form.noticeType === 's8' && selectedGround?.requiresArrears && !form.arrearsAmount) return false
-    if (form.noticeType === 's13') { if (!form.currentRent || !form.newRent) return false; if (parseFloat(form.newRent) <= parseFloat(form.currentRent)) return false }
-    return true
+  const selectedProp = properties.find(p => p.id === form.property_id)
+  const selectedTenant = tenants.find(t => t.id === form.tenant_id)
+  const today = format(new Date(), 'd MMMM yyyy')
+  const s8Notice = format(addDays(new Date(), 14), 'd MMMM yyyy')
+  const s13Notice = format(addDays(new Date(), 60), 'd MMMM yyyy')
+
+  const generateS8 = () => {
+    if (!selectedProp || !selectedTenant) return
+    const ground = S8_GROUNDS.find(g => g.value === form.ground)
+    return `SECTION 8 NOTICE SEEKING POSSESSION
+Housing Act 1988 (as amended by the Renters Rights Act 2025)
+
+Date of notice: ${today}
+Notice is valid from: ${s8Notice} (14 days from date of notice)
+
+LANDLORD DETAILS
+Name: [YOUR FULL NAME]
+Address: [YOUR ADDRESS]
+
+TENANT DETAILS
+Name: ${selectedTenant.name}
+Property address: ${selectedProp.address}
+Room: ${selectedTenant.room?.name || 'N/A'}
+
+NOTICE
+I hereby give you notice that I require possession of the above property.
+
+GROUND(S) FOR POSSESSION
+${ground?.label || 'Ground ' + form.ground}
+${form.arrears_amount ? 'Outstanding rent arrears: £' + form.arrears_amount : ''}
+${form.reason ? 'Particulars: ' + form.reason : ''}
+
+You must leave the property by ${s8Notice} or proceedings for possession may be taken against you.
+
+If you do not leave, I may apply to the County Court for a possession order. You will then be served with a summons to appear at court on ${form.hearing_date || '[DATE TO BE DETERMINED]'}.
+
+IMPORTANT: If you need housing advice, contact your local council or Citizens Advice Bureau.
+
+Signed: ___________________________
+Name: [YOUR FULL NAME]
+Date: ${today}
+
+---
+This notice was prepared using LetFlowUK (letflowuk.com).
+This notice is a template only and does not constitute legal advice. Always verify compliance with current legislation before serving. Consider seeking legal advice before proceeding with possession proceedings.`
   }
 
-  const buildS8 = () => !selectedTenant || !selectedGround ? '' : `NOTICE SEEKING POSSESSION
-Housing Act 1988 (as amended by the Renters Rights Act 2025) — Section 8
+  const generateS13 = () => {
+    if (!selectedProp || !selectedTenant) return
+    const currentRent = selectedTenant.room?.monthly_rent || 0
+    const newRent = form.rent_increase || '[NEW RENT AMOUNT]'
+    return `SECTION 13 NOTICE OF RENT INCREASE
+Housing Act 1988 s.13 — Periodic Tenancy
 
-TO: ${selectedTenant.name}
-OF: ${(selectedTenant as any).property?.address || ''}
-DATE OF SERVICE: ${serveFormatted}
+Date of notice: ${today}
+Increase takes effect from: ${s13Notice} (minimum 2 months notice)
 
-LANDLORD: ${form.landlordName}
-ADDRESS: ${form.landlordAddress || ''}
+LANDLORD DETAILS
+Name: [YOUR FULL NAME]
+Address: [YOUR ADDRESS]
 
-GROUND FOR POSSESSION:
-${selectedGround.label}
-${selectedGround.mandatory ? 'MANDATORY GROUND — court must make possession order if proved.' : 'DISCRETIONARY GROUND — court may make possession order if reasonable.'}
+TENANT DETAILS
+Name: ${selectedTenant.name}
+Property address: ${selectedProp.address}
+Room: ${selectedTenant.room?.name || 'N/A'}
 
-${selectedGround.description}
-${selectedGround.requiresArrears && form.arrearsAmount ? 'Current arrears: £' + form.arrearsAmount + (form.arrearsMonths ? ' (' + form.arrearsMonths + ' months)' : '') : ''}
-${form.breachDescription ? 'Details: ' + form.breachDescription : ''}
+NOTICE OF RENT INCREASE
+I give you notice that I propose to increase the rent of the above property.
 
-NOTICE PERIOD: ${selectedGround.noticePeriod}
-EARLIEST POSSESSION DATE: ${possessionDate}
+Current monthly rent: £${currentRent}
+Proposed new monthly rent: £${newRent}
+Effective date: ${form.effective_date || s13Notice}
 
-You must leave the property on or before the date stated above. If you do not leave, court proceedings may be issued against you.
+Your right to challenge: If you believe this rent is above market rate, you may apply to the First-tier Tribunal (Property Chamber) to have the rent determined. You must do this before the effective date shown above.
 
-You are entitled to seek advice from a solicitor or Citizens Advice.
+To challenge this increase, you can apply online at: www.justice.gov.uk/tribunals/residential-property
 
-Signed: _________________________ Date: ${serveFormatted}
-Name: ${form.landlordName}
+IMPORTANT: Rent can only be increased once per 12 months under the Renters Rights Act 2025.
 
-IMPORTANT: This is a template — not legal advice. Have this notice reviewed by a qualified solicitor before serving.`
+Signed: ___________________________
+Name: [YOUR FULL NAME]
+Date: ${today}
 
-  const buildS13 = () => {
-    if (!selectedTenant) return ''
-    const curr = parseFloat(form.currentRent) || 0
-    const next = parseFloat(form.newRent) || 0
-    const inc = next - curr
-    const pct = curr > 0 ? ((inc/curr)*100).toFixed(1) : '0'
-    return `NOTICE OF RENT INCREASE
-Housing Act 1988, Section 13 — Renters Rights Act 2025
-
-TO: ${selectedTenant.name}
-OF: ${(selectedTenant as any).property?.address || ''}
-DATE OF NOTICE: ${serveFormatted}
-
-LANDLORD: ${form.landlordName}
-ADDRESS: ${form.landlordAddress || ''}
-
-PROPOSED RENT INCREASE:
-Current rent: £${curr.toFixed(2)} per month
-Proposed rent: £${next.toFixed(2)} per month
-Increase: £${inc.toFixed(2)} per month (${pct}%)
-Effective from: ${s13Date}
-
-REASON: ${form.increaseReason || 'The proposed increase reflects current market rents for comparable properties in the area.'}
-
-YOUR RIGHTS AS A TENANT:
-- Rent can only be increased once every 12 months via this statutory notice
-- Rent review clauses in your tenancy agreement are no longer enforceable
-- You have the right to refer this proposed increase to the First-tier Tribunal (Property Chamber) if you believe it is above market rate
-- The tribunal can only reduce the proposed increase
-
-If you do not challenge this notice before ${s13Date}, your rent will increase to £${next.toFixed(2)} per month from that date.
-
-Signed: _________________________ Date: ${serveFormatted}
-Name: ${form.landlordName}
-
-IMPORTANT: This is a template — not legal advice. Keep a record of service (recorded delivery or witnessed hand delivery).`
+---
+This notice was prepared using LetFlowUK (letflowuk.com).
+This notice is a template only and does not constitute legal advice. The correct prescribed form for Section 13 notices must be used — verify at legislation.gov.uk.`
   }
 
-  const noticeText = form.noticeType === 's8' ? buildS8() : buildS13()
+  const handleGenerate = () => {
+    setGenerating(true)
+    setTimeout(() => {
+      const text = noticeType === 's8' ? generateS8() : generateS13()
+      setGenerated(text || null)
+      setGenerating(false)
+    }, 300)
+  }
 
-  const handleCopy = () => { navigator.clipboard.writeText(noticeText); setCopied(true); setTimeout(() => setCopied(false), 2500) }
-  const handlePrint = () => { const w = window.open('','_blank'); if (!w) return; w.document.write('<html><head><title>Notice</title><style>body{font-family:monospace;font-size:12pt;white-space:pre-wrap;margin:40px}</style></head><body>' + noticeText.replace(/</g,'&lt;') + '</body></html>'); w.document.close(); w.print() }
+  const handleDownload = () => {
+    if (!generated) return
+    const blob = new Blob([generated], { type: 'text/plain' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${noticeType === 's8' ? 'Section-8' : 'Section-13'}-Notice-${selectedTenant?.name || 'tenant'}-${format(new Date(), 'yyyy-MM-dd')}.txt`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
 
-  if (loading || dataLoading) return <Layout><div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-gray-400" /></div></Layout>
+  if (loading || planLoading) return <Layout><div className="flex items-center justify-center h-64"><div className="w-6 h-6 border-2 border-gray-200 border-t-gray-900 rounded-full animate-spin" /></div></Layout>
 
-  if (!isPro && !planLoading) return (
+  if (!isPro) return (
     <Layout>
-      <div className="flex flex-col items-center justify-center py-24 px-8 text-center">
-        <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5" style={{ background: 'var(--text-primary)' }}>
-          <span className="text-xl">📄</span>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+        <div className="w-16 h-16 bg-gray-900 rounded-2xl flex items-center justify-center mx-auto mb-5">
+          <ScrollText size={28} className="text-white" />
         </div>
-        <h2 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Legal notice generator is a Pro feature</h2>
-        <p className="text-sm mb-6 max-w-xs" style={{ color: 'var(--text-secondary)' }}>Generate Section 8 and Section 13 notices in minutes, pre-filled with your tenant data. RRA 2025 compliant.</p>
-        <button onClick={() => router.push('/dashboard/billing')} className="btn-primary flex items-center gap-2 px-6 py-2.5">
-          ⚡ Upgrade to Pro — £19/mo
-        </button>
+        <h1 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Legal notice generator is a Pro feature</h1>
+        <p className="text-sm mb-6 max-w-sm" style={{ color: 'var(--text-secondary)' }}>
+          Generate Section 8 and Section 13 notices in minutes, pre-filled with your tenant data. RRA 2025 compliant.
+        </p>
+        <Link href="/dashboard/billing" className="btn-primary flex items-center gap-2 px-6 py-2.5">
+          <Zap size={14} /> Upgrade to Pro — £19/mo
+        </Link>
         <p className="text-xs mt-3" style={{ color: 'var(--text-muted)' }}>14-day free trial · Cancel any time</p>
       </div>
     </Layout>
@@ -154,96 +184,102 @@ IMPORTANT: This is a template — not legal advice. Keep a record of service (re
 
   return (
     <Layout>
-      <div className="p-6 md:p-8 max-w-5xl">
+      <div className="p-8 max-w-3xl">
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Legal notices</h1>
-          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Generate Section 8 possession notices and Section 13 rent increase notices</p>
+          <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>Legal Notices</h1>
+          <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>Generate Section 8 and Section 13 notices pre-filled with tenant data</p>
         </div>
 
-        <div className="mb-6 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 flex items-start gap-3">
-          <AlertCircle size={15} className="text-amber-500 flex-shrink-0 mt-0.5" />
-          <div>
-            <p className="text-xs font-medium text-amber-800 mb-0.5">These are templates, not legal advice</p>
-            <p className="text-xs text-amber-700 leading-relaxed">Always have legal notices reviewed by a qualified solicitor before serving. Errors can invalidate your notice and delay possession.</p>
-          </div>
+        {/* Notice type tabs */}
+        <div className="flex gap-2 mb-6">
+          {[{ type: 's8' as NoticeType, label: 'Section 8', desc: 'Possession notice' }, { type: 's13' as NoticeType, label: 'Section 13', desc: 'Rent increase' }].map(({ type, label, desc }) => (
+            <button
+              key={type}
+              onClick={() => { setNoticeType(type); setGenerated(null) }}
+              className={`flex-1 py-3 px-4 rounded-2xl border text-left transition-colors ${noticeType === type ? 'bg-gray-900 text-white border-gray-900' : 'border-gray-200 hover:border-gray-300'}`}
+            >
+              <div className={`font-medium text-sm ${noticeType === type ? 'text-white' : ''}`} style={noticeType !== type ? { color: 'var(--text-primary)' } : {}}>{label}</div>
+              <div className={`text-xs mt-0.5 ${noticeType === type ? 'text-gray-400' : ''}`} style={noticeType !== type ? { color: 'var(--text-muted)' } : {}}>{desc}</div>
+            </button>
+          ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="card p-6 mb-6">
           <div className="space-y-4">
-            <div className="card p-5">
-              <label className="label mb-3 block">Notice type</label>
-              <div className="grid grid-cols-2 gap-2">
-                {([{id:'s8',title:'Section 8',sub:'Possession notice'},{id:'s13',title:'Section 13',sub:'Rent increase'}] as const).map(opt => (
-                  <button key={opt.id} onClick={() => set('noticeType', opt.id)} className={"p-4 rounded-xl border text-left transition-all " + (form.noticeType===opt.id ? 'border-gray-900 bg-gray-900 text-white' : 'border-gray-200 bg-white hover:border-gray-400')}>
-                    <div className={"font-semibold text-sm " + (form.noticeType===opt.id?'text-white':'')} style={form.noticeType!==opt.id?{color:'var(--text-primary)'}:{}}>{opt.title}</div>
-                    <div className={"text-xs mt-0.5 " + (form.noticeType===opt.id?'text-gray-300':'')} style={form.noticeType!==opt.id?{color:'var(--text-muted)'}:{}}>{opt.sub}</div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="card p-5">
-              <label className="label">Tenant *</label>
-              <select className="input" value={form.tenantId} onChange={e => { const t=tenants.find(t=>t.id===e.target.value); set('tenantId',e.target.value); if(t?.room?.monthly_rent) set('currentRent',String(t.room.monthly_rent)) }}>
-                <option value="">Select tenant...</option>
-                {tenants.filter(t=>!(t as any).status||(t as any).status==='active').map(t=><option key={t.id} value={t.id}>{t.name} — {(t as any).property?.address?.split(',')[0]} · {t.room?.name}</option>)}
+            <div>
+              <label className="label">Property *</label>
+              <select className="input" value={form.property_id} onChange={e => setForm(f => ({ ...f, property_id: e.target.value }))}>
+                <option value="">Select a property</option>
+                {properties.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
-              {selectedTenant && <div className="mt-3 p-3 bg-gray-50 rounded-xl text-xs space-y-1" style={{color:'var(--text-secondary)'}}><div><span className="font-medium">Email:</span> {selectedTenant.email}</div><div><span className="font-medium">Rent:</span> £{selectedTenant.room?.monthly_rent}/mo</div><div><span className="font-medium">Started:</span> {selectedTenant.tenancy_start ? format(new Date(selectedTenant.tenancy_start),'d MMM yyyy') : '—'}</div></div>}
+            </div>
+            <div>
+              <label className="label">Tenant *</label>
+              <select className="input" value={form.tenant_id} onChange={e => setForm(f => ({ ...f, tenant_id: e.target.value }))} disabled={!form.property_id}>
+                <option value="">Select a tenant</option>
+                {tenants.map(t => <option key={t.id} value={t.id}>{t.name} — {t.room?.name}</option>)}
+              </select>
             </div>
 
-            {form.noticeType === 's8' && (
-              <div className="card p-5 space-y-4">
+            {noticeType === 's8' && (
+              <>
                 <div>
                   <label className="label">Ground for possession *</label>
-                  <select className="input" value={form.groundId} onChange={e => set('groundId',e.target.value)}>
-                    {S8_GROUNDS.map(g=><option key={g.id} value={g.id}>{g.label}</option>)}
+                  <select className="input" value={form.ground} onChange={e => setForm(f => ({ ...f, ground: e.target.value }))}>
+                    {S8_GROUNDS.map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
                   </select>
-                  {selectedGround && <div className="mt-2 p-3 bg-blue-50 border border-blue-100 rounded-xl"><div className="flex items-start gap-2"><Info size={12} className="text-blue-500 flex-shrink-0 mt-0.5"/><div><p className="text-xs text-blue-700 leading-relaxed">{selectedGround.description}</p><p className="text-xs text-blue-600 mt-1 font-medium">Notice period: {selectedGround.noticePeriod} · {selectedGround.mandatory?'Mandatory':'Discretionary'} ground</p></div></div></div>}
                 </div>
-                {selectedGround?.requiresArrears && <div className="grid grid-cols-2 gap-3"><div><label className="label">Arrears amount (£) *</label><input className="input" type="number" placeholder="e.g. 1200" value={form.arrearsAmount} onChange={e=>set('arrearsAmount',e.target.value)}/></div><div><label className="label">Months outstanding</label><input className="input" type="number" placeholder="e.g. 2" value={form.arrearsMonths} onChange={e=>set('arrearsMonths',e.target.value)}/></div></div>}
-                {(form.groundId==='g12'||form.groundId==='g14') && <div><label className="label">Description of breach</label><textarea className="input" rows={3} style={{resize:'none'}} placeholder="Describe the breach..." value={form.breachDescription} onChange={e=>set('breachDescription',e.target.value)}/></div>}
-              </div>
+                {(form.ground === '8' || form.ground === '10') && (
+                  <div>
+                    <label className="label">Arrears amount (£)</label>
+                    <input className="input" type="number" placeholder="e.g. 1200" value={form.arrears_amount} onChange={e => setForm(f => ({ ...f, arrears_amount: e.target.value }))} />
+                  </div>
+                )}
+                <div>
+                  <label className="label">Particulars / reason (optional)</label>
+                  <textarea className="input" rows={3} placeholder="Describe the grounds in detail..." value={form.reason} onChange={e => setForm(f => ({ ...f, reason: e.target.value }))} />
+                </div>
+              </>
             )}
 
-            {form.noticeType === 's13' && (
-              <div className="card p-5 space-y-4">
-                <div className="grid grid-cols-2 gap-3">
-                  <div><label className="label">Current rent (£/mo) *</label><input className="input" type="number" value={form.currentRent} onChange={e=>set('currentRent',e.target.value)}/></div>
-                  <div><label className="label">New rent (£/mo) *</label><input className="input" type="number" value={form.newRent} onChange={e=>set('newRent',e.target.value)}/></div>
+            {noticeType === 's13' && (
+              <>
+                <div>
+                  <label className="label">New monthly rent (£) *</label>
+                  <input className="input" type="number" placeholder="e.g. 650" value={form.rent_increase} onChange={e => setForm(f => ({ ...f, rent_increase: e.target.value }))} />
+                  {selectedTenant?.room?.monthly_rent && (
+                    <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>Current rent: £{selectedTenant.room.monthly_rent}/mo</p>
+                  )}
                 </div>
-                {form.currentRent && form.newRent && parseFloat(form.newRent) > parseFloat(form.currentRent) && <div className="p-3 bg-green-50 border border-green-100 rounded-xl text-xs text-green-700">Increase: £{(parseFloat(form.newRent)-parseFloat(form.currentRent)).toFixed(2)}/mo · Effective: {s13Date}</div>}
-                {form.currentRent && form.newRent && parseFloat(form.newRent) <= parseFloat(form.currentRent) && <p className="text-xs text-red-600">New rent must be higher than current rent.</p>}
-                <div><label className="label">Reason for increase</label><textarea className="input" rows={3} style={{resize:'none'}} placeholder="e.g. In line with current market rents..." value={form.increaseReason} onChange={e=>set('increaseReason',e.target.value)}/></div>
-              </div>
+              </>
             )}
-
-            <div className="card p-5 space-y-4">
-              <div><label className="label">Date of service *</label><input className="input" type="date" value={form.serveDate} onChange={e=>set('serveDate',e.target.value)}/>
-                {possessionDate && form.noticeType==='s8' && <p className="text-xs mt-1.5" style={{color:'var(--text-muted)'}}>Earliest possession date: <strong style={{color:'var(--text-primary)'}}>{possessionDate}</strong></p>}
-                {s13Date && form.noticeType==='s13' && <p className="text-xs mt-1.5" style={{color:'var(--text-muted)'}}>Rent increase effective: <strong style={{color:'var(--text-primary)'}}>{s13Date}</strong></p>}
-              </div>
-              <div><label className="label">Your name (landlord) *</label><input className="input" placeholder="Full legal name" value={form.landlordName} onChange={e=>set('landlordName',e.target.value)}/></div>
-              <div><label className="label">Your address</label><input className="input" placeholder="Your correspondence address" value={form.landlordAddress} onChange={e=>set('landlordAddress',e.target.value)}/></div>
-            </div>
           </div>
 
-          <div>
-            <div className="card overflow-hidden sticky top-6">
-              <div className="px-5 py-4 border-b flex items-center justify-between" style={{borderColor:'var(--card-border)'}}>
-                <div className="flex items-center gap-2"><FileText size={15} style={{color:'var(--text-secondary)'}}/><span className="font-medium text-sm" style={{color:'var(--text-primary)'}}>{form.noticeType==='s8'?'Section 8 Notice':'Section 13 Notice'}</span></div>
-                <div className="flex items-center gap-2">
-                  <button onClick={handleCopy} disabled={!isValid()} className={"flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg transition-colors border " + (isValid()?'bg-gray-50 border-gray-200 hover:bg-gray-100':'opacity-40 cursor-not-allowed border-gray-100 bg-gray-50')} style={{color:'var(--text-secondary)'}}>{copied?<Check size={11} className="text-green-500"/>:<Copy size={11}/>}{copied?'Copied':'Copy'}</button>
-                  <button onClick={handlePrint} disabled={!isValid()} className={"flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg transition-colors border " + (isValid()?'bg-gray-900 border-gray-900 text-white hover:bg-gray-700':'opacity-40 cursor-not-allowed border-gray-100 bg-gray-50')}><Printer size={11}/>Print / PDF</button>
-                </div>
-              </div>
-              <div className="p-5 overflow-y-auto font-mono text-xs leading-relaxed" style={{maxHeight:'65vh',color:'var(--text-secondary)',whiteSpace:'pre-wrap',background:'var(--card-bg)'}}>
-                {isValid() ? noticeText : <div className="flex flex-col items-center justify-center h-48 text-center"><FileText size={28} className="mb-3" style={{color:'var(--text-muted)'}}/><p className="text-sm font-medium mb-1" style={{color:'var(--text-secondary)'}}>Complete the form to preview</p><p className="text-xs" style={{color:'var(--text-muted)'}}>Select a tenant and fill in required fields</p></div>}
-              </div>
-            </div>
-          </div>
+          <button
+            onClick={handleGenerate}
+            disabled={!form.property_id || !form.tenant_id || generating}
+            className="btn-primary w-full mt-6 flex items-center justify-center gap-2"
+          >
+            {generating ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Generating...</> : <><ScrollText size={14} />Generate notice</>}
+          </button>
         </div>
 
-        <div className="mt-8 text-xs text-center" style={{color:'var(--text-muted)'}}>Templates based on the Housing Act 1988 as amended by the Renters Rights Act 2025 — <a href="https://www.gov.uk/evict-tenants/section-8" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-700">Gov.uk possession guidance</a></div>
+        {generated && (
+          <div className="card overflow-hidden">
+            <div className="px-5 py-4 border-b flex items-center justify-between" style={{ borderColor: 'var(--card-border)' }}>
+              <h2 className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>{noticeType === 's8' ? 'Section 8' : 'Section 13'} Notice — Preview</h2>
+              <button onClick={handleDownload} className="btn-secondary flex items-center gap-2 text-xs">
+                <Download size={13} /> Download .txt
+              </button>
+            </div>
+            <div className="p-5">
+              <pre className="text-xs whitespace-pre-wrap font-mono leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{generated}</pre>
+            </div>
+            <div className="px-5 py-3 border-t text-xs" style={{ borderColor: 'var(--card-border)', color: 'var(--text-muted)' }}>
+              ⚠️ Fill in <strong style={{ color: 'var(--text-secondary)' }}>[YOUR NAME]</strong> and <strong style={{ color: 'var(--text-secondary)' }}>[YOUR ADDRESS]</strong> before serving. Always seek legal advice before issuing possession notices.
+            </div>
+          </div>
+        )}
       </div>
     </Layout>
   )
