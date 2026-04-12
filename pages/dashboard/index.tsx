@@ -7,7 +7,7 @@ import { usePlan } from '../../lib/usePlan'
 import { getProperties, getRentPayments, getSharedBills, getExpenses, signOut, type Property, type RentPayment, type SharedBill } from '../../lib/supabase'
 import { supabase } from '../../lib/supabase'
 import { format, differenceInDays, isPast, addDays, isWithinInterval } from 'date-fns'
-import { Building2, PoundSterling, Bell, ChevronRight, LogOut, AlertTriangle, Clock, Users, TrendingDown } from 'lucide-react'
+import { Building2, PoundSterling, Bell, ChevronRight, LogOut, AlertTriangle, Clock, Users, TrendingDown, Zap } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 
@@ -109,11 +109,39 @@ export default function Dashboard() {
           </div>
           </div>
         </div>
-        <div className='card p-8 text-center'>
-          <div className='w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4'><Building2 size={24} className='text-gray-400' /></div>
-          <h2 className='font-semibold mb-2' style={{ color: 'var(--text-primary)' }}>Add your first property</h2>
-          <p className='text-sm mb-6 max-w-xs mx-auto' style={{ color: 'var(--text-secondary)' }}>Start by adding a house share property. You can then add rooms and tenants.</p>
-          <Link href='/dashboard/properties' className='btn-primary inline-flex items-center gap-2'><Building2 size={14} />Add your first property</Link>
+        <div className='space-y-4'>
+          <div className='card p-6'>
+            <h2 className='font-semibold mb-1' style={{ color: 'var(--text-primary)' }}>Welcome to LetFlowUK 👋</h2>
+            <p className='text-sm mb-5' style={{ color: 'var(--text-secondary)' }}>Follow these steps to get your portfolio set up.</p>
+            <div className='space-y-3'>
+              {[
+                { step: 1, label: 'Add your first property', desc: 'Enter the address and set up rooms', href: '/dashboard/properties', done: false },
+                { step: 2, label: 'Add your rooms', desc: 'Set monthly rent per room', href: '/dashboard/properties', done: false },
+                { step: 3, label: 'Add your tenants', desc: 'They'll get an email with their portal link', href: '/dashboard/tenants', done: false },
+                { step: 4, label: 'Add shared bills', desc: 'Gas, electric, broadband — split automatically', href: '/dashboard/bills', done: false },
+                { step: 5, label: 'Invite tenants to portal', desc: 'They can check rent status and report issues', href: '/dashboard/tenants', done: false },
+              ].map(({ step, label, desc, href }) => (
+                <Link key={step} href={href} className='flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 transition-colors group'>
+                  <div className='w-8 h-8 rounded-full bg-gray-900 text-white flex items-center justify-center text-xs font-semibold flex-shrink-0 group-hover:bg-green-600 transition-colors'>{step}</div>
+                  <div className='flex-1'>
+                    <div className='text-sm font-medium' style={{ color: 'var(--text-primary)' }}>{label}</div>
+                    <div className='text-xs mt-0.5' style={{ color: 'var(--text-muted)' }}>{desc}</div>
+                  </div>
+                  <div className='text-gray-400 group-hover:text-gray-600'>→</div>
+                </Link>
+              ))}
+            </div>
+          </div>
+          <div className='card p-5 bg-purple-50 border-purple-100'>
+            <div className='flex items-start gap-3'>
+              <div className='w-8 h-8 bg-purple-600 rounded-xl flex items-center justify-center flex-shrink-0'><Zap size={14} className='text-white' /></div>
+              <div className='flex-1'>
+                <div className='text-sm font-semibold text-purple-900'>RRA 2025 compliance checklist</div>
+                <div className='text-xs text-purple-700 mt-0.5'>Stay compliant with the Renters Rights Act — interactive checklist for Pro users</div>
+              </div>
+              <Link href='/dashboard/billing' className='text-xs font-semibold bg-purple-600 text-white px-3 py-1.5 rounded-lg hover:bg-purple-700 transition-colors flex-shrink-0'>Try Pro</Link>
+            </div>
+          </div>
         </div>
       </div>
     </Layout>
