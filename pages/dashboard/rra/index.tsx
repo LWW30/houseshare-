@@ -46,12 +46,11 @@ const CHECKLIST: ChecklistItem[] = [
   { id: 'disability_adjust', category: 'Equal treatment', text: 'Make reasonable adjustments for disabled tenants', detail: 'Must consider and make reasonable adjustments when requested by disabled tenants.' },
 ]
 
-function groupBy<T>(arr: T[], key: keyof T): Record<string, T[]> {
-  return arr.reduce((acc, item) => {
-    const k = String(item[key])
-    acc[k] = acc[k] ? [...acc[k], item] : [item]
+function groupByCategory(arr: ChecklistItem[]): Record<string, ChecklistItem[]> {
+  return arr.reduce((acc: Record<string, ChecklistItem[]>, item: ChecklistItem) => {
+    acc[item.category] = acc[item.category] ? [...acc[item.category], item] : [item]
     return acc
-  }, {} as Record<string, T[]>)
+  }, {})
 }
 
 export default function RRAPage() {
@@ -99,7 +98,7 @@ export default function RRAPage() {
     </Layout>
   )
 
-  const groups = groupBy(CHECKLIST, 'category')
+  const groups = groupByCategory(CHECKLIST)
   const total = CHECKLIST.length
   const done = CHECKLIST.filter(item => checked[item.id]).length
 
