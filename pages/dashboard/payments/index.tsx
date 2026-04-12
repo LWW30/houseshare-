@@ -31,6 +31,8 @@ export default function PaymentsPage() {
   const [updatingOverdue, setUpdatingOverdue] = useState(false)
   const [sendingReminder, setSendingReminder] = useState<string | null>(null)
   const [reminderSent, setReminderSent] = useState<string | null>(null)
+  const [batchSending, setBatchSending] = useState(false)
+  const [batchDone, setBatchDone] = useState(false)
 
   useEffect(() => {
     if (!user) return
@@ -105,6 +107,26 @@ export default function PaymentsPage() {
     <Layout><div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-gray-400" /></div></Layout>
   )
 
+  const handleBatchReminders = async () => {
+    const overdueAndDueSoon = payments.filter(p => p.status !== 'paid')
+    if (overdueAndDueSoon.length === 0 || !user) return
+    setBatchSending(true)
+    for (const p of overdueAndDueSoon) {
+      if (p.tenant?.id) {
+        try {
+          await fetch('/api/reminders/rent', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tenantId: p.tenant.id, paymentId: p.id, landlordId: user.id })
+          })
+        } catch (_) {}
+      }
+    }
+    setBatchSending(false)
+    setBatchDone(true)
+    setTimeout(() => setBatchDone(false), 4000)
+  }
+
   return (
     <Layout>
       <div className="p-8 max-w-4xl">
@@ -114,6 +136,12 @@ export default function PaymentsPage() {
             <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>Track rent and bills month by month</p>
           </div>
           <div className="flex items-center gap-3">
+            {payments.some(p => p.status !== 'paid') && (
+              <button onClick={handleBatchReminders} disabled={batchSending} className={`btn-secondary flex items-center gap-2 text-xs ${batchDone ? 'text-green-600' : ''}`}>
+                {batchSending ? <Loader2 size={12} className="animate-spin" /> : batchDone ? <Check size={12} /> : <Bell size={12} />}
+                {batchDone ? 'Reminders sent!' : 'Remind all unpaid'}
+              </button>
+            )}
             <button onClick={handleUpdateOverdue} disabled={updatingOverdue} className="btn-secondary flex items-center gap-2 text-xs">
               {updatingOverdue ? <Loader2 size={12} className="animate-spin" /> : null}
               Refresh statuses
