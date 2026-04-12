@@ -31,7 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'No Stripe customer found. Please upgrade first.' })
     }
 
-    const appUrl = 'https://houseshare-five.vercel.app'
+    const appUrl = 'https://app.letflowuk.com'
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: profile.stripe_customer_id,
       return_url: `${appUrl}/dashboard/billing`,
