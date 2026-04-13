@@ -14,10 +14,10 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <ThemeProvider>
       <Head>
-        <meta name="application-name" content="HouseShare" />
+        <meta name="application-name" content="LetFlowUK" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="HouseShare" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="LetFlowUK" />
         <meta name="theme-color" content="#111827" />
         <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
         <link rel="manifest" href="/manifest.json" />
