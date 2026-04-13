@@ -39,8 +39,8 @@ export default function PropertiesPage() {
   const [showBillModal, setShowBillModal] = useState<string | null>(null)
 
   // Forms
-  const [propForm, setPropForm] = useState({ name: '', address: '' })
-  const [editPropForm, setEditPropForm] = useState({ name: '', address: '' })
+  const [propForm, setPropForm] = useState({ name: '', address: '', hmo_licence_number: '', hmo_licence_expiry: '', hmo_licence_authority: '' })
+  const [editPropForm, setEditPropForm] = useState({ name: '', address: '', hmo_licence_number: '', hmo_licence_expiry: '', hmo_licence_authority: '' })
   const [roomForm, setRoomForm] = useState({ name: '', monthly_rent: '' })
   const [editRoomForm, setEditRoomForm] = useState({ name: '', monthly_rent: '' })
   const [billForm, setBillForm] = useState({ name: '', category: 'broadband', amount: '', due_date: '', split_ways: '1' })
@@ -121,7 +121,7 @@ export default function PropertiesPage() {
     if (!showEditPropModal) return
     setSaving(true); setError('')
     try {
-      await supabase.from('properties').update({ name: editPropForm.name, address: editPropForm.address }).eq('id', showEditPropModal.id)
+      await supabase.from('properties').update({ name: editPropForm.name, address: editPropForm.address, hmo_licence_number: editPropForm.hmo_licence_number || null, hmo_licence_expiry: editPropForm.hmo_licence_expiry || null, hmo_licence_authority: editPropForm.hmo_licence_authority || null }).eq('id', showEditPropModal.id)
       setProperties(prev => prev.map(p => p.id === showEditPropModal.id ? { ...p, ...editPropForm } : p))
       setShowEditPropModal(null)
     } catch (e: any) { setError(e.message) }
@@ -457,6 +457,24 @@ export default function PropertiesPage() {
               <div className="space-y-4">
                 <div><label className="label">Property name</label><input className="input" value={editPropForm.name} onChange={e => setEditPropForm(f => ({ ...f, name: e.target.value }))} /></div>
                 <div><label className="label">Full address</label><input className="input" value={editPropForm.address} onChange={e => setEditPropForm(f => ({ ...f, address: e.target.value }))} /></div>
+
+          <div className='mt-4 pt-4 border-t'>
+            <p className='text-xs font-semibold uppercase tracking-wide mb-3' style={{ color: 'var(--text-muted)' }}>HMO Licence</p>
+            <div className='grid grid-cols-2 gap-3 mb-3'>
+              <div>
+                <label className='label'>Licence number</label>
+                <input className='input' placeholder='e.g. HMO/2024/001' value={editPropForm.hmo_licence_number} onChange={e => setEditPropForm(f => ({ ...f, hmo_licence_number: e.target.value }))} />
+              </div>
+              <div>
+                <label className='label'>Expiry date</label>
+                <input type='date' className='input' value={editPropForm.hmo_licence_expiry} onChange={e => setEditPropForm(f => ({ ...f, hmo_licence_expiry: e.target.value }))} />
+              </div>
+            </div>
+            <div>
+              <label className='label'>Issuing authority</label>
+              <input className='input' placeholder='e.g. Derby City Council' value={editPropForm.hmo_licence_authority} onChange={e => setEditPropForm(f => ({ ...f, hmo_licence_authority: e.target.value }))} />
+            </div>
+          </div>
               </div>
               <div className="flex gap-3 mt-6">
                 <button onClick={() => setShowEditPropModal(null)} className="btn-secondary flex-1">Cancel</button>
