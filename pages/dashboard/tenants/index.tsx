@@ -112,6 +112,9 @@ export default function TenantsPage() {
         name: editForm.name, email: editForm.email,
         phone: editForm.phone || null,
         tenancy_end: editForm.tenancy_end || null,
+        right_to_rent_checked: editForm.right_to_rent_checked || false,
+        right_to_rent_date: editForm.right_to_rent_date || null,
+        right_to_rent_doc_type: editForm.right_to_rent_doc_type || null,
       }).eq('id', showEditModal.id)
       setTenants(prev => prev.map(t => t.id === showEditModal.id ? { ...t, ...editForm } : t))
       setShowEditModal(null)
