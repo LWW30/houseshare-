@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import {
   Home, Users, Receipt, FileText, Building2,
   Menu, X, FolderOpen, UserCircle, Wrench,
-  CreditCard, ShieldCheck, Landmark, ScrollText, BarChart3,
+  CreditCard, ShieldCheck, Landmark, ScrollText, BarChart3, Settings,
 } from 'lucide-react'
 import { useState } from 'react'
 import { usePlan } from '../lib/usePlan'
@@ -14,6 +14,7 @@ const nav: { href: string; label: string; icon: any; badge?: Badge }[] = [
   { href: '/dashboard',             label: 'Overview',       icon: Home },
   { href: '/dashboard/properties',  label: 'Properties',     icon: Building2 },
   { href: '/dashboard/tenants',     label: 'Tenants',        icon: Users },
+  { href: '/dashboard/referencing', label: 'Referencing',    icon: UserCircle,  badge: null },
   { href: '/dashboard/payments',    label: 'Payments',       icon: Receipt },
   { href: '/dashboard/direct-debit',label: 'Direct Debit',   icon: Landmark,    badge: 'Soon' },
   { href: '/dashboard/bills',       label: 'Shared Bills',   icon: FileText },
@@ -24,6 +25,7 @@ const nav: { href: string; label: string; icon: any; badge?: Badge }[] = [
   { href: '/dashboard/notices',     label: 'Legal Notices',  icon: ScrollText,  badge: 'Pro' },
   { href: '/dashboard/agreements',  label: 'Tenancy Agreements', icon: FileText, badge: 'Pro' },
   { href: '/dashboard/rra',         label: 'RRA 2025',       icon: ShieldCheck, badge: 'Pro' },
+  { href: '/dashboard/settings',    label: 'Settings',        icon: Settings,    badge: null },
   { href: '/dashboard/billing',     label: 'Billing',        icon: CreditCard },
   { href: '/dashboard/profile',     label: 'Profile',        icon: UserCircle },
 ]
