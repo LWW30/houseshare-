@@ -1,5 +1,5 @@
 import Layout from '../../../components/Layout'
-import { ExternalLink, UserCheck, Shield, Clock } from 'lucide-react'
+import { ExternalLink, User, Shield, Clock } from 'lucide-react'
 
 const PROVIDERS = [
   {
@@ -45,7 +45,7 @@ export default function ReferencingPage() {
     <Layout>
       <div className="p-8 max-w-3xl">
         <div className="flex items-center gap-3 mb-1">
-          <UserCheck size={22} style={{ color: 'var(--text-primary)' }} />
+          <User size={22} style={{ color: 'var(--text-primary)' }} />
           <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>Tenant Referencing</h1>
         </div>
         <p className="text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>Run credit checks and employment references before a tenant moves in. We recommend these UK providers.</p>
