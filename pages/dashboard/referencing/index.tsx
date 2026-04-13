@@ -1,5 +1,5 @@
 import Layout from '../../../components/Layout'
-import { ExternalLink, UserCheck, Shield, Clock, Star } from 'lucide-react'
+import { ExternalLink, UserCheck, Shield, Clock } from 'lucide-react'
 
 const PROVIDERS = [
   {
