@@ -1,15 +1,11 @@
 import Layout from '../../../components/Layout'
-import { FileText } from 'lucide-react'
-import Link from 'next/link'
 
-export default function AgreementsPage() {
+export default function Page() {
   return (
     <Layout>
       <div className="p-8">
-        <FileText size={22} />
-        <h1>Tenancy Agreements</h1>
-        <p>Coming soon</p>
-        <Link href="/dashboard">Back</Link>
+        <h1 className="text-2xl font-semibold">Tenancy Agreements</h1>
+        <p className="mt-4">Coming soon</p>
       </div>
     </Layout>
   )
