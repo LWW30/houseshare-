@@ -1,11 +1,72 @@
+import { useEffect, useState } from 'react'
 import Layout from '../../../components/Layout'
+import { useAuth } from '../../../lib/useAuth'
+import { supabase } from '../../../lib/supabase'
+import { Settings, Bell, User, Save, Check } from 'lucide-react'
 
-export default function Page() {
+export default function SettingsPage() {
+  const { user } = useAuth()
+  const [form, setForm] = useState({ landlord_name: '', notification_email: '' })
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const set = (k: string, v: string) => setForm(p => ({ ...p, [k]: v }))
+
+  useEffect(() => {
+    if (!user) return
+    supabase.from('profiles').select('landlord_name,notification_email').eq('id', user.id).single()
+      .then(({ data }) => { if (data) setForm({ landlord_name: data.landlord_name || '', notification_email: data.notification_email || '' }) })
+  }, [user])
+
+  const handleSave = async () => {
+    if (!user) return
+    setSaving(true)
+    await supabase.from('profiles').update({ landlord_name: form.landlord_name || null, notification_email: form.notification_email || null }).eq('id', user.id)
+    setSaving(false); setSaved(true)
+    setTimeout(() => setSaved(false), 3000)
+  }
+
   return (
     <Layout>
-      <div className="p-8">
-        <h1 className="text-2xl font-semibold">Settings</h1>
-        <p className="mt-4">Coming soon</p>
+      <div className="p-8 max-w-xl">
+        <div className="flex items-center gap-3 mb-1">
+          <Settings size={22} style={{ color: 'var(--text-primary)' }} />
+          <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>Settings</h1>
+        </div>
+        <p className="text-sm mb-8" style={{ color: 'var(--text-secondary)' }}>Manage your account preferences.</p>
+        <div className="space-y-5">
+          <div className="card p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <User size={16} style={{ color: 'var(--text-secondary)' }} />
+              <h2 className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>Profile</h2>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <label className="label">Your name</label>
+                <input className="input" placeholder="e.g. Luke Walker" value={form.landlord_name} onChange={e => set('landlord_name', e.target.value)} />
+                <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>Used in tenancy agreements and emails</p>
+              </div>
+              <div>
+                <label className="label">Account email</label>
+                <input className="input" value={user?.email || ''} disabled style={{ opacity: 0.6 }} />
+              </div>
+            </div>
+          </div>
+          <div className="card p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Bell size={16} style={{ color: 'var(--text-secondary)' }} />
+              <h2 className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>Notifications</h2>
+            </div>
+            <div>
+              <label className="label">Maintenance alert email</label>
+              <input className="input" type="email" placeholder="you@email.com" value={form.notification_email} onChange={e => set('notification_email', e.target.value)} />
+              <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>Where to send alerts when a tenant reports a maintenance issue</p>
+            </div>
+          </div>
+          <button onClick={handleSave} disabled={saving} className="btn-primary w-full flex items-center justify-center gap-2">
+            {saved ? <Check size={16} /> : <Save size={16} />}
+            {saved ? 'Saved!' : saving ? 'Saving...' : 'Save changes'}
+          </button>
+        </div>
       </div>
     </Layout>
   )
