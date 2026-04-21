@@ -15,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'LetFlowUK <onboarding@resend.dev>',
+        from: 'LetFlowUK <hello@letflowuk.com>',
         to: [tenantEmail],
         subject: `Welcome to ${propertyAddress || 'your new home'} — your tenant portal is ready`,
         html: `
