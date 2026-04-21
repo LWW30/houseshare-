@@ -56,16 +56,6 @@ export default function LoginPage() {
     }
   }
 
-
-  const handleForgotPassword = async () => {
-    if (!email) { setError('Enter your email address first'); return }
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: 'https://app.letflowuk.com/login'
-    })
-    if (error) setError(error.message)
-    else setError('Password reset email sent — check your inbox')
-  }
-
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
@@ -152,7 +142,6 @@ export default function LoginPage() {
                 <label htmlFor="rememberMe" className="text-sm text-gray-600 cursor-pointer select-none">
                   Keep me logged in
                 </label>
-                <button type="button" onClick={handleForgotPassword} className="text-xs" style={{color:'var(--text-muted)',textDecoration:'underline'}}>Forgot password?</button>
               </div>
             )}
             <button
