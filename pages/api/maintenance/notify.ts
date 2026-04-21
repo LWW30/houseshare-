@@ -17,7 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'LetFlowUK <onboarding@resend.dev>',
+        from: 'LetFlowUK <hello@letflowuk.com>',
         to: [landlordEmail],
         subject: `${priorityLabel} Maintenance: ${title}`,
         html: `<p><b>Tenant:</b> ${tenantName}</p><p><b>Property:</b> ${propertyAddress}</p><p><b>Issue:</b> ${title}</p><p>${description || ''}</p><p><a href="https://houseshare-five.vercel.app/dashboard/maintenance">View in LetFlowUK →</a></p>`,
