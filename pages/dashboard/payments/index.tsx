@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { Download, useEffect, useState } from 'react'
 import Layout from '../../../components/Layout'
 import StatusBadge from '../../../components/StatusBadge'
 import { useAuth } from '../../../lib/useAuth'
@@ -127,6 +127,27 @@ export default function PaymentsPage() {
     setTimeout(() => setBatchDone(false), 4000)
   }
 
+
+  const handleExportCSV = () => {
+    const rows = [
+      ['Tenant', 'Property', 'Month', 'Amount (£)', 'Status', 'Paid Date'],
+      ...payments.map((p: any) => [
+        p.tenant_name || '',
+        p.property_name || '',
+        p.month || '',
+        (p.amount || 0).toFixed(2),
+        p.status || '',
+        p.paid_at ? new Date(p.paid_at).toLocaleDateString('en-GB') : ''
+      ])
+    ]
+    const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g,'""') + '"').join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a'); a.href = url
+    a.download = 'LetFlowUK-Payments-' + new Date().getFullYear() + '.csv'; a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <Layout>
       <div className="p-8 max-w-4xl">
@@ -141,6 +162,9 @@ export default function PaymentsPage() {
                 {batchSending ? <Loader2 size={12} className="animate-spin" /> : batchDone ? <Check size={12} /> : <Bell size={12} />}
                 {batchDone ? 'Reminders sent!' : 'Remind all unpaid'}
               </button>
+            <button onClick={handleExportCSV} className="btn-secondary flex items-center gap-2 text-sm">
+              <Download size={14} />Export CSV
+            </button>
             )}
             <button onClick={handleUpdateOverdue} disabled={updatingOverdue} className="btn-secondary flex items-center gap-2 text-xs">
               {updatingOverdue ? <Loader2 size={12} className="animate-spin" /> : null}
