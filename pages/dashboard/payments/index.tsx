@@ -1,10 +1,10 @@
-import { Download, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Layout from '../../../components/Layout'
 import StatusBadge from '../../../components/StatusBadge'
 import { useAuth } from '../../../lib/useAuth'
 import { getProperties, getRentPayments, getSharedBills, markRentPaid, updateOverduePayments, type Property, type RentPayment, type SharedBill } from '../../../lib/supabase'
 import { format } from 'date-fns'
-import { Check, ChevronDown, Loader2, Bell } from 'lucide-react'
+import { Check, ChevronDown, Loader2, Bell , Download } from 'lucide-react'
 
 function getMonths() {
   const r = []
@@ -129,22 +129,15 @@ export default function PaymentsPage() {
 
 
   const handleExportCSV = () => {
-    const rows = [
-      ['Tenant', 'Property', 'Month', 'Amount (£)', 'Status', 'Paid Date'],
-      ...payments.map((p: any) => [
-        p.tenant_name || '',
-        p.property_name || '',
-        p.month || '',
-        (p.amount || 0).toFixed(2),
-        p.status || '',
-        p.paid_at ? new Date(p.paid_at).toLocaleDateString('en-GB') : ''
-      ])
-    ]
-    const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g,'""') + '"').join(',')).join('\n')
-    const blob = new Blob([csv], { type: 'text/csv' })
+    const allPayments: any[] = []
+    // payments is the state variable holding all payment records
+    const csv = ['Tenant,Property,Month,Amount,Status,Paid Date']
+    allPayments.forEach((p: any) => {
+      csv.push([p.tenant_name||'', p.property_name||'', p.month||'', p.amount||0, p.status||'', p.paid_at ? new Date(p.paid_at).toLocaleDateString('en-GB') : ''].map(v => '"'+String(v)+'"').join(','))
+    })
+    const blob = new Blob([csv.join('\n')], { type: 'text/csv' })
     const url = URL.createObjectURL(blob)
-    const a = document.createElement('a'); a.href = url
-    a.download = 'LetFlowUK-Payments-' + new Date().getFullYear() + '.csv'; a.click()
+    const a = document.createElement('a'); a.href = url; a.download = 'payments.csv'; a.click()
     URL.revokeObjectURL(url)
   }
 
