@@ -165,6 +165,23 @@ export default function Dashboard() {
   return (
     <Layout>
       <div className='p-8 max-w-5xl'>
+        {expiringCerts.length > 0 && (
+          <div
+            className="mb-6 rounded-xl p-4 flex items-center gap-3 cursor-pointer"
+            style={{ background: '#FEF3C7', border: '1px solid #F59E0B' }}
+            onClick={() => window.location.href = '/dashboard/compliance'}
+          >
+            <AlertTriangle size={18} style={{ color: '#B45309', flexShrink: 0 }} />
+            <div>
+              <p style={{ fontWeight: 600, color: '#92400E', fontSize: 14 }}>
+                {expiringCerts.length} compliance certificate{expiringCerts.length > 1 ? 's' : ''} expiring soon
+              </p>
+              <p style={{ color: '#B45309', fontSize: 12, marginTop: 2 }}>
+                Click to view and renew — fines for non-compliance can exceed £30,000
+              </p>
+            </div>
+          </div>
+        )}
         <div className='flex items-center justify-between mb-8'>
           <div>
             <h1 className='text-2xl font-semibold' style={{ color: 'var(--text-primary)' }}>{greeting()}</h1>
