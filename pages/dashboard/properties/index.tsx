@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { Zap, useEffect, useState } from 'react'
 import Layout from '../../../components/Layout'
 import { useAuth } from '../../../lib/useAuth'
 import { usePlan } from '../../../lib/usePlan'
@@ -218,9 +218,15 @@ export default function PropertiesPage() {
             <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>Properties</h1>
             <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>{properties.length} {properties.length === 1 ? 'property' : 'properties'} in your portfolio</p>
           </div>
-          <button onClick={() => setShowPropModal(true)} className="btn-primary flex items-center gap-2">
-            <Plus size={14} /> Add property
-          </button>
+          {plan === 'free' && properties.length >= 2 ? (
+            <button onClick={() => router.push('/dashboard/billing')} className="btn-primary flex items-center gap-2">
+              <Zap size={14} /> Upgrade to add more
+            </button>
+          ) : (
+            <button onClick={() => setShowPropModal(true)} className="btn-primary flex items-center gap-2">
+              <Plus size={14} /> Add property
+            </button>
+          )}
         </div>
 
         {properties.length === 0 ? (
