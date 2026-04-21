@@ -4,7 +4,7 @@ import StatusBadge from '../../../components/StatusBadge'
 import { useAuth } from '../../../lib/useAuth'
 import { getProperties, getRentPayments, getSharedBills, markRentPaid, updateOverduePayments, type Property, type RentPayment, type SharedBill } from '../../../lib/supabase'
 import { format } from 'date-fns'
-import { Check, ChevronDown, Loader2, Bell , Download } from 'lucide-react'
+import { Check, ChevronDown, Loader2, Bell } from 'lucide-react'
 
 function getMonths() {
   const r = []
@@ -127,20 +127,6 @@ export default function PaymentsPage() {
     setTimeout(() => setBatchDone(false), 4000)
   }
 
-
-  const handleExportCSV = () => {
-    const allPayments: any[] = []
-    // payments is the state variable holding all payment records
-    const csv = ['Tenant,Property,Month,Amount,Status,Paid Date']
-    allPayments.forEach((p: any) => {
-      csv.push([p.tenant_name||'', p.property_name||'', p.month||'', p.amount||0, p.status||'', p.paid_at ? new Date(p.paid_at).toLocaleDateString('en-GB') : ''].map(v => '"'+String(v)+'"').join(','))
-    })
-    const blob = new Blob([csv.join('\n')], { type: 'text/csv' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a'); a.href = url; a.download = 'payments.csv'; a.click()
-    URL.revokeObjectURL(url)
-  }
-
   return (
     <Layout>
       <div className="p-8 max-w-4xl">
@@ -155,9 +141,6 @@ export default function PaymentsPage() {
                 {batchSending ? <Loader2 size={12} className="animate-spin" /> : batchDone ? <Check size={12} /> : <Bell size={12} />}
                 {batchDone ? 'Reminders sent!' : 'Remind all unpaid'}
               </button>
-            <button onClick={handleExportCSV} className="btn-secondary flex items-center gap-2 text-sm">
-              <Download size={14} />Export CSV
-            </button>
             )}
             <button onClick={handleUpdateOverdue} disabled={updatingOverdue} className="btn-secondary flex items-center gap-2 text-xs">
               {updatingOverdue ? <Loader2 size={12} className="animate-spin" /> : null}
