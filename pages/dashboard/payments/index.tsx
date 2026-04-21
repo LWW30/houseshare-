@@ -1,10 +1,13 @@
-import { useEffect, useState } from 'react'
+
+            <button onClick={handleExportCSV} className="btn-secondary flex items-center gap-2 text-sm">
+              <Download size={14} />Export CSV
+            </button>import { useEffect, useState } from 'react'
 import Layout from '../../../components/Layout'
 import StatusBadge from '../../../components/StatusBadge'
 import { useAuth } from '../../../lib/useAuth'
 import { getProperties, getRentPayments, getSharedBills, markRentPaid, updateOverduePayments, type Property, type RentPayment, type SharedBill } from '../../../lib/supabase'
 import { format } from 'date-fns'
-import { Check, ChevronDown, Loader2, Bell } from 'lucide-react'
+import { Check, ChevronDown, Loader2, Bell, Download } from 'lucide-react'
 
 function getMonths() {
   const r = []
@@ -125,6 +128,28 @@ export default function PaymentsPage() {
     setBatchSending(false)
     setBatchDone(true)
     setTimeout(() => setBatchDone(false), 4000)
+  }
+
+
+  const handleExportCSV = () => {
+    const rows = [['Tenant', 'Property', 'Month', 'Rent (£)', 'Status']]
+    payments.forEach((p: any) => {
+      rows.push([
+        p.tenant_name || p.name || '',
+        p.property_name || '',
+        month || '',
+        String(p.amount || 0),
+        p.status || ''
+      ])
+    })
+    const csv = rows.map(row => row.map(v => '"' + String(v).replace(/"/g,'""') + '"').join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'LetFlowUK-Payments-' + (month || 'all') + '.csv'
+    a.click()
+    URL.revokeObjectURL(url)
   }
 
   return (
