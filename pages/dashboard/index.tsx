@@ -64,6 +64,17 @@ export default function Dashboard() {
     load()
   }, [user])
 
+  const [expiringCerts, setExpiringCerts] = useState<{cert_type: string, expiry_date: string, property_name: string}[]>([])
+  useEffect(() => {
+    if (!user) return
+    supabase.from('compliance_certs').select('cert_type, expiry_date, property_id').eq('landlord_id', user.id)
+      .then(({ data }) => {
+        if (!data) return
+        const soon = data.filter(c => differenceInDays(parseISO(c.expiry_date), new Date()) < 90)
+        setExpiringCerts(soon.map(c => ({ ...c, property_name: '' })))
+      })
+  }, [user])
+
   const handleSignOut = async () => { await signOut(); router.push('/login') }
 
   if (loading || dataLoading) return (
