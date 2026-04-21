@@ -63,7 +63,7 @@ export default function LoginPage() {
       redirectTo: 'https://app.letflowuk.com/login'
     })
     if (error) setError(error.message)
-    else setError('Check your email for a password reset link')
+    else setError('Password reset email sent — check your inbox')
   }
 
   return (
