@@ -164,6 +164,11 @@ export default function LoginPage() {
                 >
                   Sign up free
                 </button>
+                <p className="text-center text-xs mt-2" style={{ color: 'var(--text-muted)' }}>
+                  By signing up you agree to our{' '}
+                  <a href="https://letflowuk.com/terms.html" target="_blank" rel="noopener noreferrer" className="underline">Terms of Service</a>{' '}and{' '}
+                  <a href="https://letflowuk.com/privacy.html" target="_blank" rel="noopener noreferrer" className="underline">Privacy Policy</a>
+                </p>
               </>
             ) : (
               <>Already have an account?{' '}
@@ -179,7 +184,7 @@ export default function LoginPage() {
         </div>
 
         <p className="text-center text-xs text-gray-400 mt-6">
-          UK landlord portal · Your data is private and secure
+          UK landlord portal &middot; <a href="https://letflowuk.com/terms.html" target="_blank" style={{textDecoration:"underline",opacity:0.7}}>Terms</a> &middot; <a href="https://letflowuk.com/privacy.html" target="_blank" style={{textDecoration:"underline",opacity:0.7}}>Privacy</a>
         </p>
       </div>
     </div>
