@@ -49,7 +49,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: 'LetFlow <onboarding@resend.dev>',
+        from: 'LetFlow <hello@letflowuk.com>',
         reply_to: 'hello@letflowuk.com',
         to: [(tenant as any).email || 'no-reply@example.com'],
         subject: `Rent reminder — ${property}`,
