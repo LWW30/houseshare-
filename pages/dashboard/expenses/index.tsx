@@ -138,6 +138,30 @@ export default function ExpensesPage() {
 
   if (loading) return <Layout><div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-gray-400" /></div></Layout>
 
+
+  const handleMTDExport = () => {
+    const rows = [
+      ['Date', 'Category', 'Description', 'Amount (£)', 'Property', 'VAT Eligible'],
+      ...filtered.map(e => [
+        e.date,
+        e.category,
+        e.description || '',
+        e.amount.toFixed(2),
+        properties.find(p => p.id === e.property_id)?.name || '',
+        'No'
+      ])
+    ]
+    const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    const year = selectedYear || new Date().getFullYear()
+    a.download = 'LetFlowUK-MTD-Expenses-' + year + '.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <Layout>
       <div className="p-6 md:p-8 max-w-5xl">
@@ -155,6 +179,9 @@ export default function ExpensesPage() {
             )}
             <button onClick={() => setShowForm(true)} className="btn-primary flex items-center gap-2 text-sm">
               <Plus size={15} />Add expense
+            </button>
+            <button onClick={handleMTDExport} className="btn-secondary flex items-center gap-2 text-sm">
+              <Download size={15} />MTD Export
             </button>
           </div>
         </div>
