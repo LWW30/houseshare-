@@ -179,7 +179,7 @@ export default function TenantsPage() {
 
   return (
     <Layout>
-      <div className="p-8 max-w-5xl">
+      <div className="p-4 sm:p-8 max-w-5xl">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>Tenants</h1>
@@ -217,7 +217,7 @@ export default function TenantsPage() {
         ) : (
           <div className="card divide-y" style={{ borderColor: 'var(--card-border)' }}>
             {filtered.map(t => (
-              <div key={t.id} className="px-6 py-4 flex items-center gap-4">
+              <div key={t.id} className="px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
                 <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-sm font-medium text-gray-600 flex-shrink-0">
                   {t.name.split(' ').map((n: string) => n[0]).join('')}
                 </div>
