@@ -157,7 +157,7 @@ export default function PaymentsPage() {
             <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>Payments</h1>
             <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>Track rent and bills month by month</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             {payments.some(p => p.status !== 'paid') && (
               <button onClick={handleBatchReminders} disabled={batchSending} className={`btn-secondary flex items-center gap-2 text-xs ${batchDone ? 'text-green-600' : ''}`}>
                 {batchSending ? <Loader2 size={12} className="animate-spin" /> : batchDone ? <Check size={12} /> : <Bell size={12} />}
