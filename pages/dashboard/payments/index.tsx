@@ -154,7 +154,7 @@ export default function PaymentsPage() {
 
   return (
     <Layout>
-      <div className="p-8 max-w-4xl">
+      <div className="p-4 sm:p-8 max-w-4xl">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>Payments</h1>
@@ -179,7 +179,7 @@ export default function PaymentsPage() {
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           <div className="card p-4">
             <div className="text-xs uppercase tracking-wide mb-1" style={{ color: 'var(--text-muted)' }}>Expected</div>
             <div className="text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>£{totalExpected.toLocaleString()}</div>
@@ -216,7 +216,7 @@ export default function PaymentsPage() {
           </div>
         ) : (
           <div className="card divide-y" style={{ borderColor: 'var(--card-border)' }}>
-            <div className="px-6 py-3 grid grid-cols-12 gap-4 text-xs font-medium uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>
+            <div className="hidden sm:grid px-6 py-3 grid-cols-12 gap-4 text-xs font-medium uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>
               <div className="col-span-3">Tenant</div><div className="col-span-2">Room</div><div className="col-span-2">Rent</div>
               <div className="col-span-2">Bills share</div><div className="col-span-1">Total</div><div className="col-span-2 text-right">Status</div>
             </div>
@@ -224,7 +224,7 @@ export default function PaymentsPage() {
               const tenantBillsShare = monthBills.filter(b => b.property_id === p.property_id).reduce((s, b) => s + (b.amount / (b.split_ways || 1)), 0)
               const tenantTotal = p.amount + tenantBillsShare
               return (
-                <div key={p.id} className="px-6 py-4 grid grid-cols-12 gap-4 items-center">
+                <div key={p.id} className="px-4 sm:px-6 py-4 grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-4 sm:items-center">
                   <div className="col-span-3 flex items-center gap-2">
                     <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-xs font-medium text-gray-600">
                       {p.tenant?.name.split(' ').map((n: string) => n[0]).join('')}
