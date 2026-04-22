@@ -116,7 +116,7 @@ export default function MaintenancePage() {
         </div>
 
         {/* Summary */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           {([
             { label: 'Open', count: openCount, color: 'text-red-500', status: 'open' },
             { label: 'In progress', count: inProgressCount, color: 'text-amber-500', status: 'in_progress' },
