@@ -184,7 +184,7 @@ This notice is a template only and does not constitute legal advice. The correct
 
   return (
     <Layout>
-      <div className="p-8 max-w-3xl">
+      <div className="p-4 sm:p-8 max-w-3xl">
         <div className="mb-6">
           <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>Legal Notices</h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>Generate Section 8 and Section 13 notices pre-filled with tenant data</p>
