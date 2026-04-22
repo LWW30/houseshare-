@@ -248,7 +248,7 @@ export default function PropertiesPage() {
                   <div className="flex-1 min-w-0 cursor-pointer" onClick={() => expandProperty(p.id)}>
                     <h2 className="font-semibold" style={{ color: 'var(--text-primary)' }}>{p.name}</h2>
                     <div className="flex items-center gap-1 text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                      <MapPin size={11} />{p.address}
+                      <MapPin size={11} />{p.address.length > 40 ? p.address.substring(0, 40) + '...' : p.address}
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
