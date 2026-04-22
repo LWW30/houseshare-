@@ -193,7 +193,7 @@ export default function ExpensesPage() {
         )}
 
         {/* Summary cards */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           <div className="card p-5">
             <div className="text-xs uppercase tracking-wide mb-1" style={{ color: 'var(--text-muted)' }}>This month</div>
             <div className="text-2xl font-semibold text-red-500">£{totalThisMonth.toLocaleString('en-GB', { minimumFractionDigits: 2 })}</div>
