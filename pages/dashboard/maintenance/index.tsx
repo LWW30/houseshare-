@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { usePlan } from '../../../lib/usePlan'
-import { ProGate } from '../../../components/ProGate'
 import Layout from '../../../components/Layout'
 import { useAuth } from '../../../lib/useAuth'
 import { getProperties, type Property } from '../../../lib/supabase'
@@ -106,7 +105,7 @@ export default function MaintenancePage() {
 
   return (
     <Layout>
-      <ProGate feature="Maintenance tracking" description="Log and track tenant maintenance requests, update status and add landlord notes. Timestamped records protect you legally now Section 21 is abolished." isPro={isPro} planLoading={planLoading}>
+      <>
       <div className="p-6 md:p-8 max-w-4xl">
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -269,7 +268,7 @@ export default function MaintenancePage() {
           </div>
         )}
       </div>
-          </ProGate>
+          </>
     </Layout>
   )
 }
