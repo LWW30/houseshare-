@@ -105,7 +105,7 @@ export default function BillsPage() {
       <div className="flex-1 min-w-0">
         <div className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>{b.name}</div>
         <div className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
-          {b.property?.name} · {new Date(b.due_date) < new Date() ? <span style={{color:'#ef4444',fontWeight:600,whiteSpace:'nowrap'}}>overdue {format(new Date(b.due_date), 'd MMM yyyy')}</span> : <span>due {format(new Date(b.due_date), 'd MMM yyyy')}</span>}
+          {b.property?.name?.split(' ').slice(0,3).join(' ')} · {new Date(b.due_date) < new Date() ? <span style={{color:'#ef4444',fontWeight:600,whiteSpace:'nowrap'}}>overdue {format(new Date(b.due_date), 'd MMM yyyy')}</span> : <span>due {format(new Date(b.due_date), 'd MMM yyyy')}</span>}
         </div>
       </div>
       <div className="text-right mr-3">
