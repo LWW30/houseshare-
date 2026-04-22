@@ -16,9 +16,10 @@ const categoryLabel: Record<string, string> = {
   gas: 'Gas', water: 'Water', other: 'Other',
 }
 
+// v2 - isPro null-safe
 export default function PropertiesPage() {
   const { user, loading } = useAuth()
-  const { isPro } = usePlan()
+  const { isPro = false } = usePlan() ?? {}
   const router = useRouter()
   const [properties, setProperties] = useState<Property[]>([])
   const [expanded, setExpanded] = useState<string | null>(null)
@@ -87,7 +88,7 @@ export default function PropertiesPage() {
 
   const handleAddProperty = async () => {
     if (!propForm.name || !propForm.address || !user) return
-    if (!isPro && properties.length >= 2) { setError('Free plan is limited to 2 properties. Upgrade to Pro for unlimited.'); return }
+    if ((!isPro) && properties.length >= 2) { setError('Free plan is limited to 2 properties. Upgrade to Pro for unlimited.'); return }
     setSaving(true); setError('')
     try {
       const p = await createProperty(user.id, propForm.name, propForm.address)
