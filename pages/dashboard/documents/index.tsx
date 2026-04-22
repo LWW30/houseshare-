@@ -197,8 +197,8 @@ export default function DocumentsPage() {
         <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5" style={{ background: 'var(--text-primary)' }}>
           <span style={{ fontSize: 22 }}>⚡</span>
         </div>
-        <h2 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Compliance documents is a Pro feature</h2>
-        <p className="text-sm mb-6 max-w-xs" style={{ color: 'var(--text-secondary)' }}>Store Gas Safe, EICR, EPC certificates and tenancy agreements with expiry tracking and automated alerts.</p>
+        <h2 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Documents</h2>
+        <p className="text-sm mb-6 max-w-xs" style={{ color: 'var(--text-secondary)' }}>Store and manage your property documents — Gas Safe, EICR, EPC certificates, tenancy agreements and more.</p>
         <button onClick={() => router.push('/dashboard/billing')} className="btn-primary flex items-center gap-2 px-6 py-2.5">
           ⚡ Upgrade to Pro — £19/mo
         </button>
