@@ -27,7 +27,7 @@ export default function SettingsPage() {
 
   return (
     <Layout>
-      <div className="p-8 max-w-xl">
+      <div className="p-4 sm:p-8 max-w-xl">
         <div className="flex items-center gap-3 mb-1">
           <Settings size={22} style={{ color: 'var(--text-primary)' }} />
           <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>Settings</h1>
