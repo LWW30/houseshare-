@@ -76,7 +76,7 @@ export default function CompliancePage() {
 
   return (
     <Layout>
-      <div className="p-8 max-w-4xl">
+      <div className="p-4 sm:p-8 max-w-4xl">
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-3">
             <ShieldCheck size={22} style={{ color: 'var(--text-primary)' }} />
