@@ -11,7 +11,7 @@ const PROVIDERS = [
 export default function ReferencingPage() {
   return (
     <Layout>
-      <div className="p-8 max-w-3xl">
+      <div className="p-4 sm:p-8 max-w-3xl">
         <h1 className="text-2xl font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Tenant Referencing</h1>
         <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>Run credit checks and employment references before a tenant moves in.</p>
         <div className="flex items-start gap-2 p-3 rounded-xl mb-8 text-sm" style={{ background: 'var(--color-background-secondary)', color: 'var(--text-secondary)' }}>
