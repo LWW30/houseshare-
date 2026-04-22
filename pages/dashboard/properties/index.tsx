@@ -341,7 +341,7 @@ export default function PropertiesPage() {
                           {bills[p.id].map(b => (
                             <div key={b.id} className="flex items-center gap-3 rounded-xl p-3" style={{ background: 'var(--bg)' }}>
                               <span className="text-lg">{categoryEmoji[b.category]}</span>
-                              <div className="flex-1 min-w-0">
+                              <div className="flex-1 min-w-0 overflow-hidden">
                                 <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{b.name}</div>
                                 <div className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
                                   Due {format(new Date(b.due_date), 'd MMM')} x £{(b.amount / (b.split_ways || 1)).toFixed(2)}/tenant  {b.split_ways}
