@@ -165,7 +165,7 @@ export default function AgreementsPage() {
 
   if (!isPro) return (
     <Layout>
-      <div className="p-8 max-w-xl">
+      <div className="p-4 sm:p-8 max-w-xl">
         <div className="flex items-center gap-3 mb-2">
           <FileText size={22} style={{ color: 'var(--text-primary)' }} />
           <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>Tenancy Agreements</h1>
@@ -187,7 +187,7 @@ export default function AgreementsPage() {
 
   return (
     <Layout>
-      <div className="p-8 max-w-2xl">
+      <div className="p-4 sm:p-8 max-w-2xl">
         <div className="flex items-center gap-3 mb-1">
           <FileText size={22} style={{ color: 'var(--text-primary)' }} />
           <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>Tenancy Agreements</h1>
@@ -219,7 +219,7 @@ export default function AgreementsPage() {
             <input className="input" placeholder="Your correspondence address" value={landlordAddress} onChange={e => setLandlordAddress(e.target.value)} />
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
               <label className="label">Start date</label>
               <input type="date" className="input" value={startDate} onChange={e => setStartDate(e.target.value)} />
