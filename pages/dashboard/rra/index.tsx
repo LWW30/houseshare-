@@ -104,7 +104,7 @@ export default function RRAPage() {
 
   return (
     <Layout>
-      <div className="p-8 max-w-3xl">
+      <div className="p-4 sm:p-8 max-w-3xl">
         <div className="flex items-start justify-between mb-6">
           <div>
             <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>RRA 2025 Compliance</h1>
