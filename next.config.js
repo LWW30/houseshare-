@@ -1,3 +1,4 @@
+// Rebuilt 2026-04-22
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
