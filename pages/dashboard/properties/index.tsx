@@ -218,7 +218,7 @@ export default function PropertiesPage() {
             <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>Properties</h1>
             <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>{properties.length} {properties.length === 1 ? 'property' : 'properties'} in your portfolio</p>
           </div>
-          {plan === 'free' && properties.length >= 2 ? (
+          {!isPro && properties.length >= 2 ? (
             <button onClick={() => router.push('/dashboard/billing')} className="btn-primary flex items-center gap-2">
               <Zap size={14} /> Upgrade to add more
             </button>
