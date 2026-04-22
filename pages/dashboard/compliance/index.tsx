@@ -121,7 +121,7 @@ export default function CompliancePage() {
                         <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${status.bg} ${status.text}`}>{status.label}</span>
                       </div>
                       <p className="text-xs mt-0.5 truncate" style={{ color: 'var(--text-muted)' }}>
-                        {prop?.name || 'Unknown property'} &middot; Expires {format(parseISO(c.expiry_date), 'd MMM yyyy')}
+                        {prop?.name || 'Unknown property'}  ·  Expires {format(parseISO(c.expiry_date), 'd MMM yyyy')}
                         {c.issue_date && ` · Issued ${format(parseISO(c.issue_date), 'd MMM yyyy')}`}
                       </p>
                       {c.notes && <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{c.notes}</p>}
