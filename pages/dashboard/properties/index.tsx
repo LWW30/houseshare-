@@ -1,11 +1,11 @@
-import { Zap, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Layout from '../../../components/Layout'
 import { useAuth } from '../../../lib/useAuth'
 import { usePlan } from '../../../lib/usePlan'
 import { useRouter } from 'next/router'
 import { getProperties, createProperty, getRooms, createRoom, getTenantsByProperty, getSharedBills, createSharedBill, toggleBillPaid, type Property, type Room, type Tenant, type SharedBill } from '../../../lib/supabase'
 import { supabase } from '../../../lib/supabase'
-import { Building2, Plus, MapPin, ChevronDown, ChevronUp, X, Loader2, Edit2, Trash2, Check, FileText, Receipt } from 'lucide-react'
+import { Building2, Plus, MapPin, ChevronDown, ChevronUp, X, Loader2, Edit2, Trash2, Check, FileText, Receipt, Zap } from 'lucide-react'
 import { format } from 'date-fns'
 
 const categoryEmoji: Record<string, string> = {
