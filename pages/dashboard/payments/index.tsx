@@ -176,7 +176,7 @@ export default function PaymentsPage() {
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
           <div className="card p-4">
             <div className="text-xs uppercase tracking-wide mb-1" style={{ color: 'var(--text-muted)' }}>Expected</div>
             <div className="text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>£{totalExpected.toLocaleString()}</div>
@@ -221,7 +221,7 @@ export default function PaymentsPage() {
               const tenantBillsShare = monthBills.filter(b => b.property_id === p.property_id).reduce((s, b) => s + (b.amount / (b.split_ways || 1)), 0)
               const tenantTotal = p.amount + tenantBillsShare
               return (
-                <div key={p.id} className="px-6 py-4 grid grid-cols-12 gap-4 items-center">
+                <div key={p.id} className="px-4 sm:px-6 py-3 sm:py-4 grid grid-cols-2 sm:grid-cols-12 gap-2 sm:gap-4 sm:items-center">
                   <div className="col-span-3 flex items-center gap-2">
                     <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-xs font-medium text-gray-600">
                       {p.tenant?.name.split(' ').map((n: string) => n[0]).join('')}
