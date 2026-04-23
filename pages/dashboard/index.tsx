@@ -210,7 +210,46 @@ export default function Dashboard() {
           <Link href='/dashboard/documents'><div className='mb-4 bg-amber-50 border border-amber-200 rounded-2xl px-5 py-4 flex items-center gap-3 hover:bg-amber-100 transition-colors cursor-pointer'><Clock size={16} className='text-amber-600 flex-shrink-0' /><div className='flex-1'><span className='text-sm font-medium text-amber-800'>{soonDocs.length} document{soonDocs.length > 1 ? 's' : ''} expiring soon </span><span className='text-xs text-amber-600'>{soonDocs.map(d => d.name).join(', ')}</span></div><ChevronRight size={14} className='text-amber-400' /></div></Link>
         )}
 
-        <div className='grid grid-cols-2 md:grid-cols-5 gap-4 mb-8'>
+        
+  {(() => {
+    const steps = [
+      { label: 'Add your first property', done: properties.length > 0, href: '/dashboard/properties' },
+      { label: 'Add rooms with monthly rent', done: roomCount > 0, href: '/dashboard/properties' },
+      { label: 'Add your first tenant', done: tenantCount > 0, href: '/dashboard/tenants' },
+      { label: 'Upload a compliance document', done: documents.length > 0, href: '/dashboard/documents' },
+      { label: 'Track your first rent payment', done: payments.length > 0, href: '/dashboard/payments' },
+    ]
+    const doneCount = steps.filter(s => s.done).length
+    if (doneCount === steps.length) return null
+    const pct = Math.round((doneCount / steps.length) * 100)
+    return (
+      <div className='mb-6 card overflow-hidden'>
+        <div className='px-5 py-4 border-b flex items-center justify-between' style={{ borderColor: 'var(--card-border)' }}>
+          <div>
+            <h2 className='font-medium text-sm' style={{ color: 'var(--text-primary)' }}>Getting started</h2>
+            <p className='text-xs mt-0.5' style={{ color: 'var(--text-muted)' }}>{doneCount} of {steps.length} steps complete</p>
+          </div>
+          <span className='text-sm font-semibold' style={{ color: pct === 100 ? '#16a34a' : 'var(--text-secondary)' }}>{pct}%</span>
+        </div>
+        <div className='h-1 bg-gray-100'>
+          <div className='h-1 bg-green-500 transition-all duration-500' style={{ width: pct + '%' }} />
+        </div>
+        <div className='divide-y' style={{ borderColor: 'var(--card-border)' }}>
+          {steps.map((step, i) => (
+            <Link key={i} href={step.href} className='flex items-center gap-3 px-5 py-3 hover:bg-gray-50 transition-colors group'>
+              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${step.done ? 'bg-green-500 border-green-500' : 'border-gray-300 group-hover:border-gray-400'}`}>
+                {step.done && <svg className='w-3 h-3 text-white' fill='none' viewBox='0 0 24 24' stroke='currentColor' strokeWidth={3}><path strokeLinecap='round' strokeLinejoin='round' d='M5 13l4 4L19 7' /></svg>}
+              </div>
+              <span className={`text-sm flex-1 ${step.done ? 'line-through' : ''}`} style={{ color: step.done ? 'var(--text-muted)' : 'var(--text-primary)' }}>{step.label}</span>
+              {!step.done && <ChevronRight size={14} className='text-gray-400 group-hover:text-gray-600 transition-colors' />}
+            </Link>
+          ))}
+        </div>
+      </div>
+    )
+  })()}
+
+      <div className='grid grid-cols-2 md:grid-cols-5 gap-4 mb-8'>
           <Link href='/dashboard/properties' className='card p-5 cursor-pointer hover:border-gray-400 transition-colors block'><div className='flex items-center justify-between mb-3'><span className='text-xs font-medium uppercase tracking-wide' style={{ color: 'var(--text-muted)' }}>Properties</span><Building2 size={15} className='text-gray-400' /></div><div className='text-2xl font-semibold' style={{ color: 'var(--text-primary)' }}>{properties.length}</div><div className='text-xs mt-1' style={{ color: 'var(--text-muted)' }}>{tenantCount} tenant{tenantCount !== 1 ? 's' : ''}</div></Link>
           <Link href='/dashboard/tenants' className='card p-5 cursor-pointer hover:border-gray-400 transition-colors block'><div className='flex items-center justify-between mb-3'><span className='text-xs font-medium uppercase tracking-wide' style={{ color: 'var(--text-muted)' }}>Occupancy</span><Users size={15} className='text-gray-400' /></div><div className='text-2xl font-semibold text-green-600'>{occupancyRate}%</div><div className='text-xs mt-1' style={{ color: 'var(--text-muted)' }}>{vacantRooms} vacant</div></Link>
           <Link href='/dashboard/payments' className='card p-5 cursor-pointer hover:border-gray-400 transition-colors block'><div className='flex items-center justify-between mb-3'><span className='text-xs font-medium uppercase tracking-wide' style={{ color: 'var(--text-muted)' }}>Collected</span><PoundSterling size={15} className='text-green-500' /></div><div className='text-2xl font-semibold text-green-600'>£{totalCollected.toLocaleString()}</div><div className='text-xs mt-1' style={{ color: 'var(--text-muted)' }}>{collectionRate}% of £{totalExpected.toLocaleString()}</div></Link>
