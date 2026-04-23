@@ -11,7 +11,7 @@ import { Building2, ShieldCheck, PoundSterling, Bell, ChevronRight, LogOut, Aler
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 
-const categoryEmoji: Record<string, string> = { broadband: 'ð¶', council_tax: 'ð¦', electricity: 'â¡', gas: 'ð¥', water: 'ð§', other: 'ð' }
+const categoryEmoji: Record<string, string> = { broadband: '📶', council_tax: '🏦', electricity: '⚡', gas: '🔥', water: '💧', other: '📋' }
 
 function greeting() {
   const h = new Date().getHours()
@@ -106,13 +106,13 @@ export default function Dashboard() {
           <h1 className='text-2xl font-semibold' style={{ color: 'var(--text-primary)' }}>{greeting()}</h1>
           <div className='flex items-center gap-3'>
             {isPro ? (
-              <span className='text-xs px-2.5 py-1 rounded-full font-semibold bg-purple-100 text-purple-700 border border-purple-200'>â¡ Pro</span>
+              <span className='text-xs px-2.5 py-1 rounded-full font-semibold bg-purple-100 text-purple-700 border border-purple-200'>⚡ Pro</span>
             ) : (
               <Link href='/dashboard/billing' className='text-xs px-2.5 py-1 rounded-full font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200 transition-colors'>Free plan</Link>
             )}
             <div className='flex items-center gap-3'>
             {isPro ? (
-              <span className='text-xs px-2.5 py-1 rounded-full font-semibold bg-purple-100 text-purple-700 border border-purple-200'>â¡ Pro</span>
+              <span className='text-xs px-2.5 py-1 rounded-full font-semibold bg-purple-100 text-purple-700 border border-purple-200'>⚡ Pro</span>
             ) : (
               <Link href='/dashboard/billing' className='text-xs px-2.5 py-1 rounded-full font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200 transition-colors'>Free plan</Link>
             )}
@@ -122,7 +122,7 @@ export default function Dashboard() {
         </div>
         <div className='space-y-4'>
           <div className='card p-6'>
-            <h2 className='font-semibold mb-1' style={{ color: 'var(--text-primary)' }}>Welcome to LetFlowUK ð</h2>
+            <h2 className='font-semibold mb-1' style={{ color: 'var(--text-primary)' }}>Welcome to LetFlowUK 👋</h2>
             <p className='text-sm mb-5' style={{ color: 'var(--text-secondary)' }}>Follow these steps to get your portfolio set up.</p>
             <div className='space-y-1'>
               <Link href='/dashboard/properties' className='flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors group'>
