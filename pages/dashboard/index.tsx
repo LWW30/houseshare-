@@ -11,7 +11,7 @@ import { Building2, ShieldCheck, PoundSterling, Bell, ChevronRight, LogOut, Aler
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 
-const categoryEmoji: Record<string, string> = { broadband: '📶', council_tax: '🏦', electricity: '⚡', gas: '🔥', water: '💧', other: '📋' }
+const categoryEmoji: Record<string, string> = { broadband: 'ð¶', council_tax: 'ð¦', electricity: 'â¡', gas: 'ð¥', water: 'ð§', other: 'ð' }
 
 function greeting() {
   const h = new Date().getHours()
@@ -106,13 +106,13 @@ export default function Dashboard() {
           <h1 className='text-2xl font-semibold' style={{ color: 'var(--text-primary)' }}>{greeting()}</h1>
           <div className='flex items-center gap-3'>
             {isPro ? (
-              <span className='text-xs px-2.5 py-1 rounded-full font-semibold bg-purple-100 text-purple-700 border border-purple-200'>⚡ Pro</span>
+              <span className='text-xs px-2.5 py-1 rounded-full font-semibold bg-purple-100 text-purple-700 border border-purple-200'>â¡ Pro</span>
             ) : (
               <Link href='/dashboard/billing' className='text-xs px-2.5 py-1 rounded-full font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200 transition-colors'>Free plan</Link>
             )}
             <div className='flex items-center gap-3'>
             {isPro ? (
-              <span className='text-xs px-2.5 py-1 rounded-full font-semibold bg-purple-100 text-purple-700 border border-purple-200'>⚡ Pro</span>
+              <span className='text-xs px-2.5 py-1 rounded-full font-semibold bg-purple-100 text-purple-700 border border-purple-200'>â¡ Pro</span>
             ) : (
               <Link href='/dashboard/billing' className='text-xs px-2.5 py-1 rounded-full font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200 transition-colors'>Free plan</Link>
             )}
@@ -122,28 +122,28 @@ export default function Dashboard() {
         </div>
         <div className='space-y-4'>
           <div className='card p-6'>
-            <h2 className='font-semibold mb-1' style={{ color: 'var(--text-primary)' }}>Welcome to LetFlowUK 👋</h2>
+            <h2 className='font-semibold mb-1' style={{ color: 'var(--text-primary)' }}>Welcome to LetFlowUK ð</h2>
             <p className='text-sm mb-5' style={{ color: 'var(--text-secondary)' }}>Follow these steps to get your portfolio set up.</p>
             <div className='space-y-1'>
               <Link href='/dashboard/properties' className='flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors group'>
                 <div className='w-7 h-7 rounded-full bg-gray-900 text-white flex items-center justify-center text-xs font-semibold flex-shrink-0'>1</div>
                 <div className='flex-1'><div className='text-sm font-medium' style={{ color: 'var(--text-primary)' }}>Add your first property</div><div className='text-xs' style={{ color: 'var(--text-muted)' }}>Enter address and set up rooms</div></div>
-                <span className='text-gray-400 group-hover:text-gray-700'>→</span>
+                <span className='text-gray-400 group-hover:text-gray-700'>â</span>
               </Link>
               <Link href='/dashboard/properties' className='flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors group'>
                 <div className='w-7 h-7 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-xs font-semibold flex-shrink-0'>2</div>
                 <div className='flex-1'><div className='text-sm font-medium' style={{ color: 'var(--text-primary)' }}>Add rooms with monthly rent</div><div className='text-xs' style={{ color: 'var(--text-muted)' }}>Each room tracks rent separately</div></div>
-                <span className='text-gray-400 group-hover:text-gray-700'>→</span>
+                <span className='text-gray-400 group-hover:text-gray-700'>â</span>
               </Link>
               <Link href='/dashboard/tenants' className='flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors group'>
                 <div className='w-7 h-7 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-xs font-semibold flex-shrink-0'>3</div>
                 <div className='flex-1'><div className='text-sm font-medium' style={{ color: 'var(--text-primary)' }}>Add tenants</div><div className='text-xs' style={{ color: 'var(--text-muted)' }}>They get a welcome email with their portal link</div></div>
-                <span className='text-gray-400 group-hover:text-gray-700'>→</span>
+                <span className='text-gray-400 group-hover:text-gray-700'>â</span>
               </Link>
               <Link href='/dashboard/bills' className='flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors group'>
                 <div className='w-7 h-7 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-xs font-semibold flex-shrink-0'>4</div>
-                <div className='flex-1'><div className='text-sm font-medium' style={{ color: 'var(--text-primary)' }}>Add shared bills</div><div className='text-xs' style={{ color: 'var(--text-muted)' }}>Gas, electric, broadband — split automatically</div></div>
-                <span className='text-gray-400 group-hover:text-gray-700'>→</span>
+                <div className='flex-1'><div className='text-sm font-medium' style={{ color: 'var(--text-primary)' }}>Add shared bills</div><div className='text-xs' style={{ color: 'var(--text-muted)' }}>Gas, electric, broadband â split automatically</div></div>
+                <span className='text-gray-400 group-hover:text-gray-700'>â</span>
               </Link>
             </div>
           </div>
@@ -152,7 +152,7 @@ export default function Dashboard() {
               <div className='w-8 h-8 bg-gray-900 rounded-xl flex items-center justify-center flex-shrink-0'><ShieldCheck size={14} className='text-white' /></div>
               <div className='flex-1'>
                 <div className='text-sm font-semibold' style={{ color: 'var(--text-primary)' }}>RRA 2025 compliance checklist</div>
-                <div className='text-xs mt-0.5' style={{ color: 'var(--text-secondary)' }}>26-item checklist covering Renters Rights Act obligations — Pro feature</div>
+                <div className='text-xs mt-0.5' style={{ color: 'var(--text-secondary)' }}>26-item checklist covering Renters Rights Act obligations â Pro feature</div>
               </div>
               <Link href='/dashboard/billing' className='text-xs font-semibold bg-gray-900 text-white px-3 py-1.5 rounded-lg hover:bg-gray-700 transition-colors flex-shrink-0'>Upgrade</Link>
             </div>
@@ -177,7 +177,7 @@ export default function Dashboard() {
                 {expiringCerts.length} compliance certificate{expiringCerts.length > 1 ? 's' : ''} expiring soon
               </p>
               <p style={{ color: '#B45309', fontSize: 12, marginTop: 2 }}>
-                Click to view and renew — fines for non-compliance can exceed £30,000
+                Click to view and renew â fines for non-compliance can exceed Â£30,000
               </p>
             </div>
           </div>
@@ -211,11 +211,11 @@ export default function Dashboard() {
         )}
 
         <div className='grid grid-cols-2 md:grid-cols-5 gap-4 mb-8'>
-          <div className='card p-5'><div className='flex items-center justify-between mb-3'><span className='text-xs font-medium uppercase tracking-wide' style={{ color: 'var(--text-muted)' }}>Properties</span><Building2 size={15} className='text-gray-400' /></div><div className='text-2xl font-semibold' style={{ color: 'var(--text-primary)' }}>{properties.length}</div><div className='text-xs mt-1' style={{ color: 'var(--text-muted)' }}>{tenantCount} tenant{tenantCount !== 1 ? 's' : ''}</div></div>
-          <div className='card p-5'><div className='flex items-center justify-between mb-3'><span className='text-xs font-medium uppercase tracking-wide' style={{ color: 'var(--text-muted)' }}>Occupancy</span><Users size={15} className='text-gray-400' /></div><div className='text-2xl font-semibold text-green-600'>{occupancyRate}%</div><div className='text-xs mt-1' style={{ color: 'var(--text-muted)' }}>{vacantRooms} vacant</div></div>
-          <div className='card p-5'><div className='flex items-center justify-between mb-3'><span className='text-xs font-medium uppercase tracking-wide' style={{ color: 'var(--text-muted)' }}>Collected</span><PoundSterling size={15} className='text-green-500' /></div><div className='text-2xl font-semibold text-green-600'>£{totalCollected.toLocaleString()}</div><div className='text-xs mt-1' style={{ color: 'var(--text-muted)' }}>{collectionRate}% of £{totalExpected.toLocaleString()}</div></div>
-          <div className='card p-5'><div className='flex items-center justify-between mb-3'><span className='text-xs font-medium uppercase tracking-wide' style={{ color: 'var(--text-muted)' }}>Net profit</span><TrendingDown size={15} className={netProfitThisMonth >= 0 ? 'text-green-500' : 'text-red-400'} /></div><div className={`text-2xl font-semibold ${netProfitThisMonth >= 0 ? 'text-green-600' : 'text-red-500'}`}>£{Math.abs(netProfitThisMonth).toLocaleString()}</div><div className='text-xs mt-1' style={{ color: 'var(--text-muted)' }}>{totalExpensesThisMonth > 0 ? 'after £' + totalExpensesThisMonth.toLocaleString() + ' expenses' : 'no expenses logged'}</div></div>
-          <div className='card p-5'><div className='flex items-center justify-between mb-3'><span className='text-xs font-medium uppercase tracking-wide' style={{ color: 'var(--text-muted)' }}>Attention</span><Bell size={15} className={overdueCount > 0 ? 'text-red-500' : 'text-gray-400'} /></div><div className='text-2xl font-semibold' style={{ color: overdueCount > 0 ? '#dc2626' : 'var(--text-primary)' }}>{attentionCount}</div><div className='text-xs mt-1' style={{ color: 'var(--text-muted)' }}>{overdueCount} overdue · {unpaidBillsCount} bills</div></div>
+          <Link href='/dashboard/properties' className='card p-5 cursor-pointer hover:border-gray-400 transition-colors block'><div className='flex items-center justify-between mb-3'><span className='text-xs font-medium uppercase tracking-wide' style={{ color: 'var(--text-muted)' }}>Properties</span><Building2 size={15} className='text-gray-400' /></div><div className='text-2xl font-semibold' style={{ color: 'var(--text-primary)' }}>{properties.length}</div><div className='text-xs mt-1' style={{ color: 'var(--text-muted)' }}>{tenantCount} tenant{tenantCount !== 1 ? 's' : ''}</div></Link>
+          <Link href='/dashboard/tenants' className='card p-5 cursor-pointer hover:border-gray-400 transition-colors block'><div className='flex items-center justify-between mb-3'><span className='text-xs font-medium uppercase tracking-wide' style={{ color: 'var(--text-muted)' }}>Occupancy</span><Users size={15} className='text-gray-400' /></div><div className='text-2xl font-semibold text-green-600'>{occupancyRate}%</div><div className='text-xs mt-1' style={{ color: 'var(--text-muted)' }}>{vacantRooms} vacant</div></Link>
+          <div className='card p-5'><div className='flex items-center justify-between mb-3'><span className='text-xs font-medium uppercase tracking-wide' style={{ color: 'var(--text-muted)' }}>Collected</span><PoundSterling size={15} className='text-green-500' /></div><div className='text-2xl font-semibold text-green-600'>Â£{totalCollected.toLocaleString()}</div><div className='text-xs mt-1' style={{ color: 'var(--text-muted)' }}>{collectionRate}% of Â£{totalExpected.toLocaleString()}</div></div>
+          <div className='card p-5'><div className='flex items-center justify-between mb-3'><span className='text-xs font-medium uppercase tracking-wide' style={{ color: 'var(--text-muted)' }}>Net profit</span><TrendingDown size={15} className={netProfitThisMonth >= 0 ? 'text-green-500' : 'text-red-400'} /></div><div className={`text-2xl font-semibold ${netProfitThisMonth >= 0 ? 'text-green-600' : 'text-red-500'}`}>Â£{Math.abs(netProfitThisMonth).toLocaleString()}</div><div className='text-xs mt-1' style={{ color: 'var(--text-muted)' }}>{totalExpensesThisMonth > 0 ? 'after Â£' + totalExpensesThisMonth.toLocaleString() + ' expenses' : 'no expenses logged'}</div></div>
+          <div className='card p-5'><div className='flex items-center justify-between mb-3'><span className='text-xs font-medium uppercase tracking-wide' style={{ color: 'var(--text-muted)' }}>Attention</span><Bell size={15} className={overdueCount > 0 ? 'text-red-500' : 'text-gray-400'} /></div><div className='text-2xl font-semibold' style={{ color: overdueCount > 0 ? '#dc2626' : 'var(--text-primary)' }}>{attentionCount}</div><div className='text-xs mt-1' style={{ color: 'var(--text-muted)' }}>{overdueCount} overdue Â· {unpaidBillsCount} bills</div></div>
         </div>
 
         <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
@@ -228,8 +228,8 @@ export default function Dashboard() {
                 {payments.slice(0, 6).map(p => (
                   <div key={p.id} className='px-5 py-3.5 flex items-center gap-4'>
                     <div className='w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xs font-medium text-gray-600 flex-shrink-0'>{p.tenant?.name.split(' ').map((n: string) => n[0]).join('')}</div>
-                    <div className='flex-1 min-w-0'><div className='text-sm font-medium truncate' style={{ color: 'var(--text-primary)' }}>{p.tenant?.name}</div><div className='text-xs' style={{ color: 'var(--text-muted)' }}>{p.tenant?.property?.address?.split(' ').slice(0,3).join(' ')} · {p.tenant?.room?.name}</div></div>
-                    <div className='text-sm font-medium' style={{ color: 'var(--text-primary)' }}>£{p.amount}</div>
+                    <div className='flex-1 min-w-0'><div className='text-sm font-medium truncate' style={{ color: 'var(--text-primary)' }}>{p.tenant?.name}</div><div className='text-xs' style={{ color: 'var(--text-muted)' }}>{p.tenant?.property?.address?.split(' ').slice(0,3).join(' ')} Â· {p.tenant?.room?.name}</div></div>
+                    <div className='text-sm font-medium' style={{ color: 'var(--text-primary)' }}>Â£{p.amount}</div>
                     <StatusBadge status={p.status} />
                   </div>
                 ))}
@@ -237,10 +237,10 @@ export default function Dashboard() {
             )}
           </div>
           <div className='space-y-4'>
-            {next7Days.length > 0 && (<div className='card'><div className='px-5 py-4 border-b' style={{ borderColor: 'var(--card-border)' }}><h2 className='font-medium text-sm' style={{ color: 'var(--text-primary)' }}>Due in next 7 days</h2></div><div className='divide-y' style={{ borderColor: 'var(--card-border)' }}>{next7Days.slice(0, 3).map(p => (<div key={p.id} className='px-5 py-3 flex items-center justify-between'><div><div className='text-sm font-medium' style={{ color: 'var(--text-primary)' }}>{p.tenant?.name}</div><div className='text-xs' style={{ color: 'var(--text-muted)' }}>Due {format(new Date(p.due_date), 'd MMM')}</div></div><span className='text-sm font-semibold' style={{ color: 'var(--text-primary)' }}>£{p.amount}</span></div>))}</div></div>)}
+            {next7Days.length > 0 && (<div className='card'><div className='px-5 py-4 border-b' style={{ borderColor: 'var(--card-border)' }}><h2 className='font-medium text-sm' style={{ color: 'var(--text-primary)' }}>Due in next 7 days</h2></div><div className='divide-y' style={{ borderColor: 'var(--card-border)' }}>{next7Days.slice(0, 3).map(p => (<div key={p.id} className='px-5 py-3 flex items-center justify-between'><div><div className='text-sm font-medium' style={{ color: 'var(--text-primary)' }}>{p.tenant?.name}</div><div className='text-xs' style={{ color: 'var(--text-muted)' }}>Due {format(new Date(p.due_date), 'd MMM')}</div></div><span className='text-sm font-semibold' style={{ color: 'var(--text-primary)' }}>Â£{p.amount}</span></div>))}</div></div>)}
             <div className='card'>
               <div className='px-5 py-4 border-b flex items-center justify-between' style={{ borderColor: 'var(--card-border)' }}><h2 className='font-medium text-sm' style={{ color: 'var(--text-primary)' }}>Unpaid bills</h2><Link href='/dashboard/bills' className='text-xs flex items-center gap-1' style={{ color: 'var(--text-muted)' }}>View all <ChevronRight size={12} /></Link></div>
-              {unpaidBills.length === 0 ? (<div className='px-5 py-6 text-center text-sm' style={{ color: 'var(--text-muted)' }}>All bills paid</div>) : (<div className='divide-y' style={{ borderColor: 'var(--card-border)' }}>{unpaidBills.map(b => (<div key={b.id} className='px-5 py-3 flex items-center justify-between'><div className='flex items-center gap-2'><span className='text-base'>{categoryEmoji[b.category]}</span><div><div className='text-sm font-medium' style={{ color: 'var(--text-primary)' }}>{b.name}</div><div className='text-xs' style={{ color: 'var(--text-muted)' }}>Due {format(new Date(b.due_date), 'd MMM')}</div></div></div><span className='text-sm font-semibold' style={{ color: 'var(--text-primary)' }}>£{b.amount}</span></div>))}</div>)}
+              {unpaidBills.length === 0 ? (<div className='px-5 py-6 text-center text-sm' style={{ color: 'var(--text-muted)' }}>All bills paid</div>) : (<div className='divide-y' style={{ borderColor: 'var(--card-border)' }}>{unpaidBills.map(b => (<div key={b.id} className='px-5 py-3 flex items-center justify-between'><div className='flex items-center gap-2'><span className='text-base'>{categoryEmoji[b.category]}</span><div><div className='text-sm font-medium' style={{ color: 'var(--text-primary)' }}>{b.name}</div><div className='text-xs' style={{ color: 'var(--text-muted)' }}>Due {format(new Date(b.due_date), 'd MMM')}</div></div></div><span className='text-sm font-semibold' style={{ color: 'var(--text-primary)' }}>Â£{b.amount}</span></div>))}</div>)}
               <div className='px-5 py-3 border-t' style={{ borderColor: 'var(--card-border)' }}><Link href='/dashboard/bills' className='btn-secondary w-full text-center block text-xs'>+ Add bill</Link></div>
             </div>
             {vacantRooms > 0 && (<div className='card px-5 py-4'><div className='flex items-center gap-3'><div className='w-9 h-9 bg-amber-50 rounded-xl flex items-center justify-center flex-shrink-0'><Users size={16} className='text-amber-600' /></div><div><div className='text-sm font-medium' style={{ color: 'var(--text-primary)' }}>{vacantRooms} vacant room{vacantRooms !== 1 ? 's' : ''}</div><Link href='/dashboard/tenants' className='text-xs text-amber-600 hover:underline'>Add a tenant</Link></div></div></div>)}
