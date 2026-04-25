@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router'
 import { Zap } from 'lucide-react'
 
+
 interface ProGateProps {
   feature: string
   description: string
@@ -9,10 +10,13 @@ interface ProGateProps {
   planLoading: boolean
 }
 
+
 export function ProGate({ feature, description, children, isPro, planLoading }: ProGateProps) {
   const router = useRouter()
 
+
   if (planLoading) return null
+
 
   if (!isPro) {
     return (
@@ -31,14 +35,6 @@ export function ProGate({ feature, description, children, isPro, planLoading }: 
           className="btn-primary flex items-center gap-2 px-6 py-2.5"
         >
           <Zap size={14} />
-          Upgrade to Pro — £19/mo
+          Upgrade to Pro — from £29/mo
         </button>
         <p className="text-xs mt-3" style={{ color: 'var(--text-muted)' }}>
-          14-day free trial · Cancel any time
-        </p>
-      </div>
-    )
-  }
-
-  return <>{children}</>
-}
