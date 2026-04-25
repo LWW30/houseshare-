@@ -175,7 +175,7 @@ This notice is a template only and does not constitute legal advice. The correct
           Generate Section 8 and Section 13 notices in minutes, pre-filled with your tenant data. RRA 2025 compliant.
         </p>
         <Link href="/dashboard/billing" className="btn-primary flex items-center gap-2 px-6 py-2.5">
-          <Zap size={14} /> Upgrade to Pro — £19/mo
+          <Zap size={14} /> Upgrade to Pro — from £29/mo
         </Link>
         <p className="text-xs mt-3" style={{ color: 'var(--text-muted)' }}>14-day free trial · Cancel any time</p>
       </div>
@@ -284,3 +284,4 @@ This notice is a template only and does not constitute legal advice. The correct
     </Layout>
   )
 }
+—££
