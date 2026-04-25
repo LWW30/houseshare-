@@ -73,7 +73,7 @@ export default function BillingPage() {
       const { url, error } = await res.json()
       if (error) throw new Error(error)
       window.location.href = url
-    } catch (e) { console.error(e); setUpgrading(false) }
+    } catch (e: any) { const msg = e.message || 'Payment setup failed. Please check your Stripe is in live mode and prices exist.'; setUpgradeError(msg); setUpgrading(false) }
   }
 
   async function handleManage() {
@@ -109,7 +109,7 @@ export default function BillingPage() {
 
   return (
     <Layout>
-      <div className="p-6 md:p-8 max-w-3xl">
+      <div className="p-6 md:p-8 max-w-2xl mx-auto">
         <div className="mb-8">
           <h1 className="text-2xl font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Billing</h1>
           <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Manage your LetFlowUK subscription</p>
@@ -209,7 +209,12 @@ export default function BillingPage() {
                     </div>
                   ))}
                 </div>
-                <button onClick={handleUpgrade} disabled={upgrading}
+                {upgradeError && (
+              <div className="mb-3 p-3 rounded-xl text-xs font-medium text-red-700 bg-red-50 border border-red-200 leading-relaxed">
+                ⚠️ {upgradeError}
+              </div>
+            )}
+              <button onClick={() => { setUpgradeError(''); handleUpgrade(); }} disabled={upgrading}
                   className="w-full py-3.5 rounded-xl font-semibold text-white bg-gray-900 hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 disabled:opacity-60">
                   {upgrading ? (
                     <><Loader2 size={14} className="animate-spin" /> Redirecting to checkout&hellip;</>
@@ -273,3 +278,4 @@ export default function BillingPage() {
     </Layout>
   )
     }
+—
