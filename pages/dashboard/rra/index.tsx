@@ -91,7 +91,7 @@ export default function RRAPage() {
           Interactive checklist covering all Renters Rights Act obligations — Section 21 abolition, new eviction rules, rent increases and deposit caps.
         </p>
         <Link href="/dashboard/billing" className="btn-primary flex items-center gap-2 px-6 py-2.5">
-          <Zap size={14} /> Upgrade to Pro — £19/mo
+          <Zap size={14} /> Upgrade to Pro — from £29/mo
         </Link>
         <p className="text-xs mt-3" style={{ color: 'var(--text-muted)' }}>14-day free trial · Cancel any time</p>
       </div>
@@ -178,3 +178,4 @@ export default function RRAPage() {
     </Layout>
   )
 }
+—££
