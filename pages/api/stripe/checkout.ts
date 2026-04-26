@@ -4,7 +4,6 @@ import { createClient } from '@supabase/supabase-js'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2023-10-16' })
 
-// Use service role to verify tokens reliably
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -19,12 +18,10 @@ const PRICE_IDS: Record<string, string> = {
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).end()
   try {
-    // Get token from Authorization header
     const authHeader = req.headers.authorization
     const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
     if (!token) return res.status(401).json({ error: 'No token provided' })
 
-    // Verify token using service role (works regardless of cookie state)
     const { data: { user }, error } = await supabaseAdmin.auth.getUser(token)
     if (error || !user) return res.status(401).json({ error: 'Invalid or expired token' })
 
@@ -49,4 +46,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.error('Stripe checkout error:', err)
     res.status(500).json({ error: err.message })
   }
-}—
+        }
