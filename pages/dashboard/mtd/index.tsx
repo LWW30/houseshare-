@@ -92,7 +92,8 @@ export default function MTDPage() {
       setRows([...income, ...expenses].sort((a, b) => a.date.localeCompare(b.date)))
       setLoading(false)
     }).catch(() => setLoading(false))
-  }, [user, authLoading, taxYear, qIdx])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, authLoading, taxYear, qIdx])
 
   const income  = rows.filter(r => r.type === 'income').reduce((s, r) => s + r.amount, 0)
   const expense = rows.filter(r => r.type === 'expense').reduce((s, r) => s + r.amount, 0)
