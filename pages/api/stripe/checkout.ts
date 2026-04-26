@@ -1,9 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
-import { createPagesServerClient } from '@supabase/auth-helpers-nextjs'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2023-10-16' })
+
+// Use service role key so we can verify any user token
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
 
 const PRICE_IDS: Record<string, string> = {
   monthly:  process.env.STRIPE_PRO_MONTHLY_PRICE_ID  || process.env.STRIPE_PRO_PRICE_ID || '',
@@ -14,55 +19,33 @@ const PRICE_IDS: Record<string, string> = {
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).end()
   try {
-    let userEmail: string | undefined
-    let userId: string | undefined
+    // Get token from Authorization header
+    const token = req.headers.authorization?.replace('Bearer ', '')
+    if (!token) return res.status(401).json({ error: 'No token provided' })
 
-    // Try Bearer token first (localStorage-based auth)
-    const authHeader = req.headers.authorization
-    if (authHeader?.startsWith('Bearer ')) {
-      const token = authHeader.split(' ')[1]
-      const supabaseAnon = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      )
-      const { data, error } = await supabaseAnon.auth.getUser(token)
-      if (!error && data.user) {
-        userEmail = data.user.email
-        userId = data.user.id
-      }
-    }
-
-    // Fallback: cookie-based session
-    if (!userId) {
-      const supabase = createPagesServerClient({ req, res })
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session?.user) {
-        userEmail = session.user.email
-        userId = session.user.id
-      }
-    }
-
-    if (!userId) return res.status(401).json({ error: 'Not authenticated' })
+    // Verify the token against Supabase
+    const { data: { user }, error } = await supabase.auth.getUser(token)
+    if (error || !user) return res.status(401).json({ error: 'Invalid token' })
 
     const { plan = 'monthly' } = req.body as { plan?: string }
     const priceId = PRICE_IDS[plan] || PRICE_IDS.monthly
     if (!priceId) return res.status(400).json({ error: 'Price not configured for: ' + plan })
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://app.letflowuk.com'
-    const checkoutSession = await stripe.checkout.sessions.create({
+    const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
-      customer_email: userEmail,
+      customer_email: user.email,
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: appUrl + '/dashboard/billing?success=1',
       cancel_url: appUrl + '/dashboard/billing',
       allow_promotion_codes: true,
-      metadata: { supabase_user_id: userId, plan },
-      subscription_data: { metadata: { supabase_user_id: userId, plan } },
+      metadata: { supabase_user_id: user.id, plan },
+      subscription_data: { metadata: { supabase_user_id: user.id, plan } },
     })
-    res.json({ url: checkoutSession.url })
+    res.json({ url: session.url })
   } catch (err: any) {
-    console.error('Stripe checkout error:', err)
+    console.error('Checkout error:', err)
     res.status(500).json({ error: err.message })
   }
 }
