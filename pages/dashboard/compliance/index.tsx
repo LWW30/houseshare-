@@ -2,183 +2,149 @@ import { useEffect, useState } from 'react'
 import Layout from '../../../components/Layout'
 import { useAuth } from '../../../lib/useAuth'
 import { supabase } from '../../../lib/supabase'
-import { getProperties, type Property } from '../../../lib/supabase'
-import { ShieldCheck, AlertTriangle, Check, Plus, X, Calendar } from 'lucide-react'
-import { format, differenceInDays, parseISO } from 'date-fns'
+import { ShieldCheck, AlertCircle, CheckCircle2, Clock, Plus, ChevronRight, Info } from 'lucide-react'
+import Link from 'next/link'
 
-type Cert = {
-  id: string
-  property_id: string
-  cert_type: string
-  issue_date: string
-  expiry_date: string
-  notes: string
+type CertType = 'gas_safety' | 'eicr' | 'epc' | 'hmo_licence' | 'fire_risk' | 'pat' | 'right_to_rent' | 'selective_licence'
+
+const CERT_LABELS: Record<CertType, { label: string; interval: string; note: string }> = {
+  gas_safety:        { label: 'Gas Safety Certificate', interval: 'Annual', note: 'Required every 12 months. Provide to tenants within 28 days of inspection.' },
+  eicr:              { label: 'EICR', interval: 'Every 5 years', note: 'Electrical Installation Condition Report. Mandatory for all rental properties.' },
+  epc:               { label: 'EPC', interval: 'Every 10 years', note: 'Minimum E rating required. F or G-rated properties are illegal to let.' },
+  hmo_licence:       { label: 'HMO Licence', interval: 'Every 5 years', note: 'Mandatory for HMOs with 5+ occupants forming 2+ households.' },
+  fire_risk:         { label: 'Fire Risk Assessment', interval: 'Annual (HMO)', note: 'Legally required for all HMOs. Review after any structural changes.' },
+  pat:               { label: 'PAT Testing', interval: 'Annual (recommended)', note: 'Portable Appliance Testing for all landlord-supplied electrical items.' },
+  right_to_rent:     { label: 'Right to Rent Check', interval: 'Per tenancy', note: 'Must verify tenant immigration status before tenancy start. Keep records.' },
+  selective_licence: { label: 'Selective Licence', interval: 'Per local authority', note: 'Some councils require this for all rentals. Check with your local authority.' },
 }
 
-const CERT_TYPES = [
-  { key: 'gas_safe', label: 'Gas Safety (CP12)', required: 'Annual', icon: '🔥' },
-  { key: 'eicr', label: 'EICR (Electrical)', required: 'Every 5 years', icon: '⚡' },
-  { key: 'epc', label: 'EPC', required: 'Every 10 years', icon: '🏠' },
-  { key: 'fire_alarm', label: 'Fire Alarm Test', required: 'Annual', icon: '🚨' },
-  { key: 'pat', label: 'PAT Test', required: 'Annual', icon: '🔌' },
-  { key: 'legionella', label: 'Legionella Risk Assessment', required: 'Periodic', icon: '💧' },
-]
+const AWAAB_NOTE = "Awaab's Law: Hazardous damp and mould must be investigated within 14 days and repaired within 7 weeks. Emergency repairs must start within 24 hours."
 
-function statusColor(expiry: string) {
-  const days = differenceInDays(parseISO(expiry), new Date())
-  if (days < 0) return { bg: 'bg-red-50', text: 'text-red-700', label: 'EXPIRED', urgent: true }
-  if (days < 30) return { bg: 'bg-red-50', text: 'text-red-700', label: days + 'd left', urgent: true }
-  if (days < 90) return { bg: 'bg-amber-50', text: 'text-amber-700', label: days + 'd left', urgent: false }
-  return { bg: 'bg-green-50', text: 'text-green-700', label: 'Valid', urgent: false }
+function daysUntil(dateStr: string) {
+  return Math.ceil((new Date(dateStr).getTime() - Date.now()) / 86400000)
+}
+function statusColor(days: number | null) {
+  if (days === null) return 'text-gray-400'
+  if (days < 0) return 'text-red-600'
+  if (days < 30) return 'text-amber-600'
+  return 'text-green-600'
+}
+function statusLabel(days: number | null) {
+  if (days === null) return 'Not uploaded'
+  if (days < 0) return 'Expired ' + Math.abs(days) + 'd ago'
+  if (days < 30) return 'Expires in ' + days + 'd'
+  return 'Valid — ' + days + 'd remaining'
 }
 
 export default function CompliancePage() {
   const { user } = useAuth()
-  const [properties, setProperties] = useState<Property[]>([])
-  const [certs, setCerts] = useState<Cert[]>([])
+  const [docs, setDocs] = useState<any[]>([])
+  const [properties, setProperties] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [showAdd, setShowAdd] = useState(false)
-  const [form, setForm] = useState({ property_id: '', cert_type: 'gas_safe', issue_date: '', expiry_date: '', notes: '' })
-  const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }))
 
-  const load = async () => {
+  useEffect(() => {
     if (!user) return
-    const [props, { data: cs }] = await Promise.all([
-      getProperties(user.id),
-      supabase.from('compliance_certs').select('*').eq('landlord_id', user.id).order('expiry_date')
-    ])
-    setProperties(props)
-    setCerts(cs || [])
-    setLoading(false)
-  }
+    Promise.all([
+      supabase.from('compliance_documents').select('*').eq('landlord_id', user.id),
+      supabase.from('properties').select('id, name').eq('user_id', user.id),
+    ]).then(([docsRes, propsRes]) => {
+      setDocs(docsRes.data || [])
+      setProperties(propsRes.data || [])
+      setLoading(false)
+    })
+  }, [user])
 
-  useEffect(() => { load() }, [user])
-
-  const handleAdd = async () => {
-    if (!user || !form.property_id || !form.expiry_date) return
-    await supabase.from('compliance_certs').insert({ ...form, landlord_id: user.id })
-    setShowAdd(false)
-    setForm({ property_id: '', cert_type: 'gas_safe', issue_date: '', expiry_date: '', notes: '' })
-    load()
-  }
-
-  const handleDelete = async (id: string) => {
-    await supabase.from('compliance_certs').delete().eq('id', id)
-    load()
-  }
-
-  const expiringSoon = certs.filter(c => {
-    const days = differenceInDays(parseISO(c.expiry_date), new Date())
-    return days < 90
-  })
-
-  if (loading) return <Layout><div className="p-8">Loading...</div></Layout>
+  const expired = docs.filter(d => daysUntil(d.expiry_date) < 0).length
+  const expiringSoon = docs.filter(d => { const n = daysUntil(d.expiry_date); return n >= 0 && n < 30 }).length
+  const valid = docs.length - expired - expiringSoon
 
   return (
     <Layout>
-      <div className="p-4 sm:p-8 max-w-4xl">
-        <div className="flex items-center justify-between mb-1">
-          <div className="flex items-center gap-3">
-            <ShieldCheck size={22} style={{ color: 'var(--text-primary)' }} />
-            <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>Compliance Certificates</h1>
+      <div className="p-6 md:p-8 max-w-4xl mx-auto">
+        <div className="flex items-start justify-between mb-6 flex-wrap gap-4">
+          <div>
+            <h1 className="text-2xl font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Compliance</h1>
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Certificates, licences and legal checks across all your properties</p>
           </div>
-          <button onClick={() => setShowAdd(true)} className="btn-primary flex items-center gap-2">
-            <Plus size={14} />Add certificate
-          </button>
+          <Link href="/dashboard/documents" className="flex items-center gap-2 px-4 py-2.5 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium rounded-xl transition-colors">
+            <Plus size={15} /> Upload document
+          </Link>
         </div>
-        <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>Track Gas Safety, EICR, EPC and other legally required certificates across your properties.</p>
 
-        {expiringSoon.length > 0 && (
-          <div className="rounded-xl p-4 mb-6 flex items-start gap-3" style={{ background: '#FEF3C7' }}>
-            <AlertTriangle size={18} className="text-amber-600 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="font-semibold text-amber-800 text-sm">{expiringSoon.length} certificate{expiringSoon.length > 1 ? 's' : ''} expiring soon or expired</p>
-              <p className="text-amber-700 text-xs mt-0.5">Renew immediately to stay compliant. Fines for non-compliance can exceed £30,000.</p>
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          {[
+            { label: 'Expired', value: expired, color: 'text-red-500', icon: AlertCircle },
+            { label: 'Expiring soon', value: expiringSoon, color: 'text-amber-500', icon: Clock },
+            { label: 'Valid', value: valid, color: 'text-green-500', icon: CheckCircle2 },
+          ].map(({ label, value, color, icon: Icon }) => (
+            <div key={label} className="card p-4">
+              <div className="flex items-center gap-2 mb-1"><Icon size={14} className={color} /><p className="text-xs uppercase tracking-wider font-medium" style={{ color: 'var(--text-muted)' }}>{label}</p></div>
+              <p className={'text-3xl font-semibold ' + color}>{loading ? '—' : value}</p>
             </div>
-          </div>
-        )}
+          ))}
+        </div>
 
-        {certs.length === 0 ? (
-          <div className="card p-12 text-center">
-            <ShieldCheck size={32} className="text-gray-300 mx-auto mb-4" />
-            <p className="font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>No certificates yet</p>
-            <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>Add your Gas Safety, EICR and EPC certificates to track renewal dates.</p>
-            <button onClick={() => setShowAdd(true)} className="btn-primary inline-flex items-center gap-2"><Plus size={14} />Add first certificate</button>
+        <div className="mb-6 p-4 rounded-2xl flex gap-3 border" style={{ background: '#f0f9ff', borderColor: '#bae6fd' }}>
+          <Info size={16} className="text-blue-500 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold text-blue-900 mb-0.5">{"Awaab's Law — active from October 2025"}</p>
+            <p className="text-xs text-blue-700">{AWAAB_NOTE}</p>
           </div>
-        ) : (
-          <div className="space-y-3">
-            {certs.map(c => {
-              const certType = CERT_TYPES.find(t => t.key === c.cert_type)
-              const status = statusColor(c.expiry_date)
-              const prop = properties.find(p => p.id === c.property_id)
+        </div>
+
+        {docs.length > 0 && (
+          <div className="card overflow-hidden mb-6">
+            <div className="px-5 py-3 border-b flex items-center gap-2" style={{ borderColor: 'var(--card-border)', background: 'var(--bg-secondary)' }}>
+              <ShieldCheck size={14} className="text-green-600" />
+              <h2 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Your uploaded certificates</h2>
+            </div>
+            {docs.map((doc, i) => {
+              const days = daysUntil(doc.expiry_date)
+              const prop = properties.find(p => p.id === doc.property_id)
               return (
-                <div key={c.id} className="card p-4 flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <span className="text-2xl">{certType?.icon || '📄'}</span>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{certType?.label || c.cert_type}</span>
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${status.bg} ${status.text}`}>{status.label}</span>
-                      </div>
-                      <p className="text-xs mt-0.5 truncate" style={{ color: 'var(--text-muted)' }}>
-                        {prop?.name || 'Unknown property'}  ·  Expires {format(parseISO(c.expiry_date), 'd MMM yyyy')}
-                        {c.issue_date && ` · Issued ${format(parseISO(c.issue_date), 'd MMM yyyy')}`}
-                      </p>
-                      {c.notes && <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{c.notes}</p>}
-                    </div>
+                <div key={i} className="flex items-center justify-between px-5 py-3.5 border-b last:border-0" style={{ borderColor: 'var(--card-border)' }}>
+                  <div>
+                    <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{doc.name || CERT_LABELS[doc.type as CertType]?.label || doc.type}</p>
+                    <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{prop?.name || 'All properties'} · Expires {doc.expiry_date}</p>
                   </div>
-                  <button onClick={() => handleDelete(c.id)} className="flex-shrink-0 p-1.5 rounded-lg hover:bg-gray-100">
-                    <X size={14} style={{ color: 'var(--text-muted)' }} />
-                  </button>
+                  <span className={'text-xs font-semibold ' + statusColor(days)}>{statusLabel(days)}</span>
                 </div>
               )
             })}
           </div>
         )}
 
-        {showAdd && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.4)' }}>
-            <div className="card p-6 w-full max-w-md mx-4">
-              <h2 className="font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Add certificate</h2>
-              <div className="space-y-3">
-                <div>
-                  <label className="label">Property</label>
-                  <select className="input" value={form.property_id} onChange={e => set('property_id', e.target.value)}>
-                    <option value="">Select property...</option>
-                    {properties.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="label">Certificate type</label>
-                  <select className="input" value={form.cert_type} onChange={e => set('cert_type', e.target.value)}>
-                    {CERT_TYPES.map(t => <option key={t.key} value={t.key}>{t.icon} {t.label} ({t.required})</option>)}
-                  </select>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="label">Issue date</label>
-                    <input type="date" className="input" value={form.issue_date} onChange={e => set('issue_date', e.target.value)} />
+        <h2 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>UK compliance requirements</h2>
+        <div className="space-y-2">
+          {(Object.entries(CERT_LABELS) as [CertType, any][]).map(([type, info]) => {
+            const uploaded = docs.filter(d => d.type === type)
+            const hasValid = uploaded.some(d => daysUntil(d.expiry_date) > 0)
+            const hasExpired = uploaded.some(d => daysUntil(d.expiry_date) < 0)
+            return (
+              <div key={type} className="card p-4 flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3 flex-1">
+                  <div className={'w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ' + (hasValid ? 'bg-green-500' : hasExpired ? 'bg-red-500' : 'bg-gray-200')}>
+                    {hasValid ? <CheckCircle2 size={12} className="text-white" /> : hasExpired ? <AlertCircle size={12} className="text-white" /> : <Plus size={12} className="text-gray-500" />}
                   </div>
                   <div>
-                    <label className="label">Expiry date *</label>
-                    <input type="date" className="input" value={form.expiry_date} onChange={e => set('expiry_date', e.target.value)} />
+                    <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{info.label}</p>
+                    <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}><span className="font-medium">{info.interval}</span> · {info.note}</p>
                   </div>
                 </div>
-                <div>
-                  <label className="label">Notes (optional)</label>
-                  <input className="input" placeholder="e.g. Engineer: John Smith, Gas Safe no. 12345" value={form.notes} onChange={e => set('notes', e.target.value)} />
-                </div>
+                <Link href="/dashboard/documents" className="flex items-center gap-1 text-xs whitespace-nowrap flex-shrink-0 hover:underline" style={{ color: 'var(--text-muted)' }}>
+                  {uploaded.length === 0 ? 'Upload' : 'Update'} <ChevronRight size={12} />
+                </Link>
               </div>
-              <div className="flex gap-3 mt-5">
-                <button onClick={() => setShowAdd(false)} className="btn-secondary flex-1">Cancel</button>
-                <button onClick={handleAdd} disabled={!form.property_id || !form.expiry_date} className="btn-primary flex-1 flex items-center justify-center gap-2">
-                  <Check size={14} />Save
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+            )
+          })}
+        </div>
+
+        <div className="mt-6 card p-4">
+          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+            <strong>Important:</strong> Requirements vary by local authority and property type. Always check with your local council — especially for selective licensing and HMO licensing thresholds. This covers standard England & Wales requirements as of April 2026.
+          </p>
+        </div>
       </div>
     </Layout>
   )
-}
+    }—
