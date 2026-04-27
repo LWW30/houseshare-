@@ -5,11 +5,11 @@ import { createClient } from '@supabase/supabase-js'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2023-10-16' })
 
-// Live mode price IDs — fall back to hardcoded if env vars missing
+// Live mode price IDs (Apr 2026)
 const PRICE_IDS: Record<string, string> = {
-  monthly:  process.env.STRIPE_PRO_MONTHLY_PRICE_ID  || 'price_1TQVec20dHbctgei99AxXXuL',
-  annual:   process.env.STRIPE_PRO_ANNUAL_PRICE_ID   || 'price_1TQVdi20dHbctgei7acw9cKR',
-  founding: process.env.STRIPE_FOUNDING_PRICE_ID     || 'price_1TQVcU20dHbctgeiV4dFkCOK',
+  monthly:  'price_1TQVec20dHbctgei99AxXXuL',
+  annual:   'price_1TQVdi20dHbctgei7acw9cKR',
+  founding: 'price_1TQVcU20dHbctgeiV4dFkCOK',
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -51,9 +51,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const { plan = 'founding' } = req.body as { plan?: string }
     const priceId = PRICE_IDS[plan] || PRICE_IDS.founding
-    if (!priceId) return res.status(400).json({ error: 'Price not configured for: ' + plan })
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://app.letflowuk.com'
+    const appUrl = 'https://app.letflowuk.com'
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
