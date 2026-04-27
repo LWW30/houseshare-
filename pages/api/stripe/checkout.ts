@@ -5,10 +5,11 @@ import { createClient } from '@supabase/supabase-js'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2023-10-16' })
 
+// Live mode price IDs — fall back to hardcoded if env vars missing
 const PRICE_IDS: Record<string, string> = {
-  monthly:  process.env.STRIPE_PRO_MONTHLY_PRICE_ID  || process.env.STRIPE_PRO_PRICE_ID || '',
-  annual:   process.env.STRIPE_PRO_ANNUAL_PRICE_ID   || '',
-  founding: process.env.STRIPE_FOUNDING_PRICE_ID     || '',
+  monthly:  process.env.STRIPE_PRO_MONTHLY_PRICE_ID  || 'price_1TQVec20dHbctgei99AxXXuL',
+  annual:   process.env.STRIPE_PRO_ANNUAL_PRICE_ID   || 'price_1TQVdi20dHbctgei7acw9cKR',
+  founding: process.env.STRIPE_FOUNDING_PRICE_ID     || 'price_1TQVcU20dHbctgeiV4dFkCOK',
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
