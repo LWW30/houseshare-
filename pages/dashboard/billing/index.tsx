@@ -59,7 +59,7 @@ export default function BillingPage() {
     try {
       const res = await fetch('/api/stripe/checkout', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (await supabase.auth.getSession()).data.session?.access_token || '' },
         body: JSON.stringify({ plan }),
       })
       const { url, error } = await res.json()
