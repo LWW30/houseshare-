@@ -7,7 +7,6 @@ import { Download, TrendingUp, TrendingDown, FileText, AlertCircle } from 'lucid
 
 type Row = { date: string; description: string; category: string; amount: number; type: 'income' | 'expense' }
 
-// Tax year quarters — fixed strings, no objects
 function getQuarterDates(taxYear: number, qIdx: number) {
   const y = taxYear
   const quarters = [
@@ -91,11 +90,17 @@ export default function MTDPage() {
 
   function exportCSV() {
     const header = 'Date,Description,Category,Type,Amount (GBP)\n'
-    const body = rows.map(r => r.date + ',"' + r.description + '","' + r.category + '",' + r.type + ',' + r.amount.toFixed(2)).join('\n')
+    const body = rows.map(r =>
+      r.date + ',"' + r.description + '","' + r.category + '",' + r.type + ',' + r.amount.toFixed(2)
+    ).join('\n')
     const blob = new Blob([header + body], { type: 'text/csv' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
-    a.href = url; a.download = 'LetFlowUK-MTD-' + q.label.replace(/\//g, '-').replace(/\s/g, '-') + '.csv'; a.click()
+    a.href = url
+    a.download = 'LetFlowUK-MTD-' + q.label.replace(/\//g, '-').replace(/\s/g, '-') + '.csv'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
     URL.revokeObjectURL(url)
   }
 
@@ -107,8 +112,10 @@ export default function MTDPage() {
             <h1 className="text-2xl font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Making Tax Digital</h1>
             <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>HMRC quarterly digital records</p>
           </div>
-          <button onClick={exportCSV} disabled={rows.length === 0}
-            className="flex items-center gap-2 px-4 py-2.5 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium rounded-xl transition-colors disabled:opacity-50">
+          <button
+            onClick={exportCSV}
+            disabled={rows.length === 0}
+            className="flex items-center gap-2 px-4 py-2.5 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
             <Download size={15} /> Export CSV
           </button>
         </div>
@@ -121,9 +128,7 @@ export default function MTDPage() {
         <div className="flex gap-4 mb-6 flex-wrap">
           <div>
             <label className="text-xs mb-1 block" style={{ color: 'var(--text-muted)' }}>Tax year</label>
-            <select value={taxYear} onChange={e => setTaxYear(Number(e.target.value))}
-              className="text-sm border rounded-xl px-3 py-2"
-              style={{ borderColor: 'var(--card-border)', background: 'var(--card-bg)', color: 'var(--text-primary)' }}>
+            <select value={taxYear} onChange={e => setTaxYear(Number(e.target.value))} className="text-sm border rounded-xl px-3 py-2" style={{ borderColor: 'var(--card-border)', background: 'var(--card-bg)', color: 'var(--text-primary)' }}>
               {[currentTaxYear()-1, currentTaxYear()].map(y => <option key={y} value={y}>{y}/{y+1}</option>)}
             </select>
           </div>
@@ -214,4 +219,4 @@ export default function MTDPage() {
       </div>
     </Layout>
   )
-    }
+                                                                }—
