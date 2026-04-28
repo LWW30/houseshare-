@@ -47,32 +47,40 @@ export default function MTDPage() {
     const q = getQuarterDates(year, qi)
     setLoading(true)
     setRows([])
+
+    // Try user_id first, fall back to landlord_id
     const [paymentsRes, expensesRes] = await Promise.all([
       supabase
         .from('payments')
-        .select('amount, due_date, tenants(first_name, last_name), rooms(name, properties(name))')
-        .eq('user_id', uid).eq('status', 'paid')
-        .gte('due_date', q.start).lte('due_date', q.end),
+        .select('amount, due_date, tenant_id')
+        .or('user_id.eq.' + uid + ',landlord_id.eq.' + uid)
+        .eq('status', 'paid')
+        .gte('due_date', q.start)
+        .lte('due_date', q.end),
       supabase
         .from('expenses')
         .select('amount, date, description, category')
-        .eq('user_id', uid)
-        .gte('date', q.start).lte('date', q.end),
+        .or('user_id.eq.' + uid + ',landlord_id.eq.' + uid)
+        .gte('date', q.start)
+        .lte('date', q.end),
     ])
+
     const income: Row[] = (paymentsRes.data || []).map((p: any) => ({
       date: p.due_date,
-      description: 'Rent - ' + (p.tenants?.first_name ?? '') + ' ' + (p.tenants?.last_name ?? ''),
+      description: 'Rental income',
       category: 'Rental income',
       amount: Number(p.amount),
       type: 'income',
     }))
+
     const expense: Row[] = (expensesRes.data || []).map((e: any) => ({
       date: e.date,
-      description: e.description || e.category,
-      category: e.category,
+      description: e.description || e.category || 'Expense',
+      category: e.category || 'General',
       amount: Number(e.amount),
       type: 'expense',
     }))
+
     setRows([...income, ...expense].sort((a, b) => a.date.localeCompare(b.date)))
     setLoading(false)
   }, [])
@@ -91,7 +99,7 @@ export default function MTDPage() {
   function exportCSV() {
     const header = 'Date,Description,Category,Type,Amount (GBP)\n'
     const body = rows.map(r =>
-      r.date + ',"' + r.description + '","' + r.category + '",' + r.type + ',' + r.amount.toFixed(2)
+      r.date + ',"' + r.description.replace(/"/g, '""') + '","' + r.category.replace(/"/g, '""') + '",' + r.type + ',' + r.amount.toFixed(2)
     ).join('\n')
     const blob = new Blob([header + body], { type: 'text/csv' })
     const url = URL.createObjectURL(blob)
@@ -219,4 +227,4 @@ export default function MTDPage() {
       </div>
     </Layout>
   )
-                                                                }—
+            }——
