@@ -47,21 +47,33 @@ export default function MTDPage() {
     const q = getQuarterDates(year, qi)
     setLoading(true)
     setRows([])
+
+    // Get the user's property IDs first
+    const { data: properties } = await supabase
+      .from('properties')
+      .select('id')
+      .eq('user_id', uid)
+
+    const propertyIds = (properties || []).map((p: any) => p.id)
+
     const [paymentsRes, expensesRes] = await Promise.all([
-      supabase
-        .from('payments')
-        .select('amount, due_date, tenant_id')
-        .or('user_id.eq.' + uid + ',landlord_id.eq.' + uid)
-        .eq('status', 'paid')
-        .gte('due_date', q.start)
-        .lte('due_date', q.end),
+      propertyIds.length > 0
+        ? supabase
+            .from('rent_payments')
+            .select('amount, due_date')
+            .in('property_id', propertyIds)
+            .eq('status', 'paid')
+            .gte('due_date', q.start)
+            .lte('due_date', q.end)
+        : Promise.resolve({ data: [] }),
       supabase
         .from('expenses')
         .select('amount, date, description, category')
-        .or('user_id.eq.' + uid + ',landlord_id.eq.' + uid)
+        .eq('landlord_id', uid)
         .gte('date', q.start)
         .lte('date', q.end),
     ])
+
     const income: Row[] = (paymentsRes.data || []).map((p: any) => ({
       date: p.due_date,
       description: 'Rental income',
@@ -69,6 +81,7 @@ export default function MTDPage() {
       amount: Number(p.amount),
       type: 'income',
     }))
+
     const expense: Row[] = (expensesRes.data || []).map((e: any) => ({
       date: e.date,
       description: e.description || e.category || 'Expense',
@@ -76,6 +89,7 @@ export default function MTDPage() {
       amount: Number(e.amount),
       type: 'expense',
     }))
+
     setRows([...income, ...expense].sort((a, b) => a.date.localeCompare(b.date)))
     setLoading(false)
   }, [])
@@ -92,16 +106,15 @@ export default function MTDPage() {
   const q = getQuarterDates(taxYear, qIdx)
 
   function exportCSV() {
-    const header = 'Date,Description,Category,Type,Amount (GBP)\n'
-    const header = 'Date,Description,Category,Type,Amount (GBP)' + sep
+    const header = ['Date', 'Description', 'Category', 'Type', 'Amount (GBP)'].join(',') + String.fromCharCode(10)
     const body = rows.map(r =>
-      r.date + ',"' + r.description.replace(/"/g, '""') + '","' + r.category.replace(/"/g, '""') + '",' + r.type + ',' + r.amount.toFixed(2)
-    ).join(sep)
+      [r.date, '"' + r.description.replace(/"/g, '""') + '"', '"' + r.category.replace(/"/g, '""') + '"', r.type, r.amount.toFixed(2)].join(',')
+    ).join(String.fromCharCode(10))
     const blob = new Blob([header + body], { type: 'text/csv' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = 'LetFlowUK-MTD-' + q.label.replace(/\//g, '-').replace(/\s/g, '-') + '.csv'
+    a.download = 'LetFlowUK-MTD-' + q.label.replace(/[/]/g, '-').replace(/[ ]/g, '-') + '.csv'
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
