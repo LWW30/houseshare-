@@ -51,14 +51,14 @@ export default function MTDPage() {
       supabase
         .from('payments')
         .select('amount, due_date, tenant_id')
-        .or('user_id.eq.' + uid + ',landlord_id.eq.' + uid)
+        .eq('user_id', uid)
         .eq('status', 'paid')
         .gte('due_date', q.start)
         .lte('due_date', q.end),
       supabase
         .from('expenses')
         .select('amount, date, description, category')
-        .or('user_id.eq.' + uid + ',landlord_id.eq.' + uid)
+        .eq('user_id', uid)
         .gte('date', q.start)
         .lte('date', q.end),
     ])
