@@ -47,42 +47,28 @@ export default function MTDPage() {
     const q = getQuarterDates(year, qi)
     setLoading(true)
     setRows([])
-
-    // Step 1: get user's property IDs
-    const propsRes = await supabase
-      .from('properties')
-      .select('id')
-      .eq('user_id', uid)
-
-    const propertyIds = (propsRes.data || []).map((p: any) => p.id)
-
-    // Step 2: query rent_payments and expenses in parallel
     const [paymentsRes, expensesRes] = await Promise.all([
-      propertyIds.length === 0
-        ? Promise.resolve({ data: [] })
-        : supabase
-            .from('rent_payments')
-            .select('amount, due_date, tenant:tenants(first_name, last_name)')
-            .in('property_id', propertyIds)
-            .eq('status', 'paid')
-            .gte('due_date', q.start)
-            .lte('due_date', q.end),
+      supabase
+        .from('payments')
+        .select('amount, due_date, tenant_id')
+        .or('user_id.eq.' + uid + ',landlord_id.eq.' + uid)
+        .eq('status', 'paid')
+        .gte('due_date', q.start)
+        .lte('due_date', q.end),
       supabase
         .from('expenses')
         .select('amount, date, description, category')
-        .eq('landlord_id', uid)
+        .or('user_id.eq.' + uid + ',landlord_id.eq.' + uid)
         .gte('date', q.start)
         .lte('date', q.end),
     ])
-
     const income: Row[] = (paymentsRes.data || []).map((p: any) => ({
       date: p.due_date,
-      description: 'Rent - ' + (p.tenant?.first_name || '') + ' ' + (p.tenant?.last_name || ''),
+      description: 'Rental income',
       category: 'Rental income',
       amount: Number(p.amount),
       type: 'income',
     }))
-
     const expense: Row[] = (expensesRes.data || []).map((e: any) => ({
       date: e.date,
       description: e.description || e.category || 'Expense',
@@ -90,7 +76,6 @@ export default function MTDPage() {
       amount: Number(e.amount),
       type: 'expense',
     }))
-
     setRows([...income, ...expense].sort((a, b) => a.date.localeCompare(b.date)))
     setLoading(false)
   }, [])
@@ -107,15 +92,17 @@ export default function MTDPage() {
   const q = getQuarterDates(taxYear, qIdx)
 
   function exportCSV() {
-    const header = 'Date,Description,Category,Type,Amount (GBP)\n'
+    const header = 'Date,Description,Category,Type,Amount (GBP)
+'
     const body = rows.map(r =>
       r.date + ',"' + r.description.replace(/"/g, '""') + '","' + r.category.replace(/"/g, '""') + '",' + r.type + ',' + r.amount.toFixed(2)
-    ).join('\n')
+    ).join('
+')
     const blob = new Blob([header + body], { type: 'text/csv' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = 'LetFlowUK-MTD-' + q.label.replace(/\//g, '-').replace(/\s/g, '-') + '.csv'
+    a.download = 'LetFlowUK-MTD-' + q.label.replace(///g, '-').replace(/s/g, '-') + '.csv'
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
@@ -130,16 +117,13 @@ export default function MTDPage() {
             <h1 className="text-2xl font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Making Tax Digital</h1>
             <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>HMRC quarterly digital records</p>
           </div>
-          <button
-            onClick={exportCSV}
-            disabled={rows.length === 0}
-            className="flex items-center gap-2 px-4 py-2.5 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+          <button onClick={exportCSV} disabled={rows.length === 0} className="flex items-center gap-2 px-4 py-2.5 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
             <Download size={15} /> Export CSV
           </button>
         </div>
         <div className="mb-6 p-4 rounded-2xl flex gap-3 border" style={{ background: '#fffbeb', borderColor: '#fcd34d' }}>
           <AlertCircle className="text-amber-500 flex-shrink-0 mt-0.5" size={16} />
-          <p className="text-sm text-amber-800"><span className="font-semibold">MTD for Income Tax is live from April 2026.</span> Landlords with 50k+ rental income must submit quarterly digital records to HMRC. Threshold drops to 30,000 in April 2027.</p>
+          <p className="text-sm text-amber-800"><span className="font-semibold">MTD for Income Tax is live from April 2026.</span> Landlords with 50k+ rental income must submit quarterly digital records to HMRC. Threshold drops to 30k in April 2027.</p>
         </div>
         <div className="flex gap-4 mb-6 flex-wrap">
           <div>
@@ -152,10 +136,7 @@ export default function MTDPage() {
             <label className="text-xs mb-1 block" style={{ color: 'var(--text-muted)' }}>Quarter</label>
             <div className="flex gap-1">
               {['Q1','Q2','Q3','Q4'].map((ql, i) => (
-                <button key={ql} onClick={() => setQIdx(i)}
-                  className={'px-4 py-2 rounded-xl text-sm font-medium border transition-all ' + (i === qIdx ? 'bg-gray-900 text-white border-gray-900' : 'border-gray-200 text-gray-600 hover:border-gray-400')}>
-                  {ql}
-                </button>
+                <button key={ql} onClick={() => setQIdx(i)} className={'px-4 py-2 rounded-xl text-sm font-medium border transition-all ' + (i === qIdx ? 'bg-gray-900 text-white border-gray-900' : 'border-gray-200 text-gray-600 hover:border-gray-400')}>{ql}</button>
               ))}
             </div>
           </div>
@@ -167,67 +148,29 @@ export default function MTDPage() {
             { label: 'Net profit', value: profit, color: profit >= 0 ? 'text-blue-600' : 'text-red-500', icon: FileText },
           ].map(({ label, value, color, icon: Icon }) => (
             <div key={label} className="card p-4">
-              <div className="flex items-center gap-1.5 mb-2">
-                <Icon size={14} className={color} />
-                <p className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{label}</p>
-              </div>
+              <div className="flex items-center gap-1.5 mb-2"><Icon size={14} className={color} /><p className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{label}</p></div>
               <p className={'text-2xl font-semibold ' + color}>{fmt(value)}</p>
             </div>
           ))}
         </div>
         <div className="flex items-center justify-between mb-3">
-          <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-            {q.label}
-            <span className="text-xs font-normal ml-2" style={{ color: 'var(--text-muted)' }}>{q.start} to {q.end}</span>
-          </p>
+          <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{q.label}<span className="text-xs font-normal ml-2" style={{ color: 'var(--text-muted)' }}>{q.start} to {q.end}</span></p>
           {!loading && rows.length > 0 && <p className="text-xs text-green-600">{rows.length} records</p>}
         </div>
         {loading ? (
-          <div className="card py-16 text-center">
-            <div className="w-5 h-5 border-2 border-gray-200 border-t-gray-700 rounded-full animate-spin mx-auto mb-3" />
-            <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Loading records...</p>
-          </div>
+          <div className="card py-16 text-center"><div className="w-5 h-5 border-2 border-gray-200 border-t-gray-700 rounded-full animate-spin mx-auto mb-3" /><p className="text-sm" style={{ color: 'var(--text-muted)' }}>Loading records...</p></div>
         ) : rows.length === 0 ? (
-          <div className="card py-16 text-center">
-            <FileText className="mx-auto mb-3 opacity-20" size={32} style={{ color: 'var(--text-muted)' }} />
-            <p className="text-sm" style={{ color: 'var(--text-muted)' }}>No records for this quarter.</p>
-            <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>Mark payments as paid and log expenses to see them here.</p>
-          </div>
+          <div className="card py-16 text-center"><FileText className="mx-auto mb-3 opacity-20" size={32} style={{ color: 'var(--text-muted)' }} /><p className="text-sm" style={{ color: 'var(--text-muted)' }}>No records for this quarter.</p><p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>Mark payments as paid and log expenses to see them here.</p></div>
         ) : (
           <div className="card overflow-hidden">
             <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b" style={{ borderColor: 'var(--card-border)', background: 'var(--bg-secondary)' }}>
-                  {['Date','Description','Category','Amount'].map(h => (
-                    <th key={h} className={'text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider' + (h === 'Amount' ? ' text-right' : '')} style={{ color: 'var(--text-muted)' }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((r, i) => (
-                  <tr key={i} className="border-b last:border-0" style={{ borderColor: 'var(--card-border)' }}>
-                    <td className="px-4 py-3 text-xs whitespace-nowrap" style={{ color: 'var(--text-muted)' }}>{r.date}</td>
-                    <td className="px-4 py-3" style={{ color: 'var(--text-primary)' }}>{r.description}</td>
-                    <td className="px-4 py-3 text-xs" style={{ color: 'var(--text-muted)' }}>{r.category}</td>
-                    <td className={'px-4 py-3 text-right font-medium tabular-nums ' + (r.type === 'income' ? 'text-green-600' : 'text-red-500')}>
-                      {r.type === 'income' ? '+' : '-'}{fmt(r.amount)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr className="border-t" style={{ borderColor: 'var(--card-border)', background: 'var(--bg-secondary)' }}>
-                  <td colSpan={3} className="px-4 py-3 text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Net profit for {q.label}</td>
-                  <td className={'px-4 py-3 text-right font-semibold text-base tabular-nums ' + (profit >= 0 ? 'text-blue-600' : 'text-red-500')}>{fmt(profit)}</td>
-                </tr>
-              </tfoot>
+              <thead><tr className="border-b" style={{ borderColor: 'var(--card-border)', background: 'var(--bg-secondary)' }}>{['Date','Description','Category','Amount'].map(h => (<th key={h} className={'text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider' + (h === 'Amount' ? ' text-right' : '')} style={{ color: 'var(--text-muted)' }}>{h}</th>))}</tr></thead>
+              <tbody>{rows.map((r, i) => (<tr key={i} className="border-b last:border-0" style={{ borderColor: 'var(--card-border)' }}><td className="px-4 py-3 text-xs whitespace-nowrap" style={{ color: 'var(--text-muted)' }}>{r.date}</td><td className="px-4 py-3" style={{ color: 'var(--text-primary)' }}>{r.description}</td><td className="px-4 py-3 text-xs" style={{ color: 'var(--text-muted)' }}>{r.category}</td><td className={'px-4 py-3 text-right font-medium tabular-nums ' + (r.type === 'income' ? 'text-green-600' : 'text-red-500')}>{r.type === 'income' ? '+' : '-'}{fmt(r.amount)}</td></tr>))}</tbody>
+              <tfoot><tr className="border-t" style={{ borderColor: 'var(--card-border)', background: 'var(--bg-secondary)' }}><td colSpan={3} className="px-4 py-3 text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Net profit for {q.label}</td><td className={'px-4 py-3 text-right font-semibold text-base tabular-nums ' + (profit >= 0 ? 'text-blue-600' : 'text-red-500')}>{fmt(profit)}</td></tr></tfoot>
             </table>
           </div>
         )}
-        <div className="card p-4 mt-6">
-          <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>HMRC submission deadlines</p>
-          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Q1 (Apr-Jul): by 5 Aug - Q2 (Jul-Oct): 5 Nov - Q3 (Oct-Jan): 5 Feb - Q4 (Jan-Apr): 5 May. Export and share with your accountant each quarter.</p>
-        </div>
+        <div className="card p-4 mt-6"><p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>HMRC submission deadlines</p><p className="text-xs" style={{ color: 'var(--text-muted)' }}>Q1 Apr-Jul by 5 Aug. Q2 Jul-Oct 5 Nov. Q3 Oct-Jan 5 Feb. Q4 Jan-Apr 5 May. Export and share with your accountant each quarter.</p></div>
       </div>
     </Layout>
   )
