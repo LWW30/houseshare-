@@ -47,28 +47,42 @@ export default function MTDPage() {
     const q = getQuarterDates(year, qi)
     setLoading(true)
     setRows([])
+
+    // Step 1: get user's property IDs
+    const propsRes = await supabase
+      .from('properties')
+      .select('id')
+      .eq('user_id', uid)
+
+    const propertyIds = (propsRes.data || []).map((p: any) => p.id)
+
+    // Step 2: query rent_payments and expenses in parallel
     const [paymentsRes, expensesRes] = await Promise.all([
-      supabase
-        .from('payments')
-        .select('amount, due_date, tenant_id')
-        .eq('user_id', uid)
-        .eq('status', 'paid')
-        .gte('due_date', q.start)
-        .lte('due_date', q.end),
+      propertyIds.length === 0
+        ? Promise.resolve({ data: [] })
+        : supabase
+            .from('rent_payments')
+            .select('amount, due_date, tenant:tenants(first_name, last_name)')
+            .in('property_id', propertyIds)
+            .eq('status', 'paid')
+            .gte('due_date', q.start)
+            .lte('due_date', q.end),
       supabase
         .from('expenses')
         .select('amount, date, description, category')
-        .eq('user_id', uid)
+        .eq('landlord_id', uid)
         .gte('date', q.start)
         .lte('date', q.end),
     ])
+
     const income: Row[] = (paymentsRes.data || []).map((p: any) => ({
       date: p.due_date,
-      description: 'Rental income',
+      description: 'Rent - ' + (p.tenant?.first_name || '') + ' ' + (p.tenant?.last_name || ''),
       category: 'Rental income',
       amount: Number(p.amount),
       type: 'income',
     }))
+
     const expense: Row[] = (expensesRes.data || []).map((e: any) => ({
       date: e.date,
       description: e.description || e.category || 'Expense',
@@ -76,6 +90,7 @@ export default function MTDPage() {
       amount: Number(e.amount),
       type: 'expense',
     }))
+
     setRows([...income, ...expense].sort((a, b) => a.date.localeCompare(b.date)))
     setLoading(false)
   }, [])
