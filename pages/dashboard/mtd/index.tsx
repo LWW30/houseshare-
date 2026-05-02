@@ -92,7 +92,7 @@ export default function MTDPage() {
   const q = getQuarterDates(taxYear, qIdx)
 
   function exportCSV() {
-    const sep = String.fromCharCode(10)
+    const header = 'Date,Description,Category,Type,Amount (GBP)\n'
     const header = 'Date,Description,Category,Type,Amount (GBP)' + sep
     const body = rows.map(r =>
       r.date + ',"' + r.description.replace(/"/g, '""') + '","' + r.category.replace(/"/g, '""') + '",' + r.type + ',' + r.amount.toFixed(2)
