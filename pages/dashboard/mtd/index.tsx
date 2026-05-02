@@ -92,17 +92,16 @@ export default function MTDPage() {
   const q = getQuarterDates(taxYear, qIdx)
 
   function exportCSV() {
-    const header = 'Date,Description,Category,Type,Amount (GBP)\n'
-'
+    const sep = String.fromCharCode(10)
+    const header = 'Date,Description,Category,Type,Amount (GBP)' + sep
     const body = rows.map(r =>
       r.date + ',"' + r.description.replace(/"/g, '""') + '","' + r.category.replace(/"/g, '""') + '",' + r.type + ',' + r.amount.toFixed(2)
-    ).join('
-')
+    ).join(sep)
     const blob = new Blob([header + body], { type: 'text/csv' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = 'LetFlowUK-MTD-' + q.label.replace(///g, '-').replace(/s/g, '-') + '.csv'
+    a.download = 'LetFlowUK-MTD-' + q.label.replace(/\//g, '-').replace(/\s/g, '-') + '.csv'
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
