@@ -47,8 +47,6 @@ export default function MTDPage() {
     const q = getQuarterDates(year, qi)
     setLoading(true)
     setRows([])
-
-    // Try user_id first, fall back to landlord_id
     const [paymentsRes, expensesRes] = await Promise.all([
       supabase
         .from('payments')
@@ -64,7 +62,6 @@ export default function MTDPage() {
         .gte('date', q.start)
         .lte('date', q.end),
     ])
-
     const income: Row[] = (paymentsRes.data || []).map((p: any) => ({
       date: p.due_date,
       description: 'Rental income',
@@ -72,7 +69,6 @@ export default function MTDPage() {
       amount: Number(p.amount),
       type: 'income',
     }))
-
     const expense: Row[] = (expensesRes.data || []).map((e: any) => ({
       date: e.date,
       description: e.description || e.category || 'Expense',
@@ -80,7 +76,6 @@ export default function MTDPage() {
       amount: Number(e.amount),
       type: 'expense',
     }))
-
     setRows([...income, ...expense].sort((a, b) => a.date.localeCompare(b.date)))
     setLoading(false)
   }, [])
@@ -127,12 +122,10 @@ export default function MTDPage() {
             <Download size={15} /> Export CSV
           </button>
         </div>
-
         <div className="mb-6 p-4 rounded-2xl flex gap-3 border" style={{ background: '#fffbeb', borderColor: '#fcd34d' }}>
           <AlertCircle className="text-amber-500 flex-shrink-0 mt-0.5" size={16} />
-          <p className="text-sm text-amber-800"><span className="font-semibold">MTD for Income Tax is live from April 2026.</span> Landlords with £50k+ rental income must submit quarterly digital records to HMRC. Threshold drops to £30,000 in April 2027.</p>
+          <p className="text-sm text-amber-800"><span className="font-semibold">MTD for Income Tax is live from April 2026.</span> Landlords with 50k+ rental income must submit quarterly digital records to HMRC. Threshold drops to 30,000 in April 2027.</p>
         </div>
-
         <div className="flex gap-4 mb-6 flex-wrap">
           <div>
             <label className="text-xs mb-1 block" style={{ color: 'var(--text-muted)' }}>Tax year</label>
@@ -152,7 +145,6 @@ export default function MTDPage() {
             </div>
           </div>
         </div>
-
         <div className="grid grid-cols-3 gap-4 mb-6">
           {[
             { label: 'Income', value: income, color: 'text-green-600', icon: TrendingUp },
@@ -168,7 +160,6 @@ export default function MTDPage() {
             </div>
           ))}
         </div>
-
         <div className="flex items-center justify-between mb-3">
           <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
             {q.label}
@@ -176,7 +167,6 @@ export default function MTDPage() {
           </p>
           {!loading && rows.length > 0 && <p className="text-xs text-green-600">{rows.length} records</p>}
         </div>
-
         {loading ? (
           <div className="card py-16 text-center">
             <div className="w-5 h-5 border-2 border-gray-200 border-t-gray-700 rounded-full animate-spin mx-auto mb-3" />
@@ -219,12 +209,11 @@ export default function MTDPage() {
             </table>
           </div>
         )}
-
         <div className="card p-4 mt-6">
           <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>HMRC submission deadlines</p>
-          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Q1 (Apr-Jul): by 5 Aug · Q2 (Jul-Oct): 5 Nov · Q3 (Oct-Jan): 5 Feb · Q4 (Jan-Apr): 5 May. Export and share with your accountant each quarter.</p>
+          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Q1 (Apr-Jul): by 5 Aug - Q2 (Jul-Oct): 5 Nov - Q3 (Oct-Jan): 5 Feb - Q4 (Jan-Apr): 5 May. Export and share with your accountant each quarter.</p>
         </div>
       </div>
     </Layout>
   )
-            }——
+}
