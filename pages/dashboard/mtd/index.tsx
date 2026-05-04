@@ -92,7 +92,7 @@ export default function MTDPage() {
             <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>HMRC quarterly digital records</p>
           </div>
           <button onClick={exportCSV} disabled={rows.length === 0}
-            className="flex items-center gap-2 px-4 py-2.5 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+    const header = 'Date,Description,Category,Type,Amount (GBP)\n'
             <Download size={15} /> Export CSV
           </button>
         </div>
