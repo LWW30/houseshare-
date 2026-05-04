@@ -92,7 +92,7 @@ export default function MTDPage() {
   useEffect(() => {
     if (!authLoading && user?.id) loadData(user.id, taxYear, qIdx)
   }, [user?.id, authLoading, taxYear, qIdx, loadData])
-
+    const header = 'Date,Description,Category,Type,Amount (GBP)\n'
   const income = rows.filter(r => r.type === 'income').reduce((s, r) => s + r.amount, 0)
   const expense = rows.filter(r => r.type === 'expense').reduce((s, r) => s + r.amount, 0)
   const profit = income - expense
