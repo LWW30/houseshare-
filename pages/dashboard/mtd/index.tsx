@@ -51,7 +51,7 @@ export default function MTDPage() {
     const { data: props } = await supabase
       .from('properties')
       .select('id')
-      .eq('user_id', uid)
+      .eq('landlord_id', uid)
 
     const propIds = (props || []).map((p: any) => p.id)
 
