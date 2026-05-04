@@ -100,7 +100,7 @@ export default function MTDPage() {
 
   function exportCSV() {
     const CRLF = String.fromCharCode(13, 10)
-    const header = 'Date,Description,Category,Type,Amount (GBP)' + CRLF
+    const header = 'Date,Description,Category,Type,Amount (GBP)' + CRLF\n'
     const body = rows.map(r => [r.date, r.description, r.category, r.type, r.amount.toFixed(2)].join(',')).join(CRLF)
     const blob = new Blob([header + body], { type: 'text/csv' })
     const url = URL.createObjectURL(blob)
