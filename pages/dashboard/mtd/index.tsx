@@ -19,7 +19,7 @@ function getQuarterDates(taxYear: number, qIdx: number) {
 }
 
 function currentTaxYear() {
-  const now = new Date()
+const now = new Date()                                                            
   return now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1
 }
 
