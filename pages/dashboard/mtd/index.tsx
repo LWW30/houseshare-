@@ -47,18 +47,27 @@ export default function MTDPage() {
     const q = getQuarterDates(year, qi)
     setLoading(true)
     setRows([])
+    // First get properties for this user
+    const propsRes = await supabase
+      .from('properties')
+      .select('id')
+      .eq('user_id', uid)
+    const propIds = (propsRes.data || []).map((p: any) => p.id)
+    // Then get paid payments for those properties
     const [paymentsRes, expensesRes] = await Promise.all([
-      supabase
-        .from('payments')
-        .select('amount, due_date')
-        .or('user_id.eq.' + uid + ',landlord_id.eq.' + uid)
-        .eq('status', 'paid')
-        .gte('due_date', q.start)
-        .lte('due_date', q.end),
+      propIds.length > 0
+        ? supabase
+            .from('rent_payments')
+            .select('amount, due_date')
+            .in('property_id', propIds)
+            .eq('status', 'paid')
+            .gte('due_date', q.start)
+            .lte('due_date', q.end)
+        : Promise.resolve({ data: [] }),
       supabase
         .from('expenses')
         .select('amount, date, description, category')
-        .or('user_id.eq.' + uid + ',landlord_id.eq.' + uid)
+        .eq('landlord_id', uid)
         .gte('date', q.start)
         .lte('date', q.end),
     ])
