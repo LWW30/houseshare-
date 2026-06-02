@@ -15,6 +15,10 @@ export default function LoginPage() {
   const [resetSent, setResetSent] = useState(false)
 
   useEffect(() => {
+    if (router.query.mode === 'signup') setIsSignUp(true)
+  }, [router.query])
+
+  useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) router.replace('/dashboard')
     })
