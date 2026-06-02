@@ -5,7 +5,7 @@ import { useAuth } from '../../../lib/useAuth'
 import { usePlan } from '../../../lib/usePlan'
 import { getProperties, getExpenses, createExpense, deleteExpense, EXPENSE_CATEGORIES, type Property, type Expense, type ExpenseCategory } from '../../../lib/supabase'
 import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns'
-import { Plus, Trash2, X, Loader2, Receipt, TrendingDown, Building2, Filter, Download , Zap, Receipt } from 'lucide-react'
+import { Plus, Trash2, X, Loader2, Receipt, TrendingDown, Building2, Filter, Download, Zap } from 'lucide-react'
 
 type FormState = {
   property_id: string
