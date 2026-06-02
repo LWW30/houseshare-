@@ -7,11 +7,11 @@ import { Plus, Check, X, Loader2, Edit2, Trash2 } from 'lucide-react'
 import { format } from 'date-fns'
 
 const categoryEmoji: Record<string, string> = {
-  broadband: '📡', council_tax: '🏛️', electricity: '⚡', gas: '🔥', water: '💧', other: '📋',
+  broadband: '📶', wifi: '📶', council_tax: '🏛️', tax: '🏛️', electricity: '⚡', electric: '⚡', gas: '🔥', water: '💧', sky: '📺', other: '📋',
 }
 const categoryLabel: Record<string, string> = {
-  broadband: 'Broadband', council_tax: 'Council Tax', electricity: 'Electricity',
-  gas: 'Gas', water: 'Water', other: 'Other',
+  broadband: 'Broadband', wifi: 'WiFi', council_tax: 'Council Tax', tax: 'Council Tax', electricity: 'Electricity',
+  electric: 'Electricity', gas: 'Gas', water: 'Water', sky: 'Sky / TV', other: 'Other',
 }
 
 export default function BillsPage() {
