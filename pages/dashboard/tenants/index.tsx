@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import Layout from '../../../components/Layout'
 import StatusBadge from '../../../components/StatusBadge'
 import { useAuth } from '../../../lib/useAuth'
+import { usePlan } from '../../../lib/usePlan'
 import { getProperties, getTenantsByProperty, createTenant, getRooms, generatePaymentsForTenant, type Property, type Tenant, type Room } from '../../../lib/supabase'
 import { supabase } from '../../../lib/supabase'
-import { Plus, Mail, Phone, Copy, Check, X, Loader2, Edit2, Trash2, LogOut } from 'lucide-react'
+import { Plus, Mail, Phone, Copy, Check, X, Loader2, Edit2, Trash2, LogOut , Zap } from 'lucide-react'
 import { format, differenceInDays, isPast } from 'date-fns'
 
 function CopyLink({ token }: { token: string }) {
@@ -24,6 +26,7 @@ function CopyLink({ token }: { token: string }) {
 }
 
 export default function TenantsPage() {
+  const { isPro } = usePlan()
   const { user, loading } = useAuth()
   const [properties, setProperties] = useState<Property[]>([])
   const [tenants, setTenants] = useState<Tenant[]>([])
@@ -185,9 +188,16 @@ export default function TenantsPage() {
             <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>Tenants</h1>
             <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>{tenants.filter(t => !(t as any).status || (t as any).status === 'active').length} active tenants</p>
           </div>
-          <button onClick={() => setShowModal(true)} className="btn-primary flex items-center gap-2">
-            <Plus size={14} /> Add tenant
-          </button>
+          {!isPro && tenants.filter(t => t.status === 'active').length >= 4
+            ? (
+              <Link href="/dashboard/billing" className="btn-primary flex items-center gap-2">
+                <Zap size={14} /> Upgrade to add more tenants
+              </Link>
+            ) : (
+              <button onClick={() => setShowModal(true)} className="btn-primary flex items-center gap-2">
+                <Plus size={14} /> Add tenant
+              </button>
+            )}
         </div>
 
         <div className="flex gap-2 mb-6">
