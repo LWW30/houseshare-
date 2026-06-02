@@ -11,7 +11,7 @@ import { Building2, ShieldCheck, PoundSterling, Bell, ChevronRight, LogOut, Aler
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 
-const categoryEmoji: Record<string, string> = { broadband: '📶', council_tax: '🏦', electricity: '⚡', gas: '🔥', water: '💧', other: '📋' }
+const categoryEmoji: Record<string, string> = { broadband: '📶', wifi: '📶', council_tax: '🏛️', tax: '🏛️', electricity: '⚡', electric: '⚡', gas: '🔥', water: '💧', sky: '📺', other: '📋' }
 
 function greeting() {
   const h = new Date().getHours()
