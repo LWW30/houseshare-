@@ -33,7 +33,7 @@ export default function BillingPage() {
   const { user, loading: authLoading } = useAuth()
   const [profile, setProfile]       = useState<any>(null)
   const [profileLoading, setProfileLoading] = useState(true)
-  const [plan, setPlan]             = useState<PlanType>('founding')
+  const [plan, setPlan]             = useState<PlanType>('monthly')
   const [upgrading, setUpgrading]   = useState(false)
   const [managing, setManaging]     = useState(false)
   const [upgradeError, setUpgradeError] = useState('')
@@ -156,20 +156,20 @@ export default function BillingPage() {
 
             <div className="flex gap-1.5 mb-6 p-1 rounded-xl w-fit" style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
               {foundingAvailable && (
-                <button onClick={() => setPlan('founding')}
-                  className={'px-4 py-2 rounded-lg text-sm font-medium transition-all ' + (plan === 'founding' ? 'bg-amber-500 text-white shadow-sm' : 'text-gray-500 hover:text-gray-700')}>
-                  Founding {'£'}{FOUNDING_PRICE}/yr
-                </button>
+                <button onClick={() => setPlan('monthly')}
+                className={'px-4 py-2 rounded-lg text-sm font-medium transition-all ' + (plan === 'monthly' ? 'bg-gray-900 text-white shadow-sm' : 'text-gray-500 hover:text-gray-700')}>
+                Monthly {'£'}{MONTHLY_PRICE}/mo
+              </button>
               )}
               <button onClick={() => setPlan('annual')}
                 className={'px-4 py-2 rounded-lg text-sm font-medium transition-all ' + (plan === 'annual' ? 'bg-gray-900 text-white shadow-sm' : 'text-gray-500 hover:text-gray-700')}>
                 Annual {'£'}{ANNUAL_PRICE}/yr
                 <span className="ml-1.5 text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full">Save {'£'}{MONTHLY_PRICE * 12 - ANNUAL_PRICE}</span>
               </button>
-              <button onClick={() => setPlan('monthly')}
-                className={'px-4 py-2 rounded-lg text-sm font-medium transition-all ' + (plan === 'monthly' ? 'bg-gray-900 text-white shadow-sm' : 'text-gray-500 hover:text-gray-700')}>
-                Monthly {'£'}{MONTHLY_PRICE}/mo
-              </button>
+              <button onClick={() => setPlan('founding')}
+                  className={'px-4 py-2 rounded-lg text-sm font-medium transition-all ' + (plan === 'founding' ? 'bg-amber-500 text-white shadow-sm' : 'text-gray-500 hover:text-gray-700')}>
+                  Founding {'£'}{FOUNDING_PRICE}/yr
+                </button>
             </div>
 
             <div className="rounded-2xl overflow-hidden mb-6 border-2 border-gray-900">
