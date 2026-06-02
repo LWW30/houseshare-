@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import Layout from '../../../components/Layout'
 import { useAuth } from '../../../lib/useAuth'
+import { usePlan } from '../../../lib/usePlan'
 import { getProperties, getExpenses, createExpense, deleteExpense, EXPENSE_CATEGORIES, type Property, type Expense, type ExpenseCategory } from '../../../lib/supabase'
 import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns'
-import { Plus, Trash2, X, Loader2, Receipt, TrendingDown, Building2, Filter, Download } from 'lucide-react'
+import { Plus, Trash2, X, Loader2, Receipt, TrendingDown, Building2, Filter, Download , Zap, Receipt } from 'lucide-react'
 
 type FormState = {
   property_id: string
@@ -24,6 +26,7 @@ const BLANK: FormState = {
 }
 
 export default function ExpensesPage() {
+  const { isPro } = usePlan()
   const { user, loading } = useAuth()
   const [properties, setProperties] = useState<Property[]>([])
   const [expenses, setExpenses] = useState<Expense[]>([])
@@ -161,6 +164,25 @@ export default function ExpensesPage() {
     a.click()
     URL.revokeObjectURL(url)
   }
+
+  if (!isPro) return (
+    <Layout>
+      <div className="flex flex-col items-center justify-center h-full text-center py-20">
+        <div className="w-14 h-14 rounded-2xl bg-[var(--green)] flex items-center justify-center mb-5">
+          <Receipt size={28} className="text-white" />
+        </div>
+        <h1 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Expenses tracking is a Pro feature</h1>
+        <p className="text-sm mb-6 max-w-sm" style={{ color: 'var(--text-secondary)' }}>
+          Log all HMRC-allowable property costs — repairs, insurance, mortgage interest and more. Syncs with your P&L report for your accountant.
+        </p>
+        <Link href="/dashboard/billing" className="btn-primary flex items-center gap-2 px-6 py-2.5">
+          <Zap size={14} /> Upgrade to Pro — from £29/mo
+        </Link>
+        <p className="text-xs mt-3" style={{ color: 'var(--text-muted)' }}>14-day free trial · Cancel any time</p>
+      </div>
+    </Layout>
+  )
+
 
   return (
     <Layout>
