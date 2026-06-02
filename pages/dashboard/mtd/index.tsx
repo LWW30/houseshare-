@@ -1,9 +1,10 @@
 import { useEffect, useState, useCallback } from 'react'
+import Link from 'next/link'
 import Layout from '../../../components/Layout'
 import { useAuth } from '../../../lib/useAuth'
 import { usePlan } from '../../../lib/usePlan'
 import { supabase } from '../../../lib/supabase'
-import { Download, TrendingUp, TrendingDown, FileText, AlertCircle } from 'lucide-react'
+import { Download, TrendingUp, TrendingDown, FileText, AlertCircle, Zap } from 'lucide-react'
 
 type Row = { date: string; description: string; category: string; amount: number; type: 'income' | 'expense' }
 
@@ -119,6 +120,25 @@ export default function MTDPage() {
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
   }
+
+  if (!isPro) return (
+    <Layout>
+      <div className="flex flex-col items-center justify-center h-full text-center py-20">
+        <div className="w-14 h-14 rounded-2xl bg-[var(--green)] flex items-center justify-center mb-5">
+          <FileText size={28} className="text-white" />
+        </div>
+        <h1 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Making Tax Digital is a Pro feature</h1>
+        <p className="text-sm mb-6 max-w-sm" style={{ color: 'var(--text-secondary)' }}>
+          Keep HMRC-compliant quarterly digital records automatically. Required for landlords with £50k+ rental income — threshold drops to £30k in April 2027.
+        </p>
+        <Link href="/dashboard/billing" className="btn-primary flex items-center gap-2 px-6 py-2.5">
+          <Zap size={14} /> Upgrade to Pro — from £29/mo
+        </Link>
+        <p className="text-xs mt-3" style={{ color: 'var(--text-muted)' }}>14-day free trial · Cancel any time</p>
+      </div>
+    </Layout>
+  )
+
 
   return (
     <Layout>
