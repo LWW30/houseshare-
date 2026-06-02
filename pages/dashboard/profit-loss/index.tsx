@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import Layout from '../../../components/Layout'
 import { useAuth } from '../../../lib/useAuth'
+import { usePlan } from '../../../lib/usePlan'
 import { getProperties, getRentPayments, getSharedBills, getExpenses, type Property } from '../../../lib/supabase'
 import { EXPENSE_CATEGORIES } from '../../../lib/supabase'
 import { format, subMonths, startOfMonth, endOfMonth, eachMonthOfInterval } from 'date-fns'
-import { TrendingUp, TrendingDown, Building2, Download, ChevronDown, ChevronUp, Loader2 } from 'lucide-react'
+import { TrendingUp, TrendingDown, Building2, Download, ChevronDown, ChevronUp, Loader2 , Zap, BarChart2 } from 'lucide-react'
 
 function fmt(n: number) { return '£' + Math.abs(n).toLocaleString('en-GB', { minimumFractionDigits: 2 }) }
 
 export default function ProfitLossPage() {
+  const { isPro } = usePlan()
   const { user, loading } = useAuth()
   const [properties, setProperties] = useState<Property[]>([])
   const [dataLoading, setDataLoading] = useState(true)
@@ -118,6 +121,25 @@ export default function ProfitLossPage() {
   const margin = totalIncome > 0 ? Math.round((netProfit / totalIncome) * 100) : 0
 
   if (loading) return <Layout><div className="flex justify-center py-24"><Loader2 className="animate-spin text-gray-400" /></div></Layout>
+
+  if (!isPro) return (
+    <Layout>
+      <div className="flex flex-col items-center justify-center h-full text-center py-20">
+        <div className="w-14 h-14 rounded-2xl bg-[var(--green)] flex items-center justify-center mb-5">
+          <BarChart2 size={28} className="text-white" />
+        </div>
+        <h1 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Profit & Loss is a Pro feature</h1>
+        <p className="text-sm mb-6 max-w-sm" style={{ color: 'var(--text-secondary)' }}>
+          Full income vs expenses report by property — shareable with your accountant. Includes CSV export and HMRC-allowable category breakdown.
+        </p>
+        <Link href="/dashboard/billing" className="btn-primary flex items-center gap-2 px-6 py-2.5">
+          <Zap size={14} /> Upgrade to Pro — from £29/mo
+        </Link>
+        <p className="text-xs mt-3" style={{ color: 'var(--text-muted)' }}>14-day free trial · Cancel any time</p>
+      </div>
+    </Layout>
+  )
+
 
   return (
     <Layout>
