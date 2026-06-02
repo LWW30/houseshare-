@@ -24,7 +24,7 @@ const PRO_FEATURES = [
 ]
 
 const FREE_LOCKED = ['GoCardless Direct Debit','Compliance alerts','AST & legal notices','MTD digital records']
-const FREE_INCLUDED = ['1 property, up to 4 rooms','Basic rent tracking','Tenant portal','Maintenance requests']
+const FREE_INCLUDED = ['1 property, up to 4 tenants','Basic rent tracking','Tenant portal','Maintenance requests']
 
 type PlanType = 'monthly' | 'annual' | 'founding'
 
