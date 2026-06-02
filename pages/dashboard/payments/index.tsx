@@ -218,7 +218,7 @@ export default function PaymentsPage() {
               <div className="col-span-2">Bills share</div><div className="col-span-1">Total</div><div className="col-span-2 text-right">Status</div>
             </div>
             {payments.map(p => {
-              const tenantBillsShare = monthBills.filter(b => b.property_id === p.property_id).reduce((s, b) => s + (b.amount / (b.split_ways || 1)), 0)
+              const tenantBillsShare = bills.filter(b => b.property_id === p.property_id && !b.paid).reduce((s, b) => s + (b.amount / (b.split_ways || 1)), 0)
               const tenantTotal = p.amount + tenantBillsShare
               return (
                 <div key={p.id} className="px-4 sm:px-6 py-3 sm:py-4 grid grid-cols-2 sm:grid-cols-12 gap-2 sm:gap-4 sm:items-center">
