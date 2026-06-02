@@ -9,7 +9,7 @@ import { Building2, Plus, MapPin, ChevronDown, ChevronUp, X, Loader2, Edit2, Tra
 import { format } from 'date-fns'
 
 const categoryEmoji: Record<string, string> = {
-  broadband: '', council_tax: '', electricity: '', gas: '', water: '', other: '',
+  broadband: '📶', wifi: '📶', council_tax: '🏛️', tax: '🏛️', electricity: '⚡', electric: '⚡', gas: '🔥', water: '💧', sky: '📺', other: '📋',
 }
 const categoryLabel: Record<string, string> = {
   broadband: 'Broadband', council_tax: 'Council Tax', electricity: 'Electricity',
@@ -53,18 +53,22 @@ export default function PropertiesPage() {
       const props = await getProperties(user!.id)
       setProperties(props)
       if (props.length > 0) {
-        const [roomsArr, tenantsArr] = await Promise.all([
+        const [roomsArr, tenantsArr, allBills] = await Promise.all([
           Promise.all(props.map(p => getRooms(p.id))),
           Promise.all(props.map(p => getTenantsByProperty(p.id))),
+          getSharedBills(props.map(p => p.id)),
         ])
         const roomsMap: Record<string, Room[]> = {}
         const tenantsMap: Record<string, Tenant[]> = {}
+        const billsMap: Record<string, SharedBill[]> = {}
         props.forEach((p, i) => {
           roomsMap[p.id] = roomsArr[i]
           tenantsMap[p.id] = tenantsArr[i]
+          billsMap[p.id] = allBills.filter(b => b.property_id === p.id)
         })
         setRooms(roomsMap)
         setTenants(tenantsMap)
+        setBills(billsMap)
       }
       setDataLoading(false)
     }
