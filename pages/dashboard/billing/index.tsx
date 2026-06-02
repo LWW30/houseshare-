@@ -156,7 +156,8 @@ export default function BillingPage() {
 
             <div className="flex gap-1.5 mb-6 p-1 rounded-xl w-fit" style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
               {foundingAvailable && (
-                <button onClick={() => setPlan('monthly')}
+            
+              <button onClick={() => setPlan('monthly')}
                 className={'px-4 py-2 rounded-lg text-sm font-medium transition-all ' + (plan === 'monthly' ? 'bg-gray-900 text-white shadow-sm' : 'text-gray-500 hover:text-gray-700')}>
                 Monthly {'£'}{MONTHLY_PRICE}/mo
               </button>
@@ -165,8 +166,7 @@ export default function BillingPage() {
                 className={'px-4 py-2 rounded-lg text-sm font-medium transition-all ' + (plan === 'annual' ? 'bg-gray-900 text-white shadow-sm' : 'text-gray-500 hover:text-gray-700')}>
                 Annual {'£'}{ANNUAL_PRICE}/yr
                 <span className="ml-1.5 text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full">Save {'£'}{MONTHLY_PRICE * 12 - ANNUAL_PRICE}</span>
-              </button>
-              <button onClick={() => setPlan('founding')}
+              </button>    <button onClick={() => setPlan('founding')}
                   className={'px-4 py-2 rounded-lg text-sm font-medium transition-all ' + (plan === 'founding' ? 'bg-amber-500 text-white shadow-sm' : 'text-gray-500 hover:text-gray-700')}>
                   Founding {'£'}{FOUNDING_PRICE}/yr
                 </button>
