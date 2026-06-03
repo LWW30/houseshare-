@@ -17,6 +17,12 @@ export function usePlan() {
     }
 
     async function fetchPlan() {
+      // Developer override — always Pro for owner account
+      if (user?.email === 'lukewwalker12@gmail.com') {
+        setPlan('pro')
+        setPlanLoading(false)
+        return
+      }
       try {
         const { data, error } = await supabase
           .from('profiles')
