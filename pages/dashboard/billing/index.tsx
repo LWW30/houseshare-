@@ -37,7 +37,7 @@ export default function BillingPage() {
   const [upgrading, setUpgrading]   = useState(false)
   const [managing, setManaging]     = useState(false)
   const [upgradeError, setUpgradeError] = useState('')
-  const [spotsLeft, setSpotsLeft]   = useState<number>(FOUNDING_SPOTS)
+  const [spotsLeft, setSpotsLeft]   = useState<number>(8)
 
   useEffect(() => {
     if (!authLoading && user) loadProfile()
