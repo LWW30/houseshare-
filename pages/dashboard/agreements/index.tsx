@@ -203,7 +203,7 @@ export default function Agreements() {
       const ids = props.map((p: any) => p.id)
       const { data: t } = await supabase
         .from('tenants')
-        .select('id, name, email, room:rooms(id, name, monthly_rent, property:properties(address))')
+        .select('id, name, email, property_id, room:rooms(id, name, monthly_rent)')
         .in('property_id', ids)
         .is('left_at', null)
       setTenants(t || [])
