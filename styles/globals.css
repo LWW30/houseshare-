@@ -132,8 +132,8 @@
     box-shadow: none;
   }
   50% {
-    background: #fef2f2;
-    border-color: #ef4444;
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25);
+    background: #fecaca;
+    border-color: #dc2626;
+    box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.4);
   }
 }
