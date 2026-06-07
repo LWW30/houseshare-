@@ -9,11 +9,11 @@ import { Check, ChevronDown, Loader2, Bell, Download } from 'lucide-react'
 function getMonths() {
   const r = []
   const n = new Date()
-  for (let i = -12; i <= 6; i++) {
+  for (let i = 0; i >= -12; i--) {
     const d = new Date(n.getFullYear(), n.getMonth() + i, 1)
     r.push(d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'))
   }
-  return r.reverse()
+  return r
 }
 const MONTHS = getMonths()
 
