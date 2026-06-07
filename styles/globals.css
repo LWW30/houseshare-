@@ -122,3 +122,18 @@
 }
 
 .btn-secondary:hover { border-color: #9ca3af; }
+
+
+/* Attention card flash animation */
+@keyframes attFlash {
+  0%, 100% {
+    background: #fff;
+    border-color: #f3f4f6;
+    box-shadow: none;
+  }
+  50% {
+    background: #fef2f2;
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25);
+  }
+}
