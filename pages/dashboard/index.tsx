@@ -91,8 +91,7 @@ export default function Dashboard() {
   const today = new Date()
   const overdueBillsCount = bills.filter(b => !b.paid && b.due_date && new Date(b.due_date) < today).length
   const overdueCount = overdueRentCount + overdueBillsCount
-  const unpaidBillsCount = bills.filter(b => !b.paid).length
-  const attentionCount = overdueCount + unpaidBillsCount
+  const attentionCount = overdueCount
   const collectionRate = totalExpected > 0 ? Math.round((totalCollected / totalExpected) * 100) : 0
   const thisMonth = new Date().toISOString().slice(0, 7)
   const totalExpensesThisMonth = expenses.filter(e => e.date.startsWith(thisMonth)).reduce((s: number, e: any) => s + e.amount, 0)
