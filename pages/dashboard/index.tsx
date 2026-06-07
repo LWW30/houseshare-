@@ -85,7 +85,10 @@ export default function Dashboard() {
   const monthLabel = format(now, 'MMMM yyyy')
   const totalExpected = payments.reduce((s, p) => s + p.amount, 0)
   const totalCollected = payments.filter(p => p.status === 'paid').reduce((s, p) => s + p.amount, 0)
-  const overdueCount = payments.filter(p => p.status === 'overdue' || p.status === 'late').length
+  const overdueRentCount = payments.filter(p => p.status === 'overdue' || p.status === 'late').length
+  const today = new Date()
+  const overdueBillsCount = bills.filter(b => !b.paid && b.due_date && new Date(b.due_date) < today).length
+  const overdueCount = overdueRentCount + overdueBillsCount
   const unpaidBillsCount = bills.filter(b => !b.paid).length
   const attentionCount = overdueCount + unpaidBillsCount
   const collectionRate = totalExpected > 0 ? Math.round((totalCollected / totalExpected) * 100) : 0
