@@ -137,3 +137,17 @@
     box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.4);
   }
 }
+
+/* Compliance bar flash animation */
+@keyframes certFlash {
+  0%, 100% {
+    background-color: #fef2f2;
+    border-color: #fecaca;
+    box-shadow: none;
+  }
+  50% {
+    background-color: #fca5a5;
+    border-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.3);
+  }
+}
