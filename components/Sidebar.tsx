@@ -74,10 +74,8 @@ export default function Sidebar() {
       const { data: props } = await supabase.from('properties').select('id').eq('landlord_id', user.id)
       if (!props?.length) return
       const ids = props.map((p: any) => p.id)
-      const curMonth = new Date().toISOString().slice(0, 7)
-
       const [{ data: payments }, { data: bills }, { data: docs }, { data: maint }] = await Promise.all([
-        supabase.from('rent_payments').select('status').in('property_id', ids).eq('month', curMonth),
+        supabase.from('rent_payments').select('status').in('property_id', ids).in('status', ['overdue', 'late']),
         supabase.from('shared_bills').select('id, due_date').in('property_id', ids).eq('paid', false),
         supabase.from('compliance_documents').select('expiry_date').eq('landlord_id', user.id),
         supabase.from('maintenance_requests').select('id').in('property_id', ids).in('status', ['open', 'in_progress']),
