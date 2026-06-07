@@ -79,7 +79,7 @@ export default function Dashboard() {
 
   if (loading || dataLoading) return (
     <Layout>
-      <style>{'.att-flash{animation:attFlash 1.6s ease-in-out infinite}@keyframes attFlash{0%,100%{background:#fff;border-color:#f3f4f6}50%{background:#fef2f2;border-color:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,0.2)}}'}</style>
+      
       <div className='flex items-center justify-center h-64'><div className='w-6 h-6 border-2 border-gray-200 border-t-gray-900 rounded-full animate-spin' /></div></Layout>
   )
 
