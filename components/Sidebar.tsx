@@ -79,12 +79,12 @@ export default function Sidebar() {
       const [{ data: payments }, { data: bills }, { data: docs }, { data: maint }] = await Promise.all([
         supabase.from('rent_payments').select('status').in('property_id', ids).eq('month', curMonth),
         supabase.from('shared_bills').select('id, due_date').in('property_id', ids).eq('paid', false),
-        supabase.from('documents').select('expires_at').in('property_id', ids).not('expires_at', 'is', null),
+        supabase.from('compliance_documents').select('expiry_date').eq('landlord_id', user.id),
         supabase.from('maintenance_requests').select('id').in('property_id', ids).in('status', ['open', 'in_progress']),
       ])
 
       const overdueRent = (payments || []).filter((p: any) => p.status === 'overdue' || p.status === 'late').length
-      const expiredDocs = (docs || []).filter((d: any) => new Date(d.expires_at) < new Date()).length
+      const expiredDocs = (docs || []).filter((d: any) => new Date(d.expiry_date) < new Date()).length
 
       setNotifs({
         '/dashboard/payments': overdueRent,
