@@ -5,8 +5,10 @@ import {
   FolderOpen, UserCircle, Wrench, CreditCard, ShieldCheck,
   Landmark, ScrollText, BarChart3, Settings,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { usePlan } from '../lib/usePlan'
+import { useAuth } from '../lib/useAuth'
+import { supabase } from '../lib/supabase'
 
 type Badge = 'New' | 'Pro' | 'Soon'
 
@@ -63,10 +65,41 @@ export default function Sidebar() {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const { isPro } = usePlan()
+  const { user } = useAuth()
+  const [notifs, setNotifs] = useState<Record<string, number>>({})
+
+  useEffect(() => {
+    if (!user) return
+    async function fetchNotifs() {
+      const { data: props } = await supabase.from('properties').select('id').eq('landlord_id', user.id)
+      if (!props?.length) return
+      const ids = props.map((p: any) => p.id)
+      const curMonth = new Date().toISOString().slice(0, 7)
+
+      const [{ data: payments }, { data: bills }, { data: docs }, { data: maint }] = await Promise.all([
+        supabase.from('rent_payments').select('status').in('property_id', ids).eq('month', curMonth),
+        supabase.from('shared_bills').select('id, due_date').in('property_id', ids).eq('paid', false),
+        supabase.from('documents').select('expires_at').in('property_id', ids).not('expires_at', 'is', null),
+        supabase.from('maintenance_requests').select('id').in('property_id', ids).in('status', ['open', 'in_progress']),
+      ])
+
+      const overdueRent = (payments || []).filter((p: any) => p.status === 'overdue' || p.status === 'late').length
+      const expiredDocs = (docs || []).filter((d: any) => new Date(d.expires_at) < new Date()).length
+
+      setNotifs({
+        '/dashboard/payments': overdueRent,
+        '/dashboard/bills': (bills || []).length,
+        '/dashboard/compliance': expiredDocs,
+        '/dashboard/maintenance': (maint || []).length,
+      })
+    }
+    fetchNotifs()
+  }, [user])
 
   const NavLinks = () => (
     <>
       {nav.map(({ href, label, icon: Icon, badge }) => {
+        const notifCount = notifs[href] || 0
         const active = router.pathname === href || router.pathname.startsWith(href + '/')
         return (
           <Link
@@ -82,6 +115,11 @@ export default function Sidebar() {
           >
             <Icon size={16} className="flex-shrink-0" />
             <span className="flex-1 truncate">{label}</span>
+            {notifCount > 0 && (
+              <span className="text-xs bg-red-500 text-white rounded-full font-bold leading-none flex-shrink-0 min-w-[18px] h-[18px] flex items-center justify-center">
+                {notifCount}
+              </span>
+            )}
             {badge && (
               <span className={'text-xs px-1.5 py-0.5 rounded-full font-semibold leading-none flex-shrink-0 ' + badgeStyles[badge]}>
                 {badge}
